@@ -2,436 +2,312 @@
 const products = [
   {
     name: "Bolso de cuero artesanal",
-    category: "Moda",
-    price: "$68.00",
+    category: "Accesorios",
+    price: 85,
     image:
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Cerámica artesanal",
-    category: "Hogar",
-    price: "$42.00",
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Collar hecho a mano",
-    category: "Joyería",
-    price: "$35.00",
-    image:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Textil artesanal",
-    category: "Textiles",
-    price: "$54.00",
-    image:
-      "https://images.unsplash.com/photo-1583845112203-454c2c9f8a0b?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Jarrón de cerámica",
     category: "Hogar",
-    price: "$48.00",
+    price: 48,
     image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Sandalias artesanales",
-    category: "Calzado",
-    price: "$59.00",
+    name: "Collar artesanal",
+    category: "Joyería",
+    price: 36,
     image:
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Canasto tejido",
+    category: "Decoración",
+    price: 42,
+    image:
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Cerámica pintada a mano",
+    category: "Hogar",
+    price: 32,
+    image:
+      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Pulsera tejida",
     category: "Accesorios",
-    price: "$24.00",
+    price: 18,
     image:
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Canasta artesanal",
-    category: "Hogar",
-    price: "$45.00",
+    name: "Lámpara artesanal",
+    category: "Decoración",
+    price: 95,
     image:
-      "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Camisa de lino",
+    name: "Textil artesanal",
+    category: "Textiles",
+    price: 54,
+    image:
+      "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Anillo artesanal",
+    category: "Joyería",
+    price: 29,
+    image:
+      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Bolso tejido",
     category: "Moda",
-    price: "$72.00",
+    price: 68,
     image:
-      "https://images.unsplash.com/photo-1605763240000-7e93b172d754?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Taza de cerámica",
+    category: "Hogar",
+    price: 24,
+    image:
+      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Bandeja de madera",
+    category: "Hogar",
+    price: 45,
+    image:
+      "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Aretes artesanales",
     category: "Joyería",
-    price: "$32.00",
+    price: 27,
     image:
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Vela artesanal",
-    category: "Hogar",
-    price: "$28.00",
+    name: "Cesta de fibras naturales",
+    category: "Decoración",
+    price: 58,
     image:
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Bolso tejido",
-    category: "Accesorios",
-    price: "$62.00",
-    image:
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Alfombra artesanal",
-    category: "Textiles",
-    price: "$95.00",
-    image:
-      "https://images.unsplash.com/photo-1600166898405-da9535204843?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Taza hecha a mano",
-    category: "Cerámica",
-    price: "$26.00",
-    image:
-      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Chaqueta artesanal",
+    name: "Bufanda artesanal",
     category: "Moda",
-    price: "$120.00",
+    price: 39,
     image:
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Collar de piedras naturales",
-    category: "Joyería",
-    price: "$58.00",
-    image:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Plato decorativo",
-    category: "Cerámica",
-    price: "$38.00",
-    image:
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Mochila artesanal",
-    category: "Accesorios",
-    price: "$75.00",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Bufanda tejida",
-    category: "Textiles",
-    price: "$46.00",
-    image:
-      "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Figura decorativa",
-    category: "Artesanía",
-    price: "$52.00",
+    category: "Arte",
+    price: 62,
     image:
-      "https://images.unsplash.com/photo-1577083552431-6e5fd01988f5?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1577083552431-6e5fd01988f5?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Plato artesanal",
+    category: "Hogar",
+    price: 34,
+    image:
+      "https://images.unsplash.com/photo-1603199506016-b9a594b593c0?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Sombrero artesanal",
+    category: "Moda",
+    price: 72,
+    image:
+      "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Vela artesanal",
+    category: "Decoración",
+    price: 22,
+    image:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Cuenco de madera",
+    category: "Hogar",
+    price: 41,
+    image:
+      "https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=900&q=80",
   },
 ];
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(price);
 ---
 
-<section class="featured" id="destacados">
-
+<section class="featured" id="productos">
   <div class="container">
 
     <!-- ENCABEZADO -->
-
     <div class="section-header">
-
       <div>
         <span class="eyebrow">SELECCIÓN TEKITI</span>
 
         <h2>
-          Los favoritos de nuestra comunidad
+          Los más
+          <em> vendidos</em>
         </h2>
       </div>
 
-      <a href="#productos" class="view-all">
-        Ver todos
-        <span>→</span>
-      </a>
-
+      <p class="section-description">
+        Descubre las piezas que más están eligiendo nuestros clientes.
+        Cada una cuenta una historia y lleva consigo el trabajo de su creador.
+      </p>
     </div>
 
-
     <!-- CARRUSEL -->
-
-    <div class="carousel-wrapper">
+    <div class="products-wrapper">
 
       <button
-        class="carousel-arrow carousel-arrow-left"
-        id="prevProducts"
+        class="carousel-button carousel-prev"
+        id="prev-products"
         aria-label="Productos anteriores"
+        type="button"
       >
         ←
       </button>
 
-      <div class="carousel">
+      <div class="products-window">
+        <div class="products-track" id="products-track">
 
-        <div class="products-track" id="productsTrack">
+          {
+            products.map((product) => (
+              <article class="product-card">
 
-          {products.map((product) => (
+                <!-- IMAGEN -->
+                <div class="product-image">
 
-            <article class="product-card">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    loading="lazy"
+                  />
 
-              <div class="product-image">
+                  <span class="best-seller">
+                    MÁS VENDIDO
+                  </span>
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                />
+                  <button
+                    class="favorite"
+                    type="button"
+                    aria-label={`Agregar ${product.name} a favoritos`}
+                  >
+                    ♡
+                  </button>
 
-                <span class="badge">
-                  MÁS VENDIDO
-                </span>
+                </div>
 
-                <button
-                  class="favorite"
-                  aria-label={`Añadir ${product.name} a favoritos`}
-                >
-                  ♡
-                </button>
+                <!-- INFORMACIÓN -->
+                <div class="product-info">
 
-                <button class="add-cart">
-                  Añadir al carrito
-                </button>
+                  <span class="product-category">
+                    {product.category}
+                  </span>
 
-              </div>
+                  <h3>
+                    {product.name}
+                  </h3>
 
-              <div class="product-info">
+                  <div class="product-price">
+                    {formatPrice(product.price)}
+                  </div>
 
-                <span class="product-category">
-                  {product.category}
-                </span>
+                  <!-- LEYENDA -->
+                  <div class="cart-label">
+                    Agregar al carrito
+                  </div>
 
-                <h3>
-                  {product.name}
-                </h3>
+                  <!-- SELECTOR DE CANTIDAD -->
+                  <div
+                    class="quantity-control"
+                    data-product={product.name}
+                    data-price={product.price}
+                  >
 
-                <span class="price">
-                  {product.price}
-                </span>
+                    <button
+                      type="button"
+                      class="quantity-button decrease"
+                      aria-label={`Quitar una unidad de ${product.name}`}
+                    >
+                      −
+                    </button>
 
-              </div>
+                    <span
+                      class="quantity"
+                      aria-live="polite"
+                    >
+                      0
+                    </span>
 
-            </article>
+                    <button
+                      type="button"
+                      class="quantity-button increase"
+                      aria-label={`Agregar una unidad de ${product.name}`}
+                    >
+                      +
+                    </button>
 
-          ))}
+                  </div>
+
+                </div>
+
+              </article>
+            ))
+          }
 
         </div>
-
       </div>
 
-
       <button
-        class="carousel-arrow carousel-arrow-right"
-        id="nextProducts"
-        aria-label="Siguientes productos"
+        class="carousel-button carousel-next"
+        id="next-products"
+        aria-label="Productos siguientes"
+        type="button"
       >
         →
       </button>
 
     </div>
 
-
-    <!-- INDICADORES -->
-
+    <!-- INFORMACIÓN DEL CARRUSEL -->
     <div class="carousel-footer">
 
-      <div class="carousel-progress">
-        <div class="carousel-progress-bar" id="progressBar"></div>
+      <div class="progress">
+        <div
+          class="progress-bar"
+          id="products-progress"
+        ></div>
       </div>
 
-      <span class="product-counter" id="productCounter">
-        01 — 20
-      </span>
+      <div
+        class="product-counter"
+        id="products-counter"
+      >
+        01 — 04
+      </div>
 
     </div>
 
   </div>
-
 </section>
 
-
-<script>
-  const track = document.querySelector<HTMLElement>("#productsTrack");
-  const nextButton =
-    document.querySelector<HTMLButtonElement>("#nextProducts");
-  const prevButton =
-    document.querySelector<HTMLButtonElement>("#prevProducts");
-
-  const progressBar =
-    document.querySelector<HTMLElement>("#progressBar");
-
-  const productCounter =
-    document.querySelector<HTMLElement>("#productCounter");
-
-  const cards =
-    document.querySelectorAll<HTMLElement>(".product-card");
-
-  let currentPosition = 0;
-
-  function getVisibleProducts() {
-    if (window.innerWidth <= 600) {
-      return 2;
-    }
-
-    if (window.innerWidth <= 1000) {
-      return 3;
-    }
-
-    return 4;
-  }
-
-  function updateCarousel() {
-
-    if (!track || cards.length === 0) return;
-
-    const visibleProducts = getVisibleProducts();
-
-    const maxPosition =
-      Math.max(0, cards.length - visibleProducts);
-
-    currentPosition = Math.min(
-      currentPosition,
-      maxPosition
-    );
-
-    const cardWidth = cards[0].getBoundingClientRect().width;
-
-    const gap = parseFloat(
-      getComputedStyle(track).gap
-    );
-
-    const movement =
-      currentPosition * (cardWidth + gap);
-
-    track.style.transform =
-      `translateX(-${movement}px)`;
-
-    /*
-     * Flechas
-     */
-
-    if (prevButton) {
-      prevButton.disabled =
-        currentPosition === 0;
-    }
-
-    if (nextButton) {
-      nextButton.disabled =
-        currentPosition >= maxPosition;
-    }
-
-    /*
-     * Contador
-     */
-
-    const firstProduct =
-      currentPosition + 1;
-
-    const lastVisible =
-      Math.min(
-        currentPosition + visibleProducts,
-        cards.length
-      );
-
-    if (productCounter) {
-      productCounter.textContent =
-        `${String(firstProduct).padStart(2, "0")} — ${String(lastVisible).padStart(2, "0")}`;
-    }
-
-    /*
-     * Barra de progreso
-     */
-
-    if (progressBar) {
-
-      const progress =
-        maxPosition === 0
-          ? 100
-          : (currentPosition / maxPosition) * 100;
-
-      progressBar.style.width =
-        `${Math.max(progress, 8)}%`;
-    }
-  }
-
-
-  /*
-   * SIGUIENTE
-   */
-
-  nextButton?.addEventListener("click", () => {
-
-    const visibleProducts =
-      getVisibleProducts();
-
-    const maxPosition =
-      cards.length - visibleProducts;
-
-    if (currentPosition < maxPosition) {
-      currentPosition++;
-      updateCarousel();
-    }
-
-  });
-
-
-  /*
-   * ANTERIOR
-   */
-
-  prevButton?.addEventListener("click", () => {
-
-    if (currentPosition > 0) {
-      currentPosition--;
-      updateCarousel();
-    }
-
-  });
-
-
-  /*
-   * RESPONSIVE
-   */
-
-  window.addEventListener("resize", () => {
-    updateCarousel();
-  });
-
-
-  /*
-   * INICIALIZAR
-   */
-
-  updateCarousel();
-</script>
-
-
 <style>
-
-  /* =========================
-     SECCIÓN
-  ========================= */
-
   .featured {
-    padding: 110px 0;
-
+    padding: 100px 0;
     background: #faf8f3;
   }
 
@@ -440,116 +316,76 @@ const products = [
     margin: 0 auto;
   }
 
-
   /* =========================
      ENCABEZADO
   ========================= */
 
   .section-header {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
-
-    margin-bottom: 48px;
+    align-items: flex-end;
+    gap: 50px;
+    margin-bottom: 55px;
   }
 
   .eyebrow {
     display: block;
-
-    margin-bottom: 15px;
-
+    margin-bottom: 14px;
     color: #b85c38;
-
     font-size: 0.7rem;
     font-weight: 700;
-
-    letter-spacing: 0.2em;
+    letter-spacing: 0.18em;
   }
 
   h2 {
-    max-width: 600px;
-
     margin: 0;
-
     color: #252525;
-
-    font-family: Georgia, "Times New Roman", serif;
-
-    font-size: clamp(2.3rem, 4vw, 3.6rem);
-
+    font-family: Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 400;
-
-    line-height: 1.05;
+    line-height: 0.95;
   }
 
-  .view-all {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    color: #252525;
-
-    text-decoration: none;
-
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    border-bottom: 1px solid #252525;
-
-    padding-bottom: 6px;
-  }
-
-  .view-all span {
-    transition: transform 0.25s ease;
-  }
-
-  .view-all:hover {
+  h2 em {
     color: #b85c38;
-
-    border-color: #b85c38;
+    font-style: italic;
   }
 
-  .view-all:hover span {
-    transform: translateX(5px);
+  .section-description {
+    max-width: 380px;
+    margin: 0;
+    color: #777168;
+    font-size: 1.25rem;
+    line-height: 1.7;
   }
-
 
   /* =========================
      CARRUSEL
   ========================= */
 
-  .carousel-wrapper {
+  .products-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
   }
 
-  .carousel {
+  .products-window {
     width: 100%;
-
     overflow: hidden;
   }
 
   .products-track {
     display: flex;
-
-    gap: 24px;
-
-    transition:
-      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-
+    gap: 22px;
+    transition: transform 0.45s ease;
     will-change: transform;
   }
 
-
-  /* =========================
-     PRODUCTO
-  ========================= */
-
   .product-card {
-    flex: 0 0 calc((100% - 72px) / 4);
-
+    flex: 0 0 calc((100% - 66px) / 4);
     min-width: 0;
   }
-
 
   /* =========================
      IMAGEN
@@ -557,141 +393,65 @@ const products = [
 
   .product-image {
     position: relative;
-
+    aspect-ratio: 0.82;
     overflow: hidden;
-
-    aspect-ratio: 4 / 5;
-
-    background: #eee8de;
+    background: #eee8dd;
   }
 
   .product-image img {
-    display: block;
-
     width: 100%;
     height: 100%;
-
+    display: block;
     object-fit: cover;
-
-    transition: transform 0.6s ease;
+    transition: transform 0.5s ease;
   }
 
   .product-card:hover .product-image img {
-    transform: scale(1.05);
+    transform: scale(1.04);
   }
 
-
-  /* =========================
-     ETIQUETA
-  ========================= */
-
-  .badge {
+  .best-seller {
     position: absolute;
-
-    top: 15px;
-    left: 15px;
-
-    padding: 7px 10px;
-
-    background: #252525;
-
-    color: #fff;
-
-    font-size: 0.62rem;
+    top: 14px;
+    left: 14px;
+    padding: 6px 9px;
+    background: #faf8f3;
+    color: #252525;
+    font-size: 0.58rem;
     font-weight: 700;
-
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
   }
-
-
-  /* =========================
-     FAVORITOS
-  ========================= */
 
   .favorite {
     position: absolute;
-
-    top: 14px;
-    right: 14px;
+    top: 12px;
+    right: 12px;
 
     width: 38px;
     height: 38px;
 
-    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+    border: none;
     border-radius: 50%;
 
     background: rgba(250, 248, 243, 0.92);
-
     color: #252525;
 
-    font-size: 1.3rem;
-
+    font-size: 1.35rem;
     cursor: pointer;
 
     transition:
       background 0.25s ease,
-      color 0.25s ease,
-      transform 0.25s ease;
+      color 0.25s ease;
   }
 
   .favorite:hover {
-    background: #fff;
-
-    color: #b85c38;
-
-    transform: scale(1.08);
-  }
-
-
-  /* =========================
-     CARRITO
-  ========================= */
-
-  .add-cart {
-    position: absolute;
-
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-
-    width: calc(100% - 24px);
-
-    padding: 13px;
-
-    border: none;
-
-    background: #faf8f3;
-
-    color: #252525;
-
-    font-size: 0.8rem;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    opacity: 0;
-
-    transform: translateY(10px);
-
-    transition:
-      opacity 0.3s ease,
-      transform 0.3s ease,
-      background 0.25s ease;
-  }
-
-  .product-card:hover .add-cart {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
-
-  .add-cart:hover {
     background: #b85c38;
-
     color: #fff;
   }
-
 
   /* =========================
      INFORMACIÓN
@@ -703,102 +463,157 @@ const products = [
 
   .product-category {
     display: block;
-
     margin-bottom: 7px;
 
-    color: #8a837a;
+    color: #918a80;
 
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 600;
-
     letter-spacing: 0.12em;
-
     text-transform: uppercase;
   }
 
   .product-info h3 {
-    margin: 0 0 9px;
+    min-height: 44px;
+    margin: 0;
 
     color: #252525;
 
-    font-family: Georgia, "Times New Roman", serif;
-
-    font-size: 1.25rem;
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
     font-weight: 400;
-
-    line-height: 1.2;
+    line-height: 1.35;
   }
 
-  .price {
+  .product-price {
+    margin-top: 10px;
+
     color: #252525;
 
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
   }
-
 
   /* =========================
-     FLECHAS
+     LEYENDA
   ========================= */
 
-  .carousel-arrow {
-    position: absolute;
+  .cart-label {
+    margin-top: 18px;
+    margin-bottom: 9px;
 
-    top: 38%;
+    color: #777168;
 
-    z-index: 5;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
-    width: 48px;
-    height: 48px;
+  /* =========================
+     SELECTOR CANTIDAD
+  ========================= */
+
+  .quantity-control {
+    width: 100%;
+    min-height: 44px;
+
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
 
     border: 1px solid #d8d0c4;
+    background: #fff;
 
-    border-radius: 50%;
+    overflow: hidden;
+  }
 
-    background: #faf8f3;
-
-    color: #252525;
-
-    font-size: 1.1rem;
-
-    cursor: pointer;
+  .quantity-button {
+    width: 44px;
+    height: 44px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border: none;
+    background: transparent;
+
+    color: #252525;
+
+    font-size: 1.25rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .quantity-button:hover {
+    background: #252525;
+    color: #fff;
+  }
+
+  .quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 44px;
+
+    border-left: 1px solid #e5ded2;
+    border-right: 1px solid #e5ded2;
+
+    color: #252525;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* =========================
+     FLECHAS
+  ========================= */
+
+  .carousel-button {
+    flex: 0 0 42px;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #d8d0c4;
+    background: #faf8f3;
+
+    color: #252525;
+
+    font-size: 1.2rem;
+
+    cursor: pointer;
+
     transition:
       background 0.25s ease,
       color 0.25s ease,
-      transform 0.25s ease,
-      opacity 0.25s ease;
+      border-color 0.25s ease;
   }
 
-  .carousel-arrow:hover:not(:disabled) {
-    background: #b85c38;
-
+  .carousel-button:hover:not(:disabled) {
+    background: #252525;
+    border-color: #252525;
     color: #fff;
-
-    transform: scale(1.08);
   }
 
-  .carousel-arrow:disabled {
+  .carousel-button:disabled {
     opacity: 0.3;
-
     cursor: not-allowed;
   }
 
-  .carousel-arrow-left {
-    left: -24px;
-  }
-
-  .carousel-arrow-right {
-    right: -24px;
-  }
-
-
   /* =========================
-     FOOTER DEL CARRUSEL
+     FOOTER CARRUSEL
   ========================= */
 
   .carousel-footer {
@@ -806,154 +621,471 @@ const products = [
     align-items: center;
     gap: 25px;
 
-    margin-top: 45px;
+    margin-top: 35px;
   }
 
-  .carousel-progress {
+  .progress {
     flex: 1;
-
-    height: 2px;
-
-    background: #ded7cd;
-
-    overflow: hidden;
+    height: 1px;
+    background: #ddd5ca;
   }
 
-  .carousel-progress-bar {
-    width: 8%;
+  .progress-bar {
+    width: 20%;
     height: 100%;
-
-    background: #252525;
-
-    transition: width 0.45s ease;
+    background: #b85c38;
+    transition: width 0.35s ease;
   }
 
   .product-counter {
-    color: #777067;
+    min-width: 70px;
 
-    font-size: 0.72rem;
+    color: #777168;
 
-    letter-spacing: 0.1em;
-
-    white-space: nowrap;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: right;
   }
-
 
   /* =========================
      TABLET
   ========================= */
 
   @media (max-width: 1000px) {
-
     .product-card {
-      flex: 0 0 calc((100% - 48px) / 3);
+      flex-basis: calc((100% - 44px) / 3);
     }
-
-    .carousel-arrow-left {
-      left: -15px;
-    }
-
-    .carousel-arrow-right {
-      right: -15px;
-    }
-
   }
 
-
   /* =========================
-     MÓVIL
+     MOBILE
   ========================= */
 
   @media (max-width: 600px) {
-
     .featured {
-      padding: 75px 0;
+      padding: 70px 0;
     }
 
     .section-header {
-      align-items: flex-start;
-
-      flex-direction: column;
-
-      gap: 25px;
-
+      display: block;
       margin-bottom: 35px;
     }
 
-    h2 {
-      font-size: 2.4rem;
+    .section-description {
+      margin-top: 22px;
     }
 
-    .products-track {
-      gap: 12px;
+    .products-wrapper {
+      gap: 8px;
     }
 
     .product-card {
-      flex: 0 0 calc((100% - 12px) / 2);
+      flex-basis: calc((100% - 22px) / 2);
     }
 
-    .product-image {
-      aspect-ratio: 3 / 4;
+    .carousel-button {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
     }
 
-    .badge {
-      top: 9px;
-      left: 9px;
-
-      padding: 5px 7px;
-
-      font-size: 0.52rem;
-    }
-
-    .favorite {
-      top: 8px;
-      right: 8px;
-
-      width: 32px;
-      height: 32px;
-
-      font-size: 1.1rem;
-    }
-
-    .add-cart {
-      display: none;
-    }
-
-    .product-info {
-      padding-top: 13px;
+    .products-track {
+      gap: 22px;
     }
 
     .product-info h3 {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
 
-    .product-category {
-      font-size: 0.58rem;
+    .quantity-control {
+      grid-template-columns: 38px 1fr 38px;
     }
 
-    .price {
-      font-size: 0.8rem;
+    .quantity-button {
+      width: 38px;
     }
-
-    .carousel-arrow {
-      width: 40px;
-      height: 40px;
-
-      top: 34%;
-    }
-
-    .carousel-arrow-left {
-      left: -10px;
-    }
-
-    .carousel-arrow-right {
-      right: -10px;
-    }
-
-    .carousel-footer {
-      margin-top: 35px;
-    }
-
   }
 
+  @media (max-width: 430px) {
+    .product-card {
+      flex-basis: 100%;
+    }
+  }
 </style>
+
+<script>
+  interface CartItem {
+    name: string;
+    price: number;
+    quantity: number;
+  }
+
+  const STORAGE_KEY = "tekiti-cart";
+
+  const track =
+    document.querySelector<HTMLElement>(
+      "#products-track"
+    );
+
+  const prevButton =
+    document.querySelector<HTMLButtonElement>(
+      "#prev-products"
+    );
+
+  const nextButton =
+    document.querySelector<HTMLButtonElement>(
+      "#next-products"
+    );
+
+  const counter =
+    document.querySelector<HTMLElement>(
+      "#products-counter"
+    );
+
+  const progress =
+    document.querySelector<HTMLElement>(
+      "#products-progress"
+    );
+
+  const quantityControls =
+    document.querySelectorAll<HTMLElement>(
+      ".quantity-control"
+    );
+
+  if (track && prevButton && nextButton && counter && progress) {
+
+    /* =========================
+       CARRITO
+    ========================= */
+
+    let cart: CartItem[] = [];
+
+    try {
+      const savedCart =
+        localStorage.getItem(STORAGE_KEY);
+
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+
+        if (Array.isArray(parsedCart)) {
+          cart = parsedCart;
+        }
+      }
+    } catch {
+      cart = [];
+    }
+
+    function saveCart() {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(cart)
+      );
+    }
+
+    function getCartQuantity(productName: string) {
+      const item = cart.find(
+        (product) =>
+          product.name === productName
+      );
+
+      return item ? item.quantity : 0;
+    }
+
+    function getTotalQuantity() {
+      return cart.reduce(
+        (total, item) =>
+          total + item.quantity,
+        0
+      );
+    }
+
+    function updateHeaderCounter() {
+      const headerCounter =
+        document.querySelector<HTMLElement>(
+          "#cart-count"
+        );
+
+      if (!headerCounter) {
+        return;
+      }
+
+      const total = getTotalQuantity();
+
+      headerCounter.textContent =
+        String(total);
+
+      if (total > 0) {
+        headerCounter.classList.add("visible");
+      } else {
+        headerCounter.classList.remove("visible");
+      }
+    }
+
+    function updateProductQuantity(
+      productName: string,
+      price: number,
+      quantity: number
+    ) {
+      const existingItem =
+        cart.find(
+          (product) =>
+            product.name === productName
+        );
+
+      if (quantity <= 0) {
+
+        cart = cart.filter(
+          (product) =>
+            product.name !== productName
+        );
+
+      } else if (existingItem) {
+
+        existingItem.quantity = quantity;
+
+      } else {
+
+        cart.push({
+          name: productName,
+          price,
+          quantity,
+        });
+
+      }
+
+      saveCart();
+      updateHeaderCounter();
+    }
+
+    /* =========================
+       CANTIDADES
+    ========================= */
+
+    quantityControls.forEach(
+      (control) => {
+
+        const productName =
+          control.dataset.product || "";
+
+        const price =
+          Number(control.dataset.price || 0);
+
+        const quantityElement =
+          control.querySelector<HTMLElement>(
+            ".quantity"
+          );
+
+        const decreaseButton =
+          control.querySelector<HTMLButtonElement>(
+            ".decrease"
+          );
+
+        const increaseButton =
+          control.querySelector<HTMLButtonElement>(
+            ".increase"
+          );
+
+        if (
+          !quantityElement ||
+          !decreaseButton ||
+          !increaseButton
+        ) {
+          return;
+        }
+
+        let quantity =
+          getCartQuantity(productName);
+
+        quantityElement.textContent =
+          String(quantity);
+
+        decreaseButton.addEventListener(
+          "click",
+          () => {
+
+            if (quantity > 0) {
+              quantity--;
+            }
+
+            quantityElement.textContent =
+              String(quantity);
+
+            updateProductQuantity(
+              productName,
+              price,
+              quantity
+            );
+          }
+        );
+
+        increaseButton.addEventListener(
+          "click",
+          () => {
+
+            quantity++;
+
+            quantityElement.textContent =
+              String(quantity);
+
+            updateProductQuantity(
+              productName,
+              price,
+              quantity
+            );
+          }
+        );
+      }
+    );
+
+    updateHeaderCounter();
+
+    /* =========================
+       CARRUSEL
+    ========================= */
+
+    let currentPosition = 0;
+
+    function getVisibleProducts() {
+
+      if (window.innerWidth <= 600) {
+        return 1;
+      }
+
+      if (window.innerWidth <= 1000) {
+        return 3;
+      }
+
+      return 4;
+    }
+
+    function getCardWidth() {
+
+      const firstCard =
+        track.querySelector<HTMLElement>(
+          ".product-card"
+        );
+
+      if (!firstCard) {
+        return 0;
+      }
+
+      const styles =
+        window.getComputedStyle(track);
+
+      const gap =
+        parseFloat(styles.columnGap) ||
+        parseFloat(styles.gap) ||
+        0;
+
+      return firstCard.offsetWidth + gap;
+    }
+
+    function updateCarousel() {
+
+      const visibleProducts =
+        getVisibleProducts();
+
+      const totalProducts =
+        productsCount();
+
+      const maxPosition =
+        Math.max(
+          0,
+          totalProducts -
+            visibleProducts
+        );
+
+      currentPosition =
+        Math.min(
+          currentPosition,
+          maxPosition
+        );
+
+      const offset =
+        currentPosition *
+        getCardWidth();
+
+      track.style.transform =
+        `translateX(-${offset}px)`;
+
+      prevButton.disabled =
+        currentPosition === 0;
+
+      nextButton.disabled =
+        currentPosition >=
+        maxPosition;
+
+      const first =
+        currentPosition + 1;
+
+      const last =
+        Math.min(
+          currentPosition +
+            visibleProducts,
+          totalProducts
+        );
+
+      counter.textContent =
+        `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
+
+      const progressPercentage =
+        maxPosition === 0
+          ? 100
+          : ((currentPosition + 1) /
+              (maxPosition + 1)) *
+            100;
+
+      progress.style.width =
+        `${progressPercentage}%`;
+    }
+
+    function productsCount() {
+      return track.querySelectorAll(
+        ".product-card"
+      ).length;
+    }
+
+    prevButton.addEventListener(
+      "click",
+      () => {
+
+        if (currentPosition > 0) {
+          currentPosition--;
+          updateCarousel();
+        }
+      }
+    );
+
+    nextButton.addEventListener(
+      "click",
+      () => {
+
+        const visibleProducts =
+          getVisibleProducts();
+
+        const maxPosition =
+          Math.max(
+            0,
+            productsCount() -
+              visibleProducts
+          );
+
+        if (
+          currentPosition <
+          maxPosition
+        ) {
+          currentPosition++;
+          updateCarousel();
+        }
+      }
+    );
+
+    window.addEventListener(
+      "resize",
+      updateCarousel
+    );
+
+    updateCarousel();
+  }
+</script>

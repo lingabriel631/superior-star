@@ -1,0 +1,1224 @@
+---
+---
+
+<!-- FONDO OSCURO -->
+<div
+  id="cart-overlay"
+  class="cart-overlay"
+  aria-hidden="true"
+></div>
+
+
+<!-- CARRITO LATERAL -->
+<aside
+  id="cart-drawer"
+  class="cart-drawer"
+  aria-label="Carrito de compras"
+  aria-hidden="true"
+>
+
+  <!-- ENCABEZADO -->
+  <div class="cart-header">
+
+    <div>
+      <span class="cart-label">TU SELECCIÓN</span>
+
+      <h2>
+        Mi carrito
+      </h2>
+    </div>
+
+    <button
+      id="close-cart"
+      class="close-cart"
+      type="button"
+      aria-label="Cerrar carrito"
+    >
+      ×
+    </button>
+
+  </div>
+
+
+  <!-- PRODUCTOS -->
+  <div
+    id="cart-items"
+    class="cart-items"
+  >
+    <!-- Los productos se generan con JavaScript -->
+  </div>
+
+
+  <!-- CARRITO VACÍO -->
+  <div
+    id="empty-cart"
+    class="empty-cart"
+  >
+
+    <span class="empty-icon">🛍️</span>
+
+    <h3>
+      Tu carrito está vacío
+    </h3>
+
+    <p>
+      Descubre piezas creadas por manos
+      de todo el mundo.
+    </p>
+
+    <button
+      id="continue-shopping"
+      class="continue-shopping"
+      type="button"
+    >
+      Seguir comprando
+    </button>
+
+  </div>
+
+
+  <!-- RESUMEN -->
+  <div
+    id="cart-summary"
+    class="cart-summary"
+  >
+
+    <div class="summary-row">
+
+      <span>
+        Subtotal
+      </span>
+
+      <strong id="cart-subtotal">
+        $0.00
+      </strong>
+
+    </div>
+
+
+    <p class="shipping-note">
+      Los gastos de envío se calcularán
+      al finalizar la compra.
+    </p>
+
+
+    <button
+      id="checkout-button"
+      class="checkout-button"
+      type="button"
+    >
+      Continuar compra
+    </button>
+
+  </div>
+
+</aside>
+
+
+<script>
+
+  interface CartItem {
+    name: string;
+    price: number;
+    quantity: number;
+  }
+
+
+  const CART_KEY = "tekiti-cart";
+
+
+  const cartDrawer =
+    document.getElementById("cart-drawer");
+
+  const cartOverlay =
+    document.getElementById("cart-overlay");
+
+  const closeCart =
+    document.getElementById("close-cart");
+
+  const cartItems =
+    document.getElementById("cart-items");
+
+  const emptyCart =
+    document.getElementById("empty-cart");
+
+  const cartSummary =
+    document.getElementById("cart-summary");
+
+  const cartSubtotal =
+    document.getElementById("cart-subtotal");
+
+  const continueShopping =
+    document.getElementById("continue-shopping");
+
+
+  function getCart(): CartItem[] {
+
+    try {
+
+      const savedCart =
+        localStorage.getItem(CART_KEY);
+
+      return savedCart
+        ? JSON.parse(savedCart)
+        : [];
+
+    } catch {
+
+      return [];
+
+    }
+
+  }
+
+
+  function saveCart(cart: CartItem[]) {
+
+    localStorage.setItem(
+      CART_KEY,
+      JSON.stringify(cart)
+    );
+
+  }
+
+
+  function formatPrice(price: number) {
+
+    return new Intl.NumberFormat(
+      "en-US",
+      {
+        style: "currency",
+        currency: "USD"
+      }
+    ).format(price);
+
+  }
+
+
+  function updateHeaderCounter() {
+
+    const cart =
+      getCart();
+
+    const totalQuantity =
+      cart.reduce(
+        (total, item) =>
+          total + item.quantity,
+        0
+      );
+
+    const counter =
+      document.getElementById(
+        "cart-count"
+      );
+
+    if (!counter) return;
+
+
+    counter.textContent =
+      String(totalQuantity);
+
+
+    counter.classList.toggle(
+      "visible",
+      totalQuantity > 0
+    );
+
+  }
+
+
+  function renderCart() {
+
+    if (!cartItems) return;
+
+    const cart =
+      getCart();
+
+
+    cartItems.innerHTML = "";
+
+
+    /*
+      CARRITO VACÍO
+    */
+
+    if (cart.length === 0) {
+
+      emptyCart?.classList.add(
+        "visible"
+      );
+
+      cartSummary?.classList.remove(
+        "visible"
+      );
+
+      return;
+
+    }
+
+
+    /*
+      CARRITO CON PRODUCTOS
+    */
+
+    emptyCart?.classList.remove(
+      "visible"
+    );
+
+    cartSummary?.classList.add(
+      "visible"
+    );
+
+
+    let subtotal = 0;
+
+
+    cart.forEach(
+      (item, index) => {
+
+        const itemTotal =
+          item.price *
+          item.quantity;
+
+        subtotal += itemTotal;
+
+
+        const element =
+          document.createElement(
+            "article"
+          );
+
+        element.className =
+          "cart-item";
+
+
+        element.innerHTML = `
+
+          <div class="item-info">
+
+            <h3>
+              ${item.name}
+            </h3>
+
+            <span>
+              ${formatPrice(item.price)}
+              por unidad
+            </span>
+
+          </div>
+
+
+          <div class="item-bottom">
+
+            <div class="quantity-control">
+
+              <button
+                type="button"
+                class="quantity-button"
+                data-action="decrease"
+                data-index="${index}"
+                aria-label="Disminuir cantidad"
+              >
+                −
+              </button>
+
+              <span>
+                ${item.quantity}
+              </span>
+
+              <button
+                type="button"
+                class="quantity-button"
+                data-action="increase"
+                data-index="${index}"
+                aria-label="Aumentar cantidad"
+              >
+                +
+              </button>
+
+            </div>
+
+
+            <strong class="item-total">
+              ${formatPrice(itemTotal)}
+            </strong>
+
+          </div>
+
+        `;
+
+
+        cartItems.appendChild(
+          element
+        );
+
+      }
+    );
+
+
+    if (cartSubtotal) {
+
+      cartSubtotal.textContent =
+        formatPrice(subtotal);
+
+    }
+
+
+    updateHeaderCounter();
+
+  }
+
+
+  function openCart() {
+
+    if (!cartDrawer || !cartOverlay)
+      return;
+
+
+    renderCart();
+
+
+    cartDrawer.classList.add(
+      "open"
+    );
+
+    cartOverlay.classList.add(
+      "visible"
+    );
+
+
+    cartDrawer.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    cartOverlay.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+
+    document.body.classList.add(
+      "cart-open"
+    );
+
+  }
+
+
+  function closeCartDrawer() {
+
+    if (!cartDrawer || !cartOverlay)
+      return;
+
+
+    cartDrawer.classList.remove(
+      "open"
+    );
+
+    cartOverlay.classList.remove(
+      "visible"
+    );
+
+
+    cartDrawer.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    cartOverlay.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+
+    document.body.classList.remove(
+      "cart-open"
+    );
+
+  }
+
+
+  /*
+    ABRIR DESDE EL HEADER
+  */
+
+  document.addEventListener(
+    "click",
+    (event) => {
+
+      const target =
+        event.target;
+
+      if (
+        !(target instanceof Element)
+      ) return;
+
+
+      const cartTrigger =
+        target.closest(
+          ".cart-action"
+        );
+
+
+      if (cartTrigger) {
+
+        event.preventDefault();
+
+        openCart();
+
+      }
+
+    }
+  );
+
+
+  /*
+    CERRAR
+  */
+
+  closeCart?.addEventListener(
+    "click",
+    closeCartDrawer
+  );
+
+
+  cartOverlay?.addEventListener(
+    "click",
+    closeCartDrawer
+  );
+
+
+  continueShopping?.addEventListener(
+    "click",
+    closeCartDrawer
+  );
+
+
+  /*
+    ESC PARA CERRAR
+  */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (
+        event.key === "Escape"
+      ) {
+
+        closeCartDrawer();
+
+      }
+
+    }
+  );
+
+
+  /*
+    CAMBIAR CANTIDAD
+  */
+
+  cartItems?.addEventListener(
+    "click",
+    (event) => {
+
+      const target =
+        event.target;
+
+      if (
+        !(target instanceof Element)
+      ) return;
+
+
+      const button =
+        target.closest(
+          ".quantity-button"
+        );
+
+
+      if (!button) return;
+
+
+      const index =
+        Number(
+          button.dataset.index
+        );
+
+      const action =
+        button.dataset.action;
+
+
+      const cart =
+        getCart();
+
+
+      if (!cart[index]) return;
+
+
+      if (
+        action === "increase"
+      ) {
+
+        cart[index].quantity += 1;
+
+      }
+
+
+      if (
+        action === "decrease"
+      ) {
+
+        cart[index].quantity -= 1;
+
+      }
+
+
+      /*
+        Si llega a 0,
+        eliminamos el producto.
+      */
+
+      if (
+        cart[index].quantity <= 0
+      ) {
+
+        cart.splice(index, 1);
+
+      }
+
+
+      saveCart(cart);
+
+      renderCart();
+
+    }
+  );
+
+
+  /*
+    ESCUCHAR CAMBIOS DEL CARRITO
+  */
+
+  window.addEventListener(
+    "storage",
+    (event) => {
+
+      if (
+        event.key === CART_KEY
+      ) {
+
+        renderCart();
+
+      }
+
+    }
+  );
+
+
+  /*
+    ESTADO INICIAL
+  */
+
+  updateHeaderCounter();
+
+</script>
+
+
+<style>
+
+  /* ========================================
+     OVERLAY
+  ======================================== */
+
+  .cart-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+      rgba(37, 37, 37, 0.42);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+
+    z-index: 1998;
+  }
+
+
+  .cart-overlay.visible {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+  }
+
+
+  /* ========================================
+     CARRITO
+  ======================================== */
+
+  .cart-drawer {
+
+    position: fixed;
+
+    top: 0;
+
+    right: 0;
+
+    width: 25vw;
+
+    min-width: 360px;
+
+    height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    background: #faf8f3;
+
+    box-shadow:
+      -12px 0 35px
+      rgba(37, 37, 37, 0.16);
+
+    transform:
+      translateX(100%);
+
+    transition:
+      transform 0.35s
+      cubic-bezier(
+        0.22,
+        1,
+        0.36,
+        1
+      );
+
+    z-index: 1999;
+  }
+
+
+  .cart-drawer.open {
+
+    transform:
+      translateX(0);
+  }
+
+
+  /* ========================================
+     HEADER DEL CARRITO
+  ======================================== */
+
+  .cart-header {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    padding:
+      30px 28px 24px;
+
+    border-bottom:
+      1px solid #e5ded2;
+  }
+
+
+  .cart-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #b85c38;
+
+    font-size: 0.68rem;
+
+    font-weight: 700;
+
+    letter-spacing:
+      0.15em;
+  }
+
+
+  .cart-header h2 {
+
+    margin: 0;
+
+    color: #252525;
+
+    font-family:
+      Georgia,
+      serif;
+
+    font-size: 1.7rem;
+
+    font-weight: 600;
+  }
+
+
+  .close-cart {
+
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    background: transparent;
+
+    color: #252525;
+
+    font-size: 2rem;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+
+  .close-cart:hover {
+
+    background: #eee7dc;
+
+    color: #b85c38;
+  }
+
+
+  /* ========================================
+     PRODUCTOS
+  ======================================== */
+
+  .cart-items {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding:
+      10px 28px 20px;
+  }
+
+
+  .cart-item {
+
+    padding:
+      20px 0;
+
+    border-bottom:
+      1px solid #e5ded2;
+  }
+
+
+  .item-info h3 {
+
+    margin: 0 0 7px;
+
+    color: #252525;
+
+    font-family:
+      Georgia,
+      serif;
+
+    font-size: 1rem;
+
+    font-weight: 600;
+  }
+
+
+  .item-info span {
+
+    color: #7b756d;
+
+    font-size: 0.75rem;
+  }
+
+
+  .item-bottom {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 15px;
+  }
+
+
+  .quantity-control {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    border:
+      1px solid #dcd3c6;
+
+    border-radius: 5px;
+
+    padding: 3px 6px;
+  }
+
+
+  .quantity-button {
+
+    width: 25px;
+
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    background: transparent;
+
+    color: #252525;
+
+    font-size: 1.1rem;
+
+    cursor: pointer;
+  }
+
+
+  .quantity-button:hover {
+
+    color: #b85c38;
+  }
+
+
+  .item-total {
+
+    color: #252525;
+
+    font-size: 0.9rem;
+  }
+
+
+  /* ========================================
+     CARRITO VACÍO
+  ======================================== */
+
+  .empty-cart {
+
+    flex: 1;
+
+    display: none;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 40px;
+
+    text-align: center;
+  }
+
+
+  .empty-cart.visible {
+
+    display: flex;
+  }
+
+
+  .empty-icon {
+
+    margin-bottom: 20px;
+
+    font-size: 3rem;
+
+    opacity: 0.7;
+  }
+
+
+  .empty-cart h3 {
+
+    margin: 0 0 10px;
+
+    color: #252525;
+
+    font-family:
+      Georgia,
+      serif;
+
+    font-size: 1.25rem;
+  }
+
+
+  .empty-cart p {
+
+    max-width: 280px;
+
+    margin: 0 0 25px;
+
+    color: #7b756d;
+
+    font-size: 0.85rem;
+
+    line-height: 1.6;
+  }
+
+
+  .continue-shopping {
+
+    padding:
+      11px 20px;
+
+    border:
+      1px solid #b85c38;
+
+    background: transparent;
+
+    color: #b85c38;
+
+    font-size: 0.8rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+
+  .continue-shopping:hover {
+
+    background: #b85c38;
+
+    color: white;
+  }
+
+
+  /* ========================================
+     RESUMEN
+  ======================================== */
+
+  .cart-summary {
+
+    display: none;
+
+    padding:
+      22px 28px 28px;
+
+    border-top:
+      1px solid #e5ded2;
+
+    background: #f5f0e8;
+  }
+
+
+  .cart-summary.visible {
+
+    display: block;
+  }
+
+
+  .summary-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+
+    color: #252525;
+
+    font-size: 0.95rem;
+  }
+
+
+  .summary-row strong {
+
+    font-size: 1.15rem;
+  }
+
+
+  .shipping-note {
+
+    margin:
+      0 0 18px;
+
+    color: #7b756d;
+
+    font-size: 0.7rem;
+
+    line-height: 1.5;
+  }
+
+
+  .checkout-button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    background: #b85c38;
+
+    color: white;
+
+    font-size: 0.85rem;
+
+    font-weight: 700;
+
+    letter-spacing:
+      0.04em;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+
+  .checkout-button:hover {
+
+    background: #98492d;
+
+    transform:
+      translateY(-1px);
+  }
+
+
+  /* ========================================
+     TABLET
+  ======================================== */
+
+  @media (max-width: 1024px) {
+
+    .cart-drawer {
+
+      width: 100vw;
+
+      min-width: 0;
+    }
+
+  }
+
+
+  /* ========================================
+     MOBILE
+  ======================================== */
+
+  @media (max-width: 600px) {
+
+    .cart-header {
+
+      padding:
+        24px 20px 20px;
+    }
+
+
+    .cart-items {
+
+      padding:
+        10px 20px 20px;
+    }
+
+
+    .cart-summary {
+
+      padding:
+        18px 20px 24px;
+    }
+
+  }
+
+
+  /* ========================================
+     BLOQUEAR SCROLL
+  ======================================== */
+
+  :global(body.cart-open) {
+
+    overflow: hidden;
+  }
+
+</style>
+```
+
+### 2. Agrega el componente a `index.astro`
+
+Después de tus otros componentes:
+
+```astro
+---
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import FeaturedProducts from "../components/FeaturedProducts.astro";
+import Offers from "../components/Offers.astro";
+import CartDrawer from "../components/CartDrawer.astro";
+---
+```
+
+Y dentro de la página:
+
+```astro
+<Header />
+
+<main>
+  <Hero />
+  <FeaturedProducts />
+  <Offers />
+</main>
+
+<CartDrawer />
+```
+
+### 3. Hay un cambio importante en `Header.astro`
+
+Actualmente tienes:
+
+```astro
+<a href="/carrito" class="action cart-action">
+```
+
+Cámbialo por:
+
+```astro
+<a href="#" class="action cart-action" aria-label="Abrir carrito">
+  <span class="cart-icon-wrapper">
+    <span class="icon">🛒</span>
+    <span id="cart-count" class="cart-count">0</span>
+  </span>
+
+  <span class="action-text">Carrito</span>
+</a>

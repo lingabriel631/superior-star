@@ -1,0 +1,1160 @@
+---
+const offers = [
+  {
+    name: "Bolso artesanal de cuero",
+    category: "Accesorios",
+    price: 85,
+    discount: 20,
+    image:
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Jarrón artesanal de cerámica",
+    category: "Hogar",
+    price: 48,
+    discount: 25,
+    image:
+      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Collar hecho a mano",
+    category: "Joyería",
+    price: 36,
+    discount: 15,
+    image:
+      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Canasto tejido artesanal",
+    category: "Decoración",
+    price: 42,
+    discount: 30,
+    image:
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Cerámica pintada a mano",
+    category: "Hogar",
+    price: 32,
+    discount: 20,
+    image:
+      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Pulsera artesanal tejida",
+    category: "Accesorios",
+    price: 18,
+    discount: 15,
+    image:
+      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Lámpara artesanal",
+    category: "Decoración",
+    price: 95,
+    discount: 25,
+    image:
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Textil artesanal",
+    category: "Textiles",
+    price: 54,
+    discount: 20,
+    image:
+      "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Anillo artesanal",
+    category: "Joyería",
+    price: 29,
+    discount: 15,
+    image:
+      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Bolso tejido",
+    category: "Moda",
+    price: 68,
+    discount: 30,
+    image:
+      "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Taza de cerámica artesanal",
+    category: "Hogar",
+    price: 24,
+    discount: 20,
+    image:
+      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Bandeja artesanal de madera",
+    category: "Hogar",
+    price: 45,
+    discount: 25,
+    image:
+      "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=900&q=80",
+  },
+];
+
+const getOfferPrice = (
+  price: number,
+  discount: number
+) => {
+  return price - price * (discount / 100);
+};
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(price);
+---
+
+<section class="offers" id="ofertas">
+  <div class="container">
+
+    <!-- ENCABEZADO -->
+    <div class="section-header">
+
+      <div>
+        <span class="eyebrow">
+          OFERTAS TEKITI
+        </span>
+
+        <h2>
+          Piezas con
+          <em>descuento</em>
+        </h2>
+      </div>
+
+      <p class="section-description">
+        Descubre piezas artesanales seleccionadas
+        con precios especiales por tiempo limitado.
+      </p>
+
+    </div>
+
+    <!-- CARRUSEL -->
+    <div class="offers-wrapper">
+
+      <button
+        class="carousel-button carousel-prev"
+        id="prev-offers"
+        type="button"
+        aria-label="Ofertas anteriores"
+      >
+        ←
+      </button>
+
+      <div class="offers-window">
+
+        <div
+          class="offers-track"
+          id="offers-track"
+        >
+
+          {
+            offers.map((product) => {
+
+              const offerPrice =
+                getOfferPrice(
+                  product.price,
+                  product.discount
+                );
+
+              return (
+                <article class="offer-card">
+
+                  <!-- IMAGEN -->
+                  <div class="offer-image">
+
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                    />
+
+                    <span class="discount-badge">
+                      -{product.discount}%
+                    </span>
+
+                    <button
+                      class="favorite"
+                      type="button"
+                      aria-label={`Agregar ${product.name} a favoritos`}
+                    >
+                      ♡
+                    </button>
+
+                  </div>
+
+                  <!-- INFORMACIÓN -->
+                  <div class="offer-info">
+
+                    <span class="offer-category">
+                      {product.category}
+                    </span>
+
+                    <h3>
+                      {product.name}
+                    </h3>
+
+                    <!-- PRECIOS -->
+                    <div class="prices">
+
+                      <span class="old-price">
+                        {formatPrice(product.price)}
+                      </span>
+
+                      <span class="offer-price">
+                        {formatPrice(offerPrice)}
+                      </span>
+
+                    </div>
+
+                    <!-- LEYENDA -->
+                    <div class="cart-label">
+                      Agregar al carrito
+                    </div>
+
+                    <!-- CANTIDAD -->
+                    <div
+                      class="quantity-control"
+                      data-product={product.name}
+                      data-price={offerPrice}
+                    >
+
+                      <button
+                        type="button"
+                        class="quantity-button decrease"
+                        aria-label={`Quitar una unidad de ${product.name}`}
+                      >
+                        −
+                      </button>
+
+                      <span
+                        class="quantity"
+                        aria-live="polite"
+                      >
+                        0
+                      </span>
+
+                      <button
+                        type="button"
+                        class="quantity-button increase"
+                        aria-label={`Agregar una unidad de ${product.name}`}
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </article>
+              );
+            })
+          }
+
+        </div>
+
+      </div>
+
+      <button
+        class="carousel-button carousel-next"
+        id="next-offers"
+        type="button"
+        aria-label="Siguientes ofertas"
+      >
+        →
+      </button>
+
+    </div>
+
+    <!-- PIE -->
+    <div class="carousel-footer">
+
+      <div class="progress">
+        <div
+          class="progress-bar"
+          id="offers-progress"
+        ></div>
+      </div>
+
+      <div
+        class="offer-counter"
+        id="offers-counter"
+      >
+        01 — 04
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .offers {
+    padding: 100px 0;
+    background: #f3ede2;
+  }
+
+  .container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+  }
+
+  /* =========================
+     ENCABEZADO
+  ========================= */
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 50px;
+    margin-bottom: 55px;
+  }
+
+  .eyebrow {
+    display: block;
+    margin-bottom: 14px;
+
+    color: #b85c38;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+  }
+
+  h2 {
+    margin: 0;
+
+    color: #252525;
+
+    font-family: Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 0.95;
+  }
+
+  h2 em {
+    color: #b85c38;
+    font-style: italic;
+  }
+
+  .section-description {
+    max-width: 380px;
+    margin: 0;
+
+    color: #777168;
+
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  /* =========================
+     CARRUSEL
+  ========================= */
+
+  .offers-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .offers-window {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .offers-track {
+    display: flex;
+    gap: 22px;
+
+    transition: transform 0.45s ease;
+    will-change: transform;
+  }
+
+  .offer-card {
+    flex: 0 0 calc((100% - 66px) / 4);
+    min-width: 0;
+  }
+
+  /* =========================
+     IMAGEN
+  ========================= */
+
+  .offer-image {
+    position: relative;
+
+    aspect-ratio: 0.82;
+
+    overflow: hidden;
+
+    background: #e5ded2;
+  }
+
+  .offer-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: transform 0.5s ease;
+  }
+
+  .offer-card:hover .offer-image img {
+    transform: scale(1.04);
+  }
+
+  .discount-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+
+    padding: 7px 10px;
+
+    background: #b85c38;
+    color: #fff;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(250, 248, 243, 0.92);
+    color: #252525;
+
+    font-size: 1.35rem;
+
+    cursor: pointer;
+
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .favorite:hover {
+    background: #b85c38;
+    color: #fff;
+  }
+
+  /* =========================
+     INFORMACIÓN
+  ========================= */
+
+  .offer-info {
+    padding-top: 18px;
+  }
+
+  .offer-category {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #918a80;
+
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .offer-info h3 {
+    min-height: 44px;
+
+    margin: 0;
+
+    color: #252525;
+
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1.35;
+  }
+
+  /* =========================
+     PRECIOS
+  ========================= */
+
+  .prices {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 10px;
+  }
+
+  .old-price {
+    color: #9b948b;
+
+    font-size: 0.82rem;
+
+    text-decoration: line-through;
+  }
+
+  .offer-price {
+    color: #b85c38;
+
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  /* =========================
+     LEYENDA
+  ========================= */
+
+  .cart-label {
+    margin-top: 18px;
+    margin-bottom: 9px;
+
+    color: #777168;
+
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* =========================
+     CANTIDAD
+  ========================= */
+
+  .quantity-control {
+    width: 100%;
+    min-height: 44px;
+
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+
+    align-items: center;
+
+    border: 1px solid #d8d0c4;
+
+    background: #fff;
+
+    overflow: hidden;
+  }
+
+  .quantity-button {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    background: transparent;
+    color: #252525;
+
+    font-size: 1.25rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .quantity-button:hover {
+    background: #252525;
+    color: #fff;
+  }
+
+  .quantity {
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-left: 1px solid #e5ded2;
+    border-right: 1px solid #e5ded2;
+
+    color: #252525;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* =========================
+     FLECHAS
+  ========================= */
+
+  .carousel-button {
+    flex: 0 0 42px;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #d8d0c4;
+
+    background: #f3ede2;
+    color: #252525;
+
+    font-size: 1.2rem;
+
+    cursor: pointer;
+
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .carousel-button:hover:not(:disabled) {
+    background: #252525;
+    color: #fff;
+  }
+
+  .carousel-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* =========================
+     PIE
+  ========================= */
+
+  .carousel-footer {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    margin-top: 35px;
+  }
+
+  .progress {
+    flex: 1;
+
+    height: 1px;
+
+    background: #d8d0c4;
+  }
+
+  .progress-bar {
+    width: 20%;
+    height: 100%;
+
+    background: #b85c38;
+
+    transition: width 0.35s ease;
+  }
+
+  .offer-counter {
+    min-width: 70px;
+
+    color: #777168;
+
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  /* =========================
+     TABLET
+  ========================= */
+
+  @media (max-width: 1000px) {
+    .offer-card {
+      flex-basis: calc((100% - 44px) / 3);
+    }
+  }
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media (max-width: 600px) {
+
+    .offers {
+      padding: 70px 0;
+    }
+
+    .section-header {
+      display: block;
+      margin-bottom: 35px;
+    }
+
+    .section-description {
+      margin-top: 22px;
+    }
+
+    .offers-wrapper {
+      gap: 8px;
+    }
+
+    .offer-card {
+      flex-basis: calc((100% - 22px) / 2);
+    }
+
+    .offers-track {
+      gap: 22px;
+    }
+
+    .carousel-button {
+      flex: 0 0 36px;
+
+      width: 36px;
+      height: 36px;
+    }
+
+    .offer-info h3 {
+      font-size: 0.9rem;
+    }
+
+    .quantity-control {
+      grid-template-columns: 38px 1fr 38px;
+    }
+
+    .quantity-button {
+      width: 38px;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .offer-card {
+      flex-basis: 100%;
+    }
+  }
+</style>
+
+<script>
+  interface CartItem {
+    name: string;
+    price: number;
+    quantity: number;
+  }
+
+  const STORAGE_KEY = "tekiti-cart";
+
+  const track =
+    document.querySelector<HTMLElement>(
+      "#offers-track"
+    );
+
+  const prevButton =
+    document.querySelector<HTMLButtonElement>(
+      "#prev-offers"
+    );
+
+  const nextButton =
+    document.querySelector<HTMLButtonElement>(
+      "#next-offers"
+    );
+
+  const counter =
+    document.querySelector<HTMLElement>(
+      "#offers-counter"
+    );
+
+  const progress =
+    document.querySelector<HTMLElement>(
+      "#offers-progress"
+    );
+
+  const quantityControls =
+    document.querySelectorAll<HTMLElement>(
+      "#ofertas .quantity-control"
+    );
+
+  /* =========================
+     CARRITO
+  ========================= */
+
+  let cart: CartItem[] = [];
+
+  try {
+    const savedCart =
+      localStorage.getItem(STORAGE_KEY);
+
+    if (savedCart) {
+      const parsedCart =
+        JSON.parse(savedCart);
+
+      if (Array.isArray(parsedCart)) {
+        cart = parsedCart;
+      }
+    }
+  } catch {
+    cart = [];
+  }
+
+  function saveCart() {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(cart)
+    );
+  }
+
+  function getCartQuantity(
+    productName: string
+  ) {
+    const item = cart.find(
+      (product) =>
+        product.name === productName
+    );
+
+    return item
+      ? item.quantity
+      : 0;
+  }
+
+  function getTotalQuantity() {
+    return cart.reduce(
+      (total, item) =>
+        total + item.quantity,
+      0
+    );
+  }
+
+  function updateHeaderCounter() {
+    const headerCounter =
+      document.querySelector<HTMLElement>(
+        "#cart-count"
+      );
+
+    if (!headerCounter) {
+      return;
+    }
+
+    const total =
+      getTotalQuantity();
+
+    headerCounter.textContent =
+      String(total);
+
+    if (total > 0) {
+      headerCounter.classList.add(
+        "visible"
+      );
+    } else {
+      headerCounter.classList.remove(
+        "visible"
+      );
+    }
+  }
+
+  function updateProductQuantity(
+    productName: string,
+    price: number,
+    quantity: number
+  ) {
+
+    const existingItem =
+      cart.find(
+        (product) =>
+          product.name === productName
+      );
+
+    if (quantity <= 0) {
+
+      cart = cart.filter(
+        (product) =>
+          product.name !== productName
+      );
+
+    } else if (existingItem) {
+
+      existingItem.quantity =
+        quantity;
+
+    } else {
+
+      cart.push({
+        name: productName,
+        price,
+        quantity,
+      });
+    }
+
+    saveCart();
+    updateHeaderCounter();
+  }
+
+  quantityControls.forEach(
+    (control) => {
+
+      const productName =
+        control.dataset.product || "";
+
+      const price =
+        Number(
+          control.dataset.price || 0
+        );
+
+      const quantityElement =
+        control.querySelector<HTMLElement>(
+          ".quantity"
+        );
+
+      const decreaseButton =
+        control.querySelector<HTMLButtonElement>(
+          ".decrease"
+        );
+
+      const increaseButton =
+        control.querySelector<HTMLButtonElement>(
+          ".increase"
+        );
+
+      if (
+        !quantityElement ||
+        !decreaseButton ||
+        !increaseButton
+      ) {
+        return;
+      }
+
+      let quantity =
+        getCartQuantity(
+          productName
+        );
+
+      quantityElement.textContent =
+        String(quantity);
+
+      decreaseButton.addEventListener(
+        "click",
+        () => {
+
+          if (quantity > 0) {
+            quantity--;
+          }
+
+          quantityElement.textContent =
+            String(quantity);
+
+          updateProductQuantity(
+            productName,
+            price,
+            quantity
+          );
+        }
+      );
+
+      increaseButton.addEventListener(
+        "click",
+        () => {
+
+          quantity++;
+
+          quantityElement.textContent =
+            String(quantity);
+
+          updateProductQuantity(
+            productName,
+            price,
+            quantity
+          );
+        }
+      );
+    }
+  );
+
+  updateHeaderCounter();
+
+  /* =========================
+     CARRUSEL
+  ========================= */
+
+  let currentPosition = 0;
+
+  function getVisibleOffers() {
+
+    if (window.innerWidth <= 600) {
+      return 1;
+    }
+
+    if (window.innerWidth <= 1000) {
+      return 3;
+    }
+
+    return 4;
+  }
+
+  function getCardWidth() {
+
+    const firstCard =
+      track?.querySelector<HTMLElement>(
+        ".offer-card"
+      );
+
+    if (!firstCard || !track) {
+      return 0;
+    }
+
+    const styles =
+      window.getComputedStyle(
+        track
+      );
+
+    const gap =
+      parseFloat(
+        styles.columnGap
+      ) ||
+      parseFloat(
+        styles.gap
+      ) ||
+      0;
+
+    return (
+      firstCard.offsetWidth +
+      gap
+    );
+  }
+
+  function updateCarousel() {
+
+    if (
+      !track ||
+      !prevButton ||
+      !nextButton ||
+      !counter ||
+      !progress
+    ) {
+      return;
+    }
+
+    const visibleOffers =
+      getVisibleOffers();
+
+    const totalOffers =
+      track.querySelectorAll(
+        ".offer-card"
+      ).length;
+
+    const maxPosition =
+      Math.max(
+        0,
+        totalOffers -
+          visibleOffers
+      );
+
+    currentPosition =
+      Math.min(
+        currentPosition,
+        maxPosition
+      );
+
+    const offset =
+      currentPosition *
+      getCardWidth();
+
+    track.style.transform =
+      `translateX(-${offset}px)`;
+
+    prevButton.disabled =
+      currentPosition === 0;
+
+    nextButton.disabled =
+      currentPosition >=
+      maxPosition;
+
+    const first =
+      currentPosition + 1;
+
+    const last =
+      Math.min(
+        currentPosition +
+          visibleOffers,
+        totalOffers
+      );
+
+    counter.textContent =
+      `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
+
+    const percentage =
+      maxPosition === 0
+        ? 100
+        : ((currentPosition + 1) /
+            (maxPosition + 1)) *
+          100;
+
+    progress.style.width =
+      `${percentage}%`;
+  }
+
+  if (
+    track &&
+    prevButton &&
+    nextButton
+  ) {
+
+    prevButton.addEventListener(
+      "click",
+      () => {
+
+        if (currentPosition > 0) {
+          currentPosition--;
+          updateCarousel();
+        }
+      }
+    );
+
+    nextButton.addEventListener(
+      "click",
+      () => {
+
+        const visibleOffers =
+          getVisibleOffers();
+
+        const totalOffers =
+          track.querySelectorAll(
+            ".offer-card"
+          ).length;
+
+        const maxPosition =
+          Math.max(
+            0,
+            totalOffers -
+              visibleOffers
+          );
+
+        if (
+          currentPosition <
+          maxPosition
+        ) {
+          currentPosition++;
+          updateCarousel();
+        }
+      }
+    );
+
+    window.addEventListener(
+      "resize",
+      updateCarousel
+    );
+
+    updateCarousel();
+  }
+</script>

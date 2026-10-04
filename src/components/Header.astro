@@ -2,113 +2,388 @@
 ---
 
 <header class="header">
+
   <div class="container">
 
     <!-- LOGO -->
     <a href="/" class="logo">
       <span class="logo-name">TEKITI</span>
-      <span class="logo-tagline">El trabajo detrás de cada pieza</span>
+      <span class="logo-tagline">
+        El trabajo detrás de cada pieza
+      </span>
     </a>
+
 
     <!-- NAVEGACIÓN -->
     <nav class="navigation" aria-label="Navegación principal">
-      <a href="/" class="active">Inicio</a>
-      <a href="#categorias">Categorías</a>
-      <a href="#ofertas">Ofertas</a>
+
+      <a href="/" class="nav-link active">
+        Inicio
+      </a>
+
+
+      <!-- CATEGORÍAS -->
+      <div class="categories-menu">
+
+        <button
+          type="button"
+          class="categories-button"
+          aria-expanded="false"
+          aria-controls="categories-dropdown"
+        >
+          <span>Categorías</span>
+          <span class="arrow">⌄</span>
+        </button>
+
+
+        <!-- MENÚ HORIZONTAL -->
+        <div
+          id="categories-dropdown"
+          class="categories-dropdown"
+        >
+
+          <a href="#moda" class="category-item">
+            <span class="category-icon">👕</span>
+            <span>Moda</span>
+          </a>
+
+          <a href="#joyeria" class="category-item">
+            <span class="category-icon">💎</span>
+            <span>Joyería</span>
+          </a>
+
+          <a href="#accesorios" class="category-item">
+            <span class="category-icon">👜</span>
+            <span>Accesorios</span>
+          </a>
+
+          <a href="#hogar" class="category-item">
+            <span class="category-icon">🏠</span>
+            <span>Hogar</span>
+          </a>
+
+          <a href="#artesania" class="category-item">
+            <span class="category-icon">🧺</span>
+            <span>Artesanía</span>
+          </a>
+
+          <a href="#textiles" class="category-item">
+            <span class="category-icon">🧵</span>
+            <span>Textiles</span>
+          </a>
+
+          <a href="#arte" class="category-item">
+            <span class="category-icon">🎨</span>
+            <span>Arte</span>
+          </a>
+
+          <a href="#regalos" class="category-item">
+            <span class="category-icon">🎁</span>
+            <span>Regalos</span>
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <!-- OFERTAS -->
+      <a href="#ofertas" class="nav-link">
+        Ofertas
+      </a>
+
     </nav>
+
 
     <!-- ACCIONES -->
     <div class="actions">
 
-      <a href="/carrito" class="action" aria-label="Carrito">
-        <span class="icon">🛒</span>
-        <span class="action-text">Carrito</span>
+      <!-- CARRITO -->
+      <a
+        href="/carrito"
+        class="action cart-action"
+        aria-label="Carrito"
+      >
+
+        <span class="cart-icon-wrapper">
+
+          <span class="icon">🛒</span>
+
+          <span
+            id="cart-count"
+            class="cart-count"
+          >
+            0
+          </span>
+
+        </span>
+
+        <span class="action-text">
+          Carrito
+        </span>
+
       </a>
 
-      <a href="/cuenta" class="action" aria-label="Cuenta">
+
+      <!-- CUENTA -->
+      <a
+        href="/cuenta"
+        class="action"
+        aria-label="Cuenta"
+      >
+
         <span class="icon">👤</span>
-        <span class="action-text">Cuenta</span>
+
+        <span class="action-text">
+          Cuenta
+        </span>
+
       </a>
 
-      <button class="menu-button" aria-label="Abrir menú">
+
+      <!-- BOTÓN MÓVIL -->
+      <button
+        type="button"
+        class="menu-button"
+        aria-label="Abrir menú"
+      >
         ☰
       </button>
 
     </div>
 
   </div>
+
 </header>
 
+
+<script>
+  const categoriesButton =
+    document.querySelector(".categories-button");
+
+  const categoriesMenu =
+    document.querySelector(".categories-menu");
+
+  const categoriesDropdown =
+    document.querySelector(".categories-dropdown");
+
+
+  if (
+    categoriesButton &&
+    categoriesMenu &&
+    categoriesDropdown
+  ) {
+
+    categoriesButton.addEventListener(
+      "click",
+      (event) => {
+
+        event.stopPropagation();
+
+        const isOpen =
+          categoriesMenu.classList.toggle("is-open");
+
+        categoriesButton.setAttribute(
+          "aria-expanded",
+          String(isOpen)
+        );
+
+      }
+    );
+
+
+    document.addEventListener(
+      "click",
+      (event) => {
+
+        const target =
+          event.target;
+
+        if (
+          target instanceof Node &&
+          !categoriesMenu.contains(target)
+        ) {
+
+          categoriesMenu.classList.remove(
+            "is-open"
+          );
+
+          categoriesButton.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        }
+
+      }
+    );
+
+
+    const categoryLinks =
+      categoriesDropdown.querySelectorAll(
+        ".category-item"
+      );
+
+
+    categoryLinks.forEach((link) => {
+
+      link.addEventListener(
+        "click",
+        () => {
+
+          categoriesMenu.classList.remove(
+            "is-open"
+          );
+
+          categoriesButton.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        }
+      );
+
+    });
+
+  }
+</script>
+
+
 <style>
+
+  /* =========================================
+     HEADER
+  ========================================= */
+
   .header {
+
     position: sticky;
+
     top: 0;
-    z-index: 100;
+
+    z-index: 1000;
+
     background: #faf8f3;
-    border-bottom: 1px solid #e5ded2;
+
+    border-bottom:
+      1px solid #e5ded2;
   }
 
+
   .container {
+
     width: min(1200px, 92%);
-    margin: 0 auto;
 
     min-height: 82px;
 
+    margin: 0 auto;
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     gap: 40px;
   }
 
-  /* LOGO */
+
+  /* =========================================
+     LOGO
+  ========================================= */
 
   .logo {
+
     display: flex;
+
     flex-direction: column;
-    text-decoration: none;
-    color: #252525;
+
     min-width: 180px;
+
+    color: #252525;
+
+    text-decoration: none;
   }
 
+
   .logo-name {
+
     font-family: Georgia, serif;
+
     font-size: 2rem;
+
     font-weight: 700;
+
     letter-spacing: 0.12em;
+
     line-height: 1;
   }
 
+
   .logo-tagline {
+
     margin-top: 6px;
-    font-size: 1.0rem;
-    letter-spacing: 0.08em;
+
     color: #7b756d;
+
+    font-size: 0.65rem;
+
+    letter-spacing: 0.08em;
   }
 
-  /* NAVEGACIÓN */
+
+  /* =========================================
+     NAVEGACIÓN
+  ========================================= */
 
   .navigation {
+
     display: flex;
+
     align-items: center;
+
     gap: 34px;
   }
 
-  .navigation a {
+
+  .nav-link,
+  .categories-button {
+
     position: relative;
-    color: #252525;
-    text-decoration: none;
-    font-size: 1.25rem;
-    font-weight: 500;
+
     padding: 8px 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #252525;
+
+    font-family: inherit;
+
+    font-size: 0.95rem;
+
+    font-weight: 500;
+
+    text-decoration: none;
+
+    cursor: pointer;
   }
 
-  .navigation a::after {
+
+  .nav-link::after,
+  .categories-button::after {
+
     content: "";
+
     position: absolute;
+
     left: 0;
+
     bottom: 0;
 
     width: 0;
+
     height: 2px;
 
     background: #b85c38;
@@ -116,89 +391,419 @@
     transition: width 0.25s ease;
   }
 
-  .navigation a:hover::after,
-  .navigation a.active::after {
+
+  .nav-link:hover::after,
+  .nav-link.active::after,
+  .categories-button:hover::after {
+
     width: 100%;
   }
 
-  /* ACCIONES */
+
+  /* =========================================
+     CATEGORÍAS
+  ========================================= */
+
+  .categories-menu {
+
+    position: static;
+  }
+
+
+  .categories-button {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+  }
+
+
+  .arrow {
+
+    font-size: 1rem;
+
+    transition:
+      transform 0.25s ease;
+  }
+
+
+  .categories-menu.is-open .arrow {
+
+    transform: rotate(180deg);
+  }
+
+
+  /* =========================================
+     MENÚ HORIZONTAL
+  ========================================= */
+
+  .categories-dropdown {
+
+    position: absolute;
+
+    top: 100%;
+
+    left: 0;
+
+    width: 100%;
+
+    min-height: 78px;
+
+    padding: 14px 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    background: #faf8f3;
+
+    border-top:
+      2px solid #b85c38;
+
+    border-bottom:
+      1px solid #e5ded2;
+
+    box-shadow:
+      0 12px 25px
+      rgba(37, 37, 37, 0.10);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transform:
+      translateY(-8px);
+
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s ease;
+
+    z-index: 999;
+  }
+
+
+  /*
+     El menú se abre:
+     1. Al hacer clic
+     2. Al pasar el mouse
+  */
+
+  .categories-menu.is-open
+  .categories-dropdown,
+
+  .categories-menu:hover
+  .categories-dropdown {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+    transform:
+      translateY(0);
+  }
+
+
+  /* =========================================
+     ELEMENTOS DE CATEGORÍA
+  ========================================= */
+
+  .category-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-width: 110px;
+
+    padding: 11px 15px;
+
+    border-radius: 6px;
+
+    color: #252525;
+
+    font-size: 0.88rem;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+
+  .category-item:hover {
+
+    background: #f0e9de;
+
+    color: #b85c38;
+
+    transform:
+      translateY(-2px);
+  }
+
+
+  .category-icon {
+
+    font-size: 1.15rem;
+
+    line-height: 1;
+  }
+
+
+  /* =========================================
+     ACCIONES
+  ========================================= */
 
   .actions {
+
     display: flex;
+
     align-items: center;
+
     gap: 22px;
   }
 
+
   .action {
+
     display: flex;
+
     align-items: center;
+
     gap: 7px;
 
     color: #252525;
-    text-decoration: none;
 
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+
+    text-decoration: none;
   }
 
+
   .icon {
+
     font-size: 1.15rem;
   }
 
+
   .action:hover {
+
     color: #b85c38;
   }
 
-  /* BOTÓN MENÚ */
 
-  .menu-button {
-    display: none;
+  /* =========================================
+     CARRITO
+  ========================================= */
 
-    border: none;
-    background: transparent;
+  .cart-icon-wrapper {
 
-    font-size: 1.6rem;
-    cursor: pointer;
+    position: relative;
 
-    color: #252525;
+    display: inline-flex;
   }
 
-  /* RESPONSIVE */
+
+  .cart-count {
+
+    position: absolute;
+
+    top: -9px;
+
+    right: -11px;
+
+    min-width: 18px;
+
+    height: 18px;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0 4px;
+
+    border-radius: 50%;
+
+    background: #b85c38;
+
+    color: white;
+
+    font-size: 0.62rem;
+
+    font-weight: 700;
+
+    line-height: 1;
+  }
+
+
+  .cart-count.visible {
+
+    display: flex;
+  }
+
+
+  /* =========================================
+     BOTÓN MÓVIL
+  ========================================= */
+
+  .menu-button {
+
+    display: none;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #252525;
+
+    font-size: 1.6rem;
+
+    cursor: pointer;
+  }
+
+
+  /* =========================================
+     TABLET
+  ========================================= */
+
+  @media (max-width: 1000px) {
+
+    .navigation {
+
+      gap: 20px;
+    }
+
+
+    .categories-dropdown {
+
+      justify-content: flex-start;
+
+      overflow-x: auto;
+
+      padding-left: 20px;
+
+      padding-right: 20px;
+    }
+
+  }
+
+
+  /* =========================================
+     MÓVIL
+  ========================================= */
 
   @media (max-width: 850px) {
 
     .navigation {
+
       display: none;
     }
+
 
     .action-text {
+
       display: none;
     }
 
+
     .menu-button {
+
       display: block;
     }
 
+
     .container {
+
       min-height: 72px;
     }
 
+
     .logo-name {
+
       font-size: 1.7rem;
     }
 
+
     .logo-tagline {
+
       font-size: 0.55rem;
     }
+
+
+    /*
+       En móvil el menú de categorías
+       queda preparado para ocupar
+       todo el ancho.
+    */
+
+    .categories-dropdown {
+
+      top: 72px;
+
+      width: 100vw;
+
+      left: 0;
+
+      padding: 12px;
+
+      justify-content: flex-start;
+
+      overflow-x: auto;
+    }
+
   }
+
+
+  /* =========================================
+     MÓVIL PEQUEÑO
+  ========================================= */
 
   @media (max-width: 450px) {
 
     .logo-tagline {
+
       display: none;
     }
 
+
     .actions {
+
       gap: 14px;
     }
+
+
+    .category-item {
+
+      min-width: 90px;
+
+      padding:
+        10px 8px;
+
+      font-size: 0.8rem;
+    }
+
   }
+
 </style>
