@@ -1,0 +1,546 @@
+---
+const slides = [
+  {
+    number: "01",
+    category: "NOVEDADES",
+    title: "Lo nuevo que acaba de llegar",
+    description:
+      "Descubre piezas únicas creadas por manos de todo el mundo.",
+    button: "Explorar novedades",
+    link: "#novedades",
+    image:
+      "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=2000&q=85",
+  },
+  {
+    number: "02",
+    category: "COLECCIONES",
+    title: "Historias que toman forma",
+    description:
+      "Descubre colecciones creadas alrededor de una misma inspiración.",
+    button: "Ver colección",
+    link: "#colecciones",
+    image:
+      "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=2000&q=85",
+  },
+  {
+    number: "03",
+    category: "NUEVOS DISEÑADORES",
+    title: "Nuevas manos, nuevas historias",
+    description:
+      "Conoce a los creadores que están llevando la artesanía hacia nuevos lugares.",
+    button: "Descubrir diseñadores",
+    link: "#disenadores",
+    image:
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2000&q=85",
+  },
+];
+---
+
+<section class="hero" aria-label="Destacados de TEKITI">
+
+  <div class="slides">
+
+    {slides.map((slide, index) => (
+      <article
+        class:list={["slide", { active: index === 0 }]}
+        data-slide={index}
+      >
+
+        <img
+          src={slide.image}
+          alt={slide.title}
+          class="slide-image"
+        />
+
+        <div class="overlay"></div>
+
+        <div class="hero-content">
+
+          <span class="category">
+            {slide.category}
+          </span>
+
+          <h1>
+            {slide.title}
+          </h1>
+
+          <p>
+            {slide.description}
+          </p>
+
+          <a href={slide.link} class="hero-button">
+            {slide.button}
+            <span></span>
+          </a>
+
+        </div>
+
+        <div class="slide-number">
+          <span>{slide.number}</span>
+          <span class="separator">/</span>
+          <span>03</span>
+        </div>
+
+      </article>
+    ))}
+
+  </div>
+
+  <!-- FLECHAS -->
+
+  <button
+    class="arrow arrow-left"
+    aria-label="Anterior"
+    id="prevSlide"
+  >
+    ←
+  </button>
+
+  <button
+    class="arrow arrow-right"
+    aria-label="Siguiente"
+    id="nextSlide"
+  >
+    →
+  </button>
+
+  <!-- INDICADORES -->
+
+  <div class="indicators">
+
+    {slides.map((_, index) => (
+      <button
+        class:list={["indicator", { active: index === 0 }]}
+        data-indicator={index}
+        aria-label={`Ir al slide ${index + 1}`}
+      ></button>
+    ))}
+
+  </div>
+
+</section>
+
+<script>
+  const slides = document.querySelectorAll<HTMLElement>(".slide");
+  const indicators = document.querySelectorAll<HTMLButtonElement>(".indicator");
+  const prevButton = document.querySelector<HTMLButtonElement>("#prevSlide");
+  const nextButton = document.querySelector<HTMLButtonElement>("#nextSlide");
+  const hero = document.querySelector<HTMLElement>(".hero");
+
+  let currentSlide = 0;
+  let autoplay: number;
+
+  function showSlide(index: number) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("active", i === index);
+    });
+
+    indicators.forEach((indicator, i) => {
+      indicator.classList.toggle("active", i === index);
+    });
+
+    currentSlide = index;
+  }
+
+  function nextSlide() {
+    const next = (currentSlide + 1) % slides.length;
+    showSlide(next);
+  }
+
+  function previousSlide() {
+    const previous =
+      (currentSlide - 1 + slides.length) % slides.length;
+
+    showSlide(previous);
+  }
+
+  function startAutoplay() {
+    autoplay = window.setInterval(nextSlide, 6000);
+  }
+
+  function stopAutoplay() {
+    window.clearInterval(autoplay);
+  }
+
+  nextButton?.addEventListener("click", () => {
+    nextSlide();
+    stopAutoplay();
+    startAutoplay();
+  });
+
+  prevButton?.addEventListener("click", () => {
+    previousSlide();
+    stopAutoplay();
+    startAutoplay();
+  });
+
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener("click", () => {
+      showSlide(index);
+      stopAutoplay();
+      startAutoplay();
+    });
+  });
+
+  hero?.addEventListener("mouseenter", stopAutoplay);
+  hero?.addEventListener("mouseleave", startAutoplay);
+
+  startAutoplay();
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    width: 100%;
+    height: min(720px, calc(100vh - 82px));
+    min-height: 580px;
+    overflow: hidden;
+    background: #252525;
+  }
+
+  .slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+      opacity 0.8s ease,
+      visibility 0.8s ease;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slide-image {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transform: scale(1.04);
+    transition: transform 6s ease;
+  }
+
+  .slide.active .slide-image {
+    transform: scale(1);
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(20, 20, 20, 0.75) 0%,
+        rgba(20, 20, 20, 0.45) 45%,
+        rgba(20, 20, 20, 0.12) 100%
+      );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: min(1200px, 92%);
+    height: 100%;
+
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding-bottom: 40px;
+    padding-left: 50px;
+  }
+
+  .category {
+    display: block;
+
+    margin-bottom: 22px;
+
+    color: #e7a27f;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.22em;
+  }
+
+  .hero h1 {
+    max-width: 720px;
+
+    margin: 0;
+
+    color: #fff;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(3rem, 6vw, 5.8rem);
+
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .hero p {
+    max-width: 500px;
+
+    margin: 28px 0 36px;
+
+    color: rgba(255, 255, 255, 0.88);
+
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .hero-button {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 15px 22px;
+
+    color: #252525;
+    background: #faf8f3;
+
+    text-decoration: none;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    transition:
+      background 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .hero-button span {
+    font-size: 1.1rem;
+    transition: transform 0.25s ease;
+  }
+
+  .hero-button:hover {
+    background: #e7a27f;
+    transform: translateY(-2px);
+  }
+
+  .hero-button:hover span {
+    transform: translateX(5px);
+  }
+
+  /* NÚMERO DEL SLIDE */
+
+  .slide-number {
+    position: absolute;
+    z-index: 3;
+
+    right: 6%;
+    bottom: 55px;
+
+    display: flex;
+    gap: 8px;
+
+    color: #fff;
+
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+  }
+
+  .slide-number .separator {
+    opacity: 0.5;
+  }
+
+  /* FLECHAS */
+
+  .arrow {
+    position: absolute;
+    z-index: 5;
+
+    top: 50%;
+
+    width: 52px;
+    height: 52px;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    color: #fff;
+    background: rgba(0, 0, 0, 0.15);
+
+    font-size: 1.2rem;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+      background 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  .arrow:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #fff;
+  }
+
+  .arrow-left {
+    left: 30px;
+  }
+
+  .arrow-right {
+    right: 30px;
+  }
+
+  /* INDICADORES */
+
+  .indicators {
+    position: absolute;
+    z-index: 5;
+
+    left: 50%;
+    bottom: 35px;
+
+    display: flex;
+    gap: 8px;
+
+    transform: translateX(-50%);
+  }
+
+  .indicator {
+    width: 32px;
+    height: 2px;
+
+    padding: 0;
+    border: 0;
+
+    background: rgba(255, 255, 255, 0.4);
+
+    cursor: pointer;
+
+    transition:
+      width 0.3s ease,
+      background 0.3s ease;
+  }
+
+  .indicator.active {
+    width: 55px;
+    background: #fff;
+  }
+
+  /* TABLET */
+
+  @media (max-width: 900px) {
+
+    .hero {
+      min-height: 600px;
+    }
+
+    .hero-content {
+      width: 84%;
+    }
+
+    .hero h1 {
+      max-width: 600px;
+    }
+
+    .arrow {
+      width: 44px;
+      height: 44px;
+    }
+
+    .arrow-left {
+      left: 18px;
+    }
+
+    .arrow-right {
+      right: 18px;
+    }
+  }
+
+  /* MÓVIL */
+
+  @media (max-width: 600px) {
+
+    .hero {
+      height: 680px;
+      min-height: 680px;
+    }
+
+    .overlay {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(20, 20, 20, 0.25) 0%,
+          rgba(20, 20, 20, 0.75) 75%
+        );
+    }
+
+    .hero-content {
+      width: 84%;
+      justify-content: flex-end;
+      padding-bottom: 115px;
+    }
+
+    .category {
+      margin-bottom: 15px;
+      font-size: 0.68rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 13vw, 4rem);
+    }
+
+    .hero p {
+      margin: 20px 0 26px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .hero-button {
+      padding: 14px 18px;
+    }
+
+    .arrow {
+      top: auto;
+      bottom: 27px;
+
+      width: 40px;
+      height: 40px;
+
+      transform: none;
+    }
+
+    .arrow-left {
+      left: 6%;
+    }
+
+    .arrow-right {
+      right: 6%;
+    }
+
+    .indicators {
+      bottom: 46px;
+    }
+
+    .slide-number {
+      top: 25px;
+      right: 6%;
+      bottom: auto;
+    }
+  }
+</style>

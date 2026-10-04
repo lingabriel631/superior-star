@@ -1,0 +1,204 @@
+---
+---
+
+<header class="header">
+  <div class="container">
+
+    <!-- LOGO -->
+    <a href="/" class="logo">
+      <span class="logo-name">TEKITI</span>
+      <span class="logo-tagline">El trabajo detrás de cada pieza</span>
+    </a>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="navigation" aria-label="Navegación principal">
+      <a href="/" class="active">Inicio</a>
+      <a href="#categorias">Categorías</a>
+      <a href="#ofertas">Ofertas</a>
+    </nav>
+
+    <!-- ACCIONES -->
+    <div class="actions">
+
+      <a href="/carrito" class="action" aria-label="Carrito">
+        <span class="icon">🛒</span>
+        <span class="action-text">Carrito</span>
+      </a>
+
+      <a href="/cuenta" class="action" aria-label="Cuenta">
+        <span class="icon">👤</span>
+        <span class="action-text">Cuenta</span>
+      </a>
+
+      <button class="menu-button" aria-label="Abrir menú">
+        ☰
+      </button>
+
+    </div>
+
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #faf8f3;
+    border-bottom: 1px solid #e5ded2;
+  }
+
+  .container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+
+    min-height: 82px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  /* LOGO */
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: #252525;
+    min-width: 180px;
+  }
+
+  .logo-name {
+    font-family: Georgia, serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1;
+  }
+
+  .logo-tagline {
+    margin-top: 6px;
+    font-size: 1.0rem;
+    letter-spacing: 0.08em;
+    color: #7b756d;
+  }
+
+  /* NAVEGACIÓN */
+
+  .navigation {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+  }
+
+  .navigation a {
+    position: relative;
+    color: #252525;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 500;
+    padding: 8px 0;
+  }
+
+  .navigation a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 0;
+    height: 2px;
+
+    background: #b85c38;
+
+    transition: width 0.25s ease;
+  }
+
+  .navigation a:hover::after,
+  .navigation a.active::after {
+    width: 100%;
+  }
+
+  /* ACCIONES */
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .action {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #252525;
+    text-decoration: none;
+
+    font-size: 1.1rem;
+  }
+
+  .icon {
+    font-size: 1.15rem;
+  }
+
+  .action:hover {
+    color: #b85c38;
+  }
+
+  /* BOTÓN MENÚ */
+
+  .menu-button {
+    display: none;
+
+    border: none;
+    background: transparent;
+
+    font-size: 1.6rem;
+    cursor: pointer;
+
+    color: #252525;
+  }
+
+  /* RESPONSIVE */
+
+  @media (max-width: 850px) {
+
+    .navigation {
+      display: none;
+    }
+
+    .action-text {
+      display: none;
+    }
+
+    .menu-button {
+      display: block;
+    }
+
+    .container {
+      min-height: 72px;
+    }
+
+    .logo-name {
+      font-size: 1.7rem;
+    }
+
+    .logo-tagline {
+      font-size: 0.55rem;
+    }
+  }
+
+  @media (max-width: 450px) {
+
+    .logo-tagline {
+      display: none;
+    }
+
+    .actions {
+      gap: 14px;
+    }
+  }
+</style>
