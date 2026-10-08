@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  offerPrice  Decimal?  @db.Decimal(10, 2)
+  stock       Int       @default(0)
+  image       String?
+  isFeatured  Boolean   @default(false)
+  isOffer     Boolean   @default(false)
+  isActive    Boolean   @default(true)
+
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+
+  orderItems  OrderItem[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Customer {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  phone       String?
+
+  orders      Order[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  orderNumber     String        @unique
+
+  customerId      Int
+  customer        Customer      @relation(fields: [customerId], references: [id])
+
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shippingCost    Decimal       @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+
+  shippingName    String
+  shippingAddress String
+  shippingCity    String
+  shippingCountry String
+  shippingPhone   String?
+
+  notes           String?
+
+  items           OrderItem[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model OrderItem {
+  id          Int       @id @default(autoincrement())
+
+  orderId     Int
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id])
+
+  quantity    Int
+  unitPrice   Decimal   @db.Decimal(10, 2)
+
+  createdAt   DateTime  @default(now())
+}
