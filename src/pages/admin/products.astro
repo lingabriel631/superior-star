@@ -1,50 +1,43 @@
 ---
 // src/pages/admin/products.astro
-// Aquí puedes realizar peticiones iniciales del lado del servidor si lo deseas, 
-// o dejar que el cliente cargue la lista mediante fetch.
 ---
 
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Panel de Administración - Tekiti</title>
-    <!-- Tailwind CSS (Asegúrate de tenerlo configurado en tu proyecto) -->
-    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-slate-50 text-slate-800 min-h-screen p-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+  <body>
+    <div class="admin-container">
       
       <!-- Encabezado -->
-      <header class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <header class="header">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900">Administración de Productos</h1>
-          <p class="text-sm text-slate-500">Gestiona el inventario, artesanos y detalles de las piezas artesanales.</p>
+          <h1>Administración de Productos</h1>
+          <p>Gestiona el inventario, artesanos y detalles de las piezas artesanales.</p>
         </div>
-        <button 
-          id="openCreateModalBtn" 
-          class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-lg shadow transition"
-        >
+        <button id="openCreateModalBtn" class="btn btn-primary">
           + Nuevo Producto
         </button>
       </header>
 
       <!-- Tabla de Productos -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-slate-700 font-semibold text-left">
+      <div class="table-card">
+        <div class="table-responsive">
+          <table>
+            <thead>
               <tr>
-                <th class="px-4 py-3">Fotos</th>
-                <th class="px-4 py-3">Producto</th>
-                <th class="px-4 py-3">Artesano / Origen</th>
-                <th class="px-4 py-3">Precio</th>
-                <th class="px-4 py-3">Stock</th>
-                <th class="px-4 py-3">Dimensiones</th>
-                <th class="px-4 py-3 text-right">Acciones</th>
+                <th>Fotos</th>
+                <th>Producto</th>
+                <th>Artesano / Origen</th>
+                <th>Costo / Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th class="text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody id="productsTableBody" class="divide-y divide-slate-200 text-slate-600">
-              <!-- Los productos se cargan dinámicamente con JavaScript -->
+            <tbody id="productsTableBody">
+              <!-- Se llena dinámicamente con JavaScript -->
             </tbody>
           </table>
         </div>
@@ -53,102 +46,474 @@
     </div>
 
     <!-- MODAL DE CREACIÓN / EDICIÓN -->
-    <div id="productModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-xl">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 id="modalTitle" class="text-xl font-bold text-slate-800">Crear Nuevo Producto</h3>
-          <button id="closeModalBtn" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+    <div id="productModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Crear Nuevo Producto</h3>
+          <button id="closeModalBtn" class="close-btn">&times;</button>
         </div>
 
-        <form id="productForm" class="space-y-4">
+        <form id="productForm">
           <input type="hidden" id="productId" name="productId" />
 
           <!-- Información Básica -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Nombre *</label>
-              <input type="text" id="name" name="name" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="name" name="name" required placeholder="Ej. Jarrón de Barro" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Categoría ID *</label>
-              <input type="number" id="categoryId" name="categoryId" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" placeholder="ID de categoría" />
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select id="categoryId" name="categoryId" required>
+                <option value="">Cargando categorías...</option>
+              </select>
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
-            <textarea id="description" name="description" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500"></textarea>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="description" name="description" rows="2" placeholder="Historia o detalles..."></textarea>
           </div>
 
-          <!-- Precios y Stock -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Precio ($) *</label>
-              <input type="number" step="0.01" id="price" name="price" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+          <!-- Precios, Costo y Stock -->
+          <div class="grid-4">
+            <div class="form-group">
+              <label>Costo ($)</label>
+              <input type="number" step="0.01" id="cost" name="cost" placeholder="0.00" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Precio Oferta ($)</label>
-              <input type="number" step="0.01" id="offerPrice" name="offerPrice" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+            <div class="form-group">
+              <label>Precio Venta ($) *</label>
+              <input type="number" step="0.01" id="price" name="price" required placeholder="0.00" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Stock</label>
-              <input type="number" id="stock" name="stock" value="0" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+            <div class="form-group">
+              <label>Precio Oferta ($)</label>
+              <input type="number" step="0.01" id="offerPrice" name="offerPrice" placeholder="Opcional" />
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <input type="number" id="stock" name="stock" value="0" />
             </div>
           </div>
 
           <!-- Artesano y Origen -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Artesano / Taller</label>
-              <input type="text" id="artisan" name="artisan" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" placeholder="Ej. Familia Ramos" />
+          <div class="section-divider grid-2">
+            <div class="form-group">
+              <label>Artesano / Taller</label>
+              <input type="text" id="artisan" name="artisan" placeholder="Ej. Familia Ramos" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Origen (Municipio/Lugar)</label>
-              <input type="text" id="origin" name="origin" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" placeholder="Ej. Ilobasco" />
+            <div class="form-group">
+              <label>Origen (Municipio/Lugar)</label>
+              <input type="text" id="origin" name="origin" placeholder="Ej. Ilobasco" />
             </div>
           </div>
 
           <!-- Dimensiones y Peso -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Peso (lb/kg)</label>
-              <input type="number" step="0.01" id="weight" name="weight" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Peso (lb/kg)</label>
+              <input type="number" step="0.01" id="weight" name="weight" placeholder="Ej. 1.5" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Ancho (cm)</label>
-              <input type="number" step="0.01" id="width" name="width" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+            <div class="form-group">
+              <label>Ancho (cm)</label>
+              <input type="number" step="0.01" id="width" name="width" placeholder="Ej. 12" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Alto (cm)</label>
-              <input type="number" step="0.01" id="height" name="height" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500" />
+            <div class="form-group">
+              <label>Alto (cm)</label>
+              <input type="number" step="0.01" id="height" name="height" placeholder="Ej. 25" />
             </div>
           </div>
 
           <!-- Fotografías (Hasta 5 URLs) -->
-          <div class="pt-2 border-t">
-            <label class="block text-sm font-medium text-slate-700 mb-1">Fotografías del Producto (Hasta 5 URLs)</label>
-            <p class="text-xs text-slate-400 mb-2">La primera URL será la imagen principal que se mostrará en el catálogo.</p>
-            <div class="space-y-2">
-              <input type="url" class="image-input w-full px-3 py-2 border rounded-lg text-sm" placeholder="URL Foto 1 (Principal)" />
-              <input type="url" class="image-input w-full px-3 py-2 border rounded-lg text-sm" placeholder="URL Foto 2 (Opcional)" />
-              <input type="url" class="image-input w-full px-3 py-2 border rounded-lg text-sm" placeholder="URL Foto 3 (Opcional)" />
-              <input type="url" class="image-input w-full px-3 py-2 border rounded-lg text-sm" placeholder="URL Foto 4 (Opcional)" />
-              <input type="url" class="image-input w-full px-3 py-2 border rounded-lg text-sm" placeholder="URL Foto 5 (Opcional)" />
+          <div class="section-divider">
+            <label>Fotografías del Producto (Hasta 5 URLs)</label>
+            <p class="help-text">La primera URL será la imagen principal que se mostrará en el catálogo.</p>
+            <div class="images-container">
+              <input type="url" class="image-input" placeholder="URL Foto 1 (Principal)" />
+              <input type="url" class="image-input" placeholder="URL Foto 2 (Opcional)" />
+              <input type="url" class="image-input" placeholder="URL Foto 3 (Opcional)" />
+              <input type="url" class="image-input" placeholder="URL Foto 4 (Opcional)" />
+              <input type="url" class="image-input" placeholder="URL Foto 5 (Opcional)" />
             </div>
           </div>
 
+          <!-- ESTADO Y VISIBILIDAD EN LA TIENDA -->
+          <div class="section-divider checkboxes-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="isActive" name="isActive" checked />
+              <span><strong>Visible en la tienda</strong> (Marcar para publicar en el catálogo)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="isFeatured" name="isFeatured" />
+              <span>Destacar en inicio</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="isOffer" name="isOffer" />
+              <span>Marcar como Oferta</span>
+            </label>
+          </div>
+
           <!-- Botones de Acción -->
-          <div class="flex justify-end space-x-3 pt-4 border-t">
-            <button type="button" id="cancelModalBtn" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50">Cancelar</button>
-            <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg shadow">Guardar</button>
+          <div class="modal-footer">
+            <button type="button" id="cancelModalBtn" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
           </div>
         </form>
       </div>
     </div>
 
+    <!-- ESTILOS CSS PURO -->
+    <style>
+      :root {
+        --primary: #d97706;
+        --primary-hover: #b45309;
+        --bg-color: #f8fafc;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --danger: #e11d48;
+        --danger-bg: #fff1f2;
+        --success: #16a34a;
+        --success-bg: #f0fdf4;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 24px;
+      }
+
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #0f172a;
+      }
+
+      .header p {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        transition: background 0.2s;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+
+      .btn-secondary {
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid var(--border-color);
+      }
+
+      .btn-secondary:hover {
+        background-color: #e2e8f0;
+      }
+
+      .table-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        color: #334155;
+        vertical-align: middle;
+      }
+
+      tr:hover {
+        background-color: #f8fafc;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      /* Estilos del Modal */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 50;
+      }
+
+      .modal.hidden {
+        display: none;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 16px;
+        max-width: 750px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-muted);
+      }
+
+      .form-group {
+        margin-bottom: 14px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        margin-bottom: 4px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="url"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 12px;
+      }
+
+      .section-divider {
+        border-top: 1px solid var(--border-color);
+        padding-top: 14px;
+        margin-top: 14px;
+      }
+
+      .help-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin: 0 0 8px 0;
+      }
+
+      .images-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .checkboxes-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 16px;
+        margin-top: 16px;
+      }
+
+      /* Utilidades de la tabla */
+      .product-img-wrapper {
+        position: relative;
+        width: 48px;
+        height: 48px;
+      }
+
+      .product-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .badge-extra {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background-color: var(--primary);
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 2px 5px;
+        border-radius: 9999px;
+      }
+
+      .badge-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge-active {
+        background-color: var(--success-bg);
+        color: var(--success);
+      }
+
+      .badge-hidden {
+        background-color: #f1f5f9;
+        color: var(--text-muted);
+      }
+
+      .badge-stock {
+        display: inline-block;
+        padding: 2px 8px;
+        background-color: #f1f5f9;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .cost-text {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .action-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        margin-left: 4px;
+      }
+
+      .btn-edit {
+        background-color: #f1f5f9;
+        color: #334155;
+      }
+      .btn-edit:hover { background-color: #e2e8f0; }
+
+      .btn-delete {
+        background-color: var(--danger-bg);
+        color: var(--danger);
+      }
+      .btn-delete:hover { background-color: #fee2e2; }
+    </style>
+
     <!-- SCRIPT DE INTERACCIÓN -->
-    <script>
+    <script is:inline>
       const API_URL = 'http://localhost:3000/api/products';
+      const CATEGORIES_URL = 'http://localhost:3000/api/categories';
       
       const modal = document.getElementById('productModal');
       const openBtn = document.getElementById('openCreateModalBtn');
@@ -156,11 +521,35 @@
       const cancelBtn = document.getElementById('cancelModalBtn');
       const form = document.getElementById('productForm');
       const tableBody = document.getElementById('productsTableBody');
+      const categorySelect = document.getElementById('categoryId');
+
+      // Cargar Categorías en el Select
+      async function fetchCategories() {
+        try {
+          const res = await fetch(CATEGORIES_URL);
+          const result = await res.json();
+          if (result.success && Array.isArray(result.data)) {
+            categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
+            result.data.forEach(cat => {
+              const option = document.createElement('option');
+              option.value = cat.id;
+              option.textContent = cat.name;
+              categorySelect.appendChild(option);
+            });
+          } else {
+            categorySelect.innerHTML = '<option value="">Sin categorías disponibles</option>';
+          }
+        } catch (err) {
+          console.error('Error al obtener categorías:', err);
+          categorySelect.innerHTML = '<option value="">Error al cargar categorías</option>';
+        }
+      }
 
       // Abrir / Cerrar Modal
       openBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('productId').value = '';
+        document.getElementById('isActive').checked = true;
         document.getElementById('modalTitle').textContent = 'Crear Nuevo Producto';
         modal.classList.remove('hidden');
       });
@@ -185,7 +574,7 @@
       function renderTable(products) {
         tableBody.innerHTML = '';
         if (products.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No hay productos registrados.</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No hay productos registrados.</td></tr>`;
           return;
         }
 
@@ -193,36 +582,37 @@
           const images = p.images || [];
           const mainImg = images.length > 0 ? images[0] : 'https://via.placeholder.com/150';
           const extraCount = images.length > 1 ? images.length - 1 : 0;
-
-          const dims = [];
-          if (p.width) dims.path ? null : dims.push(`An: ${p.width}cm`);
-          if (p.height) dims.push(`Al: ${p.height}cm`);
-          if (p.weight) dims.push(`Peso: ${p.weight}lb`);
-          const dimsText = dims.length > 0 ? dims.join(' | ') : 'N/A';
+          const costDisplay = p.cost ? `$${Number(p.cost).toFixed(2)}` : 'N/A';
 
           const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-50 transition border-b';
           tr.innerHTML = `
-            <td class="px-4 py-3">
-              <div class="relative w-12 h-12">
-                <img src="${mainImg}" alt="${p.name}" class="w-12 h-12 object-cover rounded-lg border" />
-                ${extraCount > 0 ? `<span class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">+${extraCount}</span>` : ''}
+            <td>
+              <div class="product-img-wrapper">
+                <img src="${mainImg}" alt="${p.name}" class="product-img" />
+                ${extraCount > 0 ? `<span class="badge-extra">+${extraCount}</span>` : ''}
               </div>
             </td>
-            <td class="px-4 py-3 font-semibold text-slate-800">
-              ${p.name}
-              <div class="text-xs text-slate-400 font-normal">${p.category?.name || 'Sin categoría'}</div>
+            <td>
+              <strong>${p.name}</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">${p.category?.name || 'Sin categoría'}</div>
             </td>
-            <td class="px-4 py-3">
-              <div class="font-medium">${p.artisan || 'No asignado'}</div>
-              <div class="text-xs text-amber-700 font-semibold">${p.origin ? '📍 ' + p.origin : ''}</div>
+            <td>
+              <div>${p.artisan || 'No asignado'}</div>
+              <div style="font-size: 12px; color: var(--primary); font-weight: 600;">${p.origin ? '📍 ' + p.origin : ''}</div>
             </td>
-            <td class="px-4 py-3 font-semibold text-slate-800">$${Number(p.price).toFixed(2)}</td>
-            <td class="px-4 py-3"><span class="px-2 py-1 bg-slate-100 rounded text-xs">${p.stock} unids.</span></td>
-            <td class="px-4 py-3 text-xs text-slate-500">${dimsText}</td>
-            <td class="px-4 py-3 text-right space-x-2">
-              <button onclick="editProduct(${p.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-medium">Editar</button>
-              <button onclick="deleteProduct(${p.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs rounded font-medium">Eliminar</button>
+            <td>
+              <strong>$${Number(p.price).toFixed(2)}</strong>
+              <div class="cost-text">Costo: ${costDisplay}</div>
+            </td>
+            <td><span class="badge-stock">${p.stock} unids.</span></td>
+            <td>
+              <span class="badge-status ${p.isActive !== false ? 'badge-active' : 'badge-hidden'}">
+                ${p.isActive !== false ? 'Visible' : 'Oculto'}
+              </span>
+            </td>
+            <td class="text-right">
+              <button onclick="editProduct(${p.id})" class="action-btn btn-edit">Editar</button>
+              <button onclick="deleteProduct(${p.id})" class="action-btn btn-delete">Eliminar</button>
             </td>
           `;
           tableBody.appendChild(tr);
@@ -234,15 +624,15 @@
         e.preventDefault();
         const id = document.getElementById('productId').value;
         
-        // Recopilar las URLs de las imágenes y filtrar las vacías
         const imageInputs = document.querySelectorAll('.image-input');
         const images = Array.from(imageInputs).map(i => i.value.trim()).filter(url => url !== '');
 
         const payload = {
           name: document.getElementById('name').value,
           slug: document.getElementById('name').value.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-'),
-          categoryId: Number(document.getElementById('categoryId').value),
+          categoryId: Number(categorySelect.value),
           description: document.getElementById('description').value,
+          cost: document.getElementById('cost').value ? Number(document.getElementById('cost').value) : null,
           price: Number(document.getElementById('price').value),
           offerPrice: document.getElementById('offerPrice').value ? Number(document.getElementById('offerPrice').value) : null,
           stock: Number(document.getElementById('stock').value),
@@ -251,7 +641,10 @@
           weight: document.getElementById('weight').value ? Number(document.getElementById('weight').value) : null,
           width: document.getElementById('width').value ? Number(document.getElementById('width').value) : null,
           height: document.getElementById('height').value ? Number(document.getElementById('height').value) : null,
-          images: images
+          images: images,
+          isActive: document.getElementById('isActive').checked,
+          isFeatured: document.getElementById('isFeatured').checked,
+          isOffer: document.getElementById('isOffer').checked
         };
 
         const url = id ? `${API_URL}/${id}` : API_URL;
@@ -286,8 +679,9 @@
             const p = result.data;
             document.getElementById('productId').value = p.id;
             document.getElementById('name').value = p.name;
-            document.getElementById('categoryId').value = p.categoryId;
+            categorySelect.value = p.categoryId;
             document.getElementById('description').value = p.description || '';
+            document.getElementById('cost').value = p.cost || '';
             document.getElementById('price').value = p.price;
             document.getElementById('offerPrice').value = p.offerPrice || '';
             document.getElementById('stock').value = p.stock;
@@ -296,6 +690,10 @@
             document.getElementById('weight').value = p.weight || '';
             document.getElementById('width').value = p.width || '';
             document.getElementById('height').value = p.height || '';
+
+            document.getElementById('isActive').checked = p.isActive !== false;
+            document.getElementById('isFeatured').checked = Boolean(p.isFeatured);
+            document.getElementById('isOffer').checked = Boolean(p.isOffer);
 
             const imageInputs = document.querySelectorAll('.image-input');
             imageInputs.forEach((input, idx) => {
@@ -326,7 +724,8 @@
         }
       };
 
-      // Inicializar carga de tabla
+      // Inicialización al cargar la página
+      fetchCategories();
       fetchProducts();
     </script>
   </body>
