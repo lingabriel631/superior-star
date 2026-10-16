@@ -1,0 +1,430 @@
+---
+// src/pages/products/[slug].astro
+
+// Obtener el slug desde los parámetros de la URL
+const { slug } = Astro.params;
+
+let product = null;
+let errorMessage = null;
+
+try {
+  // Petición al backend para obtener el producto por su slug
+  const response = await fetch(`http://localhost:3000/api/products/${slug}`);
+  const result = await response.json();
+
+  if (result.success && result.data) {
+    product = result.data;
+  } else {
+    errorMessage = "El producto que buscas no está disponible o fue eliminado.";
+  }
+} catch (err) {
+  console.error("Error conectando con el servidor:", err);
+  errorMessage = "No se pudo conectar con el servidor para cargar el producto.";
+}
+
+const pageTitle = product ? `${product.name} | TEKITI` : "Producto no encontrado | TEKITI";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <!-- HEADER / NAVEGACIÓN SUPERIOR -->
+    <header class="store-header">
+      <div class="brand">
+        <a href="/">TEKITI</a>
+        <span>Catálogo Artesanal</span>
+      </div>
+      <a href="/" class="back-link">← Volver al inicio</a>
+    </header>
+
+    <main class="main-container">
+      {errorMessage || !product ? (
+        <div class="error-container">
+          <h2>Pieza no encontrada</h2>
+          <p>{errorMessage || "Lo sentimos, no pudimos encontrar esta artesanía."}</p>
+          <a href="/" class="btn-primary">Regresar a la tienda</a>
+        </div>
+      ) : (
+        <div class="product-detail-grid">
+          
+          <!-- SECCIÓN DE IMÁGENES (Galería de hasta 5 fotos) -->
+          <div class="gallery-section">
+            <div class="main-image-container">
+              <img 
+                id="mainImage" 
+                src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/600'} 
+                alt={product.name} 
+                class="main-img" 
+              />
+            </div>
+            
+            {product.images && product.images.length > 1 && (
+              <div class="thumbnails-container">
+                {product.images.map((imgUrl: string, index: number) => (
+                  <img 
+                    src={imgUrl} 
+                    alt={`${product.name} - miniatura ${index + 1}`} 
+                    class={`thumb-img ${index === 0 ? 'active' : ''}`}
+                    onclick={`changeMainImage('${imgUrl}', this)`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <!-- SECCIÓN DE INFORMACIÓN Y COMPRA -->
+          <div class="info-section">
+            <span class="category-badge">{product.category?.name || "Artesanía"}</span>
+            <h1 class="product-title">{product.name}</h1>
+
+            <!-- ARTESANO Y ORIGEN -->
+            <div class="origin-artisan-box">
+              {product.artisan && (
+                <div class="meta-item">
+                  <strong>Artesano / Taller:</strong> {product.artisan}
+                </div>
+              )}
+              {product.origin && (
+                <div class="meta-item origin-highlight">
+                  <span>📍 Origen:</span> {product.origin}
+                </div>
+              )}
+            </div>
+
+            <!-- PRECIOS -->
+            <div class="price-box">
+              {product.offerPrice ? (
+                <div class="price-container">
+                  <span class="current-price offer">${Number(product.offerPrice).toFixed(2)}</span>
+                  <span class="original-price">${Number(product.price).toFixed(2)}</span>
+                  <span class="badge-offer">¡En Oferta!</span>
+                </div>
+              ) : (
+                <span class="current-price">${Number(product.price).toFixed(2)}</span>
+              )}
+            </div>
+
+            <!-- DESCRIPCIÓN -->
+            <div class="description-box">
+              <h3>Historia de la pieza</h3>
+              <p>{product.description || "Esta pieza única forma parte del patrimonio artesanal de El Salvador, elaborada con técnicas tradicionales transmitidas de generación en generación."}</p>
+            </div>
+
+            <!-- DIMENSIONES Y PESO (Opcionales) -->
+            {(product.weight || product.width || product.height) && (
+              <div class="dimensions-box">
+                <h4>Especificaciones técnicas</h4>
+                <ul>
+                  {product.weight && <li><strong>Peso:</strong> {product.weight} lb / kg</li>}
+                  {product.width && <li><strong>Ancho:</strong> {product.width} cm</li>}
+                  {product.height && <li><strong>Alto:</strong> {product.height} cm</li>}
+                </ul>
+              </div>
+            )}
+
+            <!-- STOCK Y BOTÓN DE COMPRA -->
+            <div class="purchase-box">
+              <div class="stock-status">
+                {product.stock > 0 ? (
+                  <span class="in-stock">● Disponible ({product.stock} unidades en inventario)</span>
+                ) : (
+                  <span class="out-stock">○ Agotado temporalmente</span>
+                )}
+              </div>
+
+              <button 
+                class="btn-buy" 
+                disabled={product.stock <= 0}
+                onclick={`alert('¡Producto agregado al carrito con éxito!')`}
+              >
+                {product.stock > 0 ? 'Añadir al Carrito' : 'Agotado'}
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+    </main>
+
+    <!-- ESTILOS CSS PURO (Alineados con el panel de administración) -->
+    <style>
+      :global(body) {
+        margin: 0;
+        background: #f7f4ef;
+        color: #252525;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .store-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5%;
+        background: #fff;
+        border-bottom: 1px solid #e7e0d5;
+      }
+
+      .brand a {
+        font-family: Georgia, serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+        color: #252525;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .brand span {
+        color: #898177;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-left: 10px;
+      }
+
+      .back-link {
+        color: #b85c38;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .back-link:hover { text-decoration: underline; }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      /* DETALLE DEL PRODUCTO GRID */
+      .product-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      }
+
+      @media (max-width: 768px) {
+        .product-detail-grid {
+          grid-template-columns: 1fr;
+          padding: 20px;
+        }
+      }
+
+      /* GALERÍA DE FOTOS */
+      .gallery-section {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .main-image-container {
+        width: 100%;
+        height: 400px;
+        background: #faf8f3;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e7e0d5;
+      }
+
+      .main-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .thumbnails-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+      }
+
+      .thumb-img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .thumb-img.active, .thumb-img:hover {
+        border-color: #b85c38;
+      }
+
+      /* INFORMACIÓN */
+      .info-section {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .category-badge {
+        display: inline-block;
+        background: #f0ebe1;
+        color: #5c544d;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 4px;
+        width: fit-content;
+        margin-bottom: 12px;
+      }
+
+      .product-title {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        margin: 0 0 15px 0;
+        color: #252525;
+      }
+
+      .origin-artisan-box {
+        background: #faf8f3;
+        border-left: 3px solid #b85c38;
+        padding: 12px 15px;
+        border-radius: 0 6px 6px 0;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+      }
+
+      .origin-highlight {
+        margin-top: 5px;
+        color: #b85c38;
+        font-weight: 600;
+      }
+
+      .price-box {
+        margin-bottom: 20px;
+      }
+
+      .current-price {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #252525;
+      }
+
+      .current-price.offer {
+        color: #b85c38;
+      }
+
+      .original-price {
+        font-size: 1.2rem;
+        text-decoration: line-through;
+        color: #898177;
+        margin-left: 10px;
+      }
+
+      .badge-offer {
+        background: #fde8e8;
+        color: #c74747;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+        vertical-align: middle;
+      }
+
+      .description-box h3 {
+        font-family: Georgia, serif;
+        font-size: 1.1rem;
+        margin: 0 0 8px 0;
+      }
+
+      .description-box p {
+        color: #5c544d;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        margin: 0 0 20px 0;
+      }
+
+      .dimensions-box {
+        background: #f7f4ef;
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+
+      .dimensions-box h4 {
+        margin: 0 0 6px 0;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #48433e;
+      }
+
+      .dimensions-box ul {
+        margin: 0;
+        padding-left: 15px;
+        font-size: 0.85rem;
+        color: #5c544d;
+      }
+
+      .purchase-box {
+        margin-top: auto;
+        border-top: 1px solid #e7e0d5;
+        padding-top: 20px;
+      }
+
+      .stock-status {
+        margin-bottom: 12px;
+        font-size: 0.85rem;
+      }
+
+      .in-stock { color: #465a45; font-weight: 600; }
+      .out-stock { color: #c74747; font-weight: 600; }
+
+      .btn-buy {
+        width: 100%;
+        background: #252525;
+        color: #fff;
+        border: none;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .btn-buy:hover:not(:disabled) {
+        background: #b85c38;
+      }
+
+      .btn-buy:disabled {
+        background: #dcd4c7;
+        cursor: not-allowed;
+      }
+
+      .error-container {
+        text-align: center;
+        background: #fff;
+        padding: 60px 20px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+      }
+      .error-container h2 { font-family: Georgia, serif; color: #c74747; }
+    </style>
+
+    <!-- SCRIPT PARA CAMBIAR LAS FOTOS AL HACER CLICK EN LAS MINIATURAS -->
+    <script is:inline>
+      function changeMainImage(url, thumbElement) {
+        // Cambiar la fuente de la imagen principal
+        document.getElementById('mainImage').src = url;
+
+        // Quitar la clase active de todas las miniaturas y ponérsela a la seleccionada
+        document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active'));
+        thumbElement.classList.add('active');
+      }
+    </script>
+  </body>
+</html>
