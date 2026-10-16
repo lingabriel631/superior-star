@@ -9,7 +9,8 @@ let products = [];
 let errorMessage = null;
 
 try {
-  const response = await fetch(`http://localhost:3000/api/categories/${slug}`);
+  // En lugar de 'http://localhost:3000/api/products/slug/...', usa:
+const response = await fetch(`http://127.0.0.1:3000/api/categories/${slug}`);
   const result = await response.json();
 
   if (result.success && result.data) {

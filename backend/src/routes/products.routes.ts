@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 
 const router = Router();
 
+// 1. Obtener todos los productos (existente)
 router.get("/", async (_req, res) => {
   try {
     const products = await prisma.product.findMany({
@@ -31,6 +32,42 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// 2. NUEVA RUTA: Obtener producto por SLUG (para el frontend de usuarios)
+router.get("/slug/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const product = await prisma.product.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Producto no encontrado",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error al obtener el producto por slug:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener el producto",
+    });
+  }
+});
+
+// 3. Obtener producto por ID (existente)
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -72,271 +109,5 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  try {
-    const {
-      name,
-      slug,
-      description,
-      price,
-      offerPrice,
-      stock,
-      images,
-      artisan,
-      origin,
-      weight,
-      width,
-      height,
-      isFeatured,
-      isOffer,
-      categoryId,
-    } = req.body;
-
-    if (!name || !slug || price === undefined || categoryId === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltan campos obligatorios",
-      });
-    }
-
-    // Validación de imágenes (máximo 5)
-    if (images !== undefined) {
-      if (!Array.isArray(images)) {
-        return res.status(400).json({
-          success: false,
-          message: "El campo images debe ser un arreglo de URLs",
-        });
-      }
-      if (images.length > 5) {
-        return res.status(400).json({
-          success: false,
-          message: "Solo puedes subir un máximo de 5 fotografías por producto",
-        });
-      }
-    }
-
-    const category = await prisma.category.findUnique({
-      where: {
-        id: Number(categoryId),
-      },
-    });
-
-    if (!category) {
-      return res.status(400).json({
-        success: false,
-        message: "La categoría no existe",
-      });
-    }
-
-    const product = await prisma.product.create({
-      data: {
-        name,
-        slug,
-        description: description || null,
-        price: Number(price),
-        offerPrice:
-          offerPrice !== undefined && offerPrice !== null
-            ? Number(offerPrice)
-            : null,
-        stock: stock !== undefined ? Number(stock) : 0,
-        images: Array.isArray(images) ? images : [],
-        artisan: artisan || null,
-        origin: origin || null,
-        weight: weight !== undefined && weight !== null && weight !== "" ? Number(weight) : null,
-        width: width !== undefined && width !== null && width !== "" ? Number(width) : null,
-        height: height !== undefined && height !== null && height !== "" ? Number(height) : null,
-        isFeatured: Boolean(isFeatured),
-        isOffer: Boolean(isOffer),
-        categoryId: Number(categoryId),
-      },
-      include: {
-        category: true,
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Producto creado correctamente",
-      data: product,
-    });
-  } catch (error) {
-    console.error("Error al crear el producto:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Error al crear el producto",
-    });
-  }
-});
-
-router.put("/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El ID del producto no es válido",
-      });
-    }
-
-    const existingProduct = await prisma.product.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!existingProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Producto no encontrado",
-      });
-    }
-
-    const {
-      name,
-      slug,
-      description,
-      price,
-      offerPrice,
-      stock,
-      images,
-      artisan,
-      origin,
-      weight,
-      width,
-      height,
-      isFeatured,
-      isOffer,
-      isActive,
-      categoryId,
-    } = req.body;
-
-    if (images !== undefined) {
-      if (!Array.isArray(images)) {
-        return res.status(400).json({
-          success: false,
-          message: "El campo images debe ser un arreglo de URLs",
-        });
-      }
-      if (images.length > 5) {
-        return res.status(400).json({
-          success: false,
-          message: "Solo puedes subir un máximo de 5 fotografías por producto",
-        });
-      }
-    }
-
-    if (categoryId !== undefined) {
-      const category = await prisma.category.findUnique({
-        where: {
-          id: Number(categoryId),
-        },
-      });
-
-      if (!category) {
-        return res.status(400).json({
-          success: false,
-          message: "La categoría no existe",
-        });
-      }
-    }
-
-    const product = await prisma.product.update({
-      where: {
-        id,
-      },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(slug !== undefined && { slug }),
-        ...(description !== undefined && { description }),
-        ...(price !== undefined && { price: Number(price) }),
-        ...(offerPrice !== undefined && {
-          offerPrice:
-            offerPrice === null ? null : Number(offerPrice),
-        }),
-        ...(stock !== undefined && { stock: Number(stock) }),
-        ...(images !== undefined && { images }),
-        ...(artisan !== undefined && { artisan: artisan || null }),
-        ...(origin !== undefined && { origin: origin || null }),
-        ...(weight !== undefined && { weight: weight === null || weight === "" ? null : Number(weight) }),
-        ...(width !== undefined && { width: width === null || width === "" ? null : Number(width) }),
-        ...(height !== undefined && { height: height === null || height === "" ? null : Number(height) }),
-        ...(isFeatured !== undefined && {
-          isFeatured: Boolean(isFeatured),
-        }),
-        ...(isOffer !== undefined && {
-          isOffer: Boolean(isOffer),
-        }),
-        ...(isActive !== undefined && {
-          isActive: Boolean(isActive),
-        }),
-        ...(categoryId !== undefined && {
-          categoryId: Number(categoryId),
-        }),
-      },
-      include: {
-        category: true,
-      },
-    });
-
-    res.json({
-      success: true,
-      message: "Producto actualizado correctamente",
-      data: product,
-    });
-  } catch (error) {
-    console.error("Error al actualizar el producto:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Error al actualizar el producto",
-    });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El ID del producto no es válido",
-      });
-    }
-
-    const existingProduct = await prisma.product.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!existingProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Producto no encontrado",
-      });
-    }
-
-    await prisma.product.delete({
-      where: {
-        id,
-      },
-    });
-
-    res.json({
-      success: true,
-      message: "Producto eliminado correctamente",
-    });
-  } catch (error) {
-    console.error("Error al eliminar el producto:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Error al eliminar el producto",
-    });
-  }
-});
-
+// ... Mantener tus rutas POST, PUT y DELETE iguales abajo ...
 export default router;
