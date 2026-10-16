@@ -44,6 +44,16 @@ model Product {
   offerPrice  Decimal?  @db.Decimal(10, 2)
   stock       Int       @default(0)
   images      String[]  @default([])
+
+  // Identidad y Origen
+  artisan     String?
+  origin      String?
+
+  // Dimensiones y Peso (Opcionales)
+  weight      Decimal?  @db.Decimal(10, 2) // Ej. peso en libras o kg
+  width       Decimal?  @db.Decimal(10, 2) // Ej. ancho en cm
+  height      Decimal?  @db.Decimal(10, 2) // Ej. alto en cm
+  
   isFeatured  Boolean   @default(false)
   isOffer     Boolean   @default(false)
   isActive    Boolean   @default(true)

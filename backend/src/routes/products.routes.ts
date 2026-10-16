@@ -81,7 +81,12 @@ router.post("/", async (req, res) => {
       price,
       offerPrice,
       stock,
-      images, // 👈 Cambiado de 'image' (string) a 'images' (arreglo)
+      images,
+      artisan,
+      origin,
+      weight,
+      width,
+      height,
       isFeatured,
       isOffer,
       categoryId,
@@ -94,7 +99,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Validación: Comprobar que si se envían imágenes, sea un arreglo y no rebase las 5
+    // Validación de imágenes (máximo 5)
     if (images !== undefined) {
       if (!Array.isArray(images)) {
         return res.status(400).json({
@@ -134,7 +139,12 @@ router.post("/", async (req, res) => {
             ? Number(offerPrice)
             : null,
         stock: stock !== undefined ? Number(stock) : 0,
-        images: Array.isArray(images) ? images : [], // 👈 Se guarda el arreglo (vacío si no envían nada)
+        images: Array.isArray(images) ? images : [],
+        artisan: artisan || null,
+        origin: origin || null,
+        weight: weight !== undefined && weight !== null && weight !== "" ? Number(weight) : null,
+        width: width !== undefined && width !== null && width !== "" ? Number(width) : null,
+        height: height !== undefined && height !== null && height !== "" ? Number(height) : null,
         isFeatured: Boolean(isFeatured),
         isOffer: Boolean(isOffer),
         categoryId: Number(categoryId),
@@ -190,14 +200,18 @@ router.put("/:id", async (req, res) => {
       price,
       offerPrice,
       stock,
-      images, // 👈 Cambiado a 'images'
+      images,
+      artisan,
+      origin,
+      weight,
+      width,
+      height,
       isFeatured,
       isOffer,
       isActive,
       categoryId,
     } = req.body;
 
-    // Validación del límite de 5 imágenes en actualización si se envían
     if (images !== undefined) {
       if (!Array.isArray(images)) {
         return res.status(400).json({
@@ -242,7 +256,12 @@ router.put("/:id", async (req, res) => {
             offerPrice === null ? null : Number(offerPrice),
         }),
         ...(stock !== undefined && { stock: Number(stock) }),
-        ...(images !== undefined && { images }), // 👈 Actualiza el arreglo de imágenes si viene en la petición
+        ...(images !== undefined && { images }),
+        ...(artisan !== undefined && { artisan: artisan || null }),
+        ...(origin !== undefined && { origin: origin || null }),
+        ...(weight !== undefined && { weight: weight === null || weight === "" ? null : Number(weight) }),
+        ...(width !== undefined && { width: width === null || width === "" ? null : Number(width) }),
+        ...(height !== undefined && { height: height === null || height === "" ? null : Number(height) }),
         ...(isFeatured !== undefined && {
           isFeatured: Boolean(isFeatured),
         }),
