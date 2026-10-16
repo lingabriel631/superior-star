@@ -200,7 +200,7 @@ const pageTitle = "Checkout | TEKITI";
 
               <div>
                 <h2>Método de pago</h2>
-                <p>Selecciona cómo deseas pagar.</p>
+                <p>Procesamiento seguro de pago.</p>
               </div>
             </div>
 
@@ -219,23 +219,6 @@ const pageTitle = "Checkout | TEKITI";
                 <div class="payment-info">
                   <strong>Tarjeta de crédito o débito</strong>
                   <span>Visa, Mastercard y otras tarjetas</span>
-                </div>
-
-                <span class="payment-check">✓</span>
-              </label>
-
-              <label class="payment-option">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="transfer"
-                />
-
-                <div class="payment-icon">🏦</div>
-
-                <div class="payment-info">
-                  <strong>Transferencia bancaria</strong>
-                  <span>Recibirás las instrucciones después del pedido</span>
                 </div>
 
                 <span class="payment-check">✓</span>
@@ -543,43 +526,16 @@ const pageTitle = "Checkout | TEKITI";
       }
 
       /*
-       * Selección del método de pago
-       */
-      const paymentOptions =
-        document.querySelectorAll(".payment-option");
-
-      const cardForm =
-        document.querySelector("#card-form") as HTMLElement;
-
-      paymentOptions.forEach((option) => {
-        option.addEventListener("click", () => {
-
-          paymentOptions.forEach((item) => {
-            item.classList.remove("selected");
-          });
-
-          option.classList.add("selected");
-
-          const radio =
-            option.querySelector(
-              'input[type="radio"]'
-            ) as HTMLInputElement;
-
-          radio.checked = true;
-
-          if (radio.value === "card") {
-            cardForm.style.display = "block";
-          } else {
-            cardForm.style.display = "none";
-          }
-        });
-      });
+        * Método de pago (Únicamente Tarjeta)
+        */
+        const paymentMethod = "CARD";
 
       /*
        * Confirmar pedido
        */
     
-        placeOrderButton.addEventListener("click", () => {
+    
+        placeOrderButton.addEventListener("click", async () => {
         const cart = getCart();
 
         if (cart.length === 0) {
@@ -612,34 +568,166 @@ const pageTitle = "Checkout | TEKITI";
             return;
         }
 
-        // Deshabilitar el botón mientras se procesa el pedido
+        /*
+        * Datos del cliente
+        */
+        const email =
+            (document.querySelector("#email") as HTMLInputElement).value.trim();
+
+        const firstName =
+            (document.querySelector("#firstName") as HTMLInputElement).value.trim();
+
+        const lastName =
+            (document.querySelector("#lastName") as HTMLInputElement).value.trim();
+
+        const phone =
+            (document.querySelector("#phone") as HTMLInputElement).value.trim();
+
+        /*
+        * Datos de envío
+        */
+        const countrySelect =
+            document.querySelector("#country") as HTMLSelectElement;
+
+        const country =
+            countrySelect.options[countrySelect.selectedIndex]?.text || "";
+
+        const city =
+            (document.querySelector("#city") as HTMLInputElement).value.trim();
+
+        const department =
+            (document.querySelector("#department") as HTMLInputElement).value.trim();
+
+        const address =
+            (document.querySelector("#address") as HTMLTextAreaElement).value.trim();
+
+        const reference =
+            (document.querySelector("#reference") as HTMLInputElement).value.trim();
+
+        /*
+        * Método de pago
+        */
+        const selectedPayment =
+            document.querySelector(
+            'input[name="payment"]:checked'
+            ) as HTMLInputElement;
+
+        const paymentMethod =
+            selectedPayment?.value === "transfer"
+            ? "BANK_TRANSFER"
+            : "CARD";
+
+        /*
+        * Notas
+        */
+        const orderNotes =
+            (document.querySelector("#orderNotes") as HTMLTextAreaElement).value.trim();
+
+        /*
+        * Deshabilitar botón
+        */
         placeOrderButton.disabled = true;
         placeOrderButton.textContent = "Procesando pedido...";
 
-        // Simulación temporal del procesamiento
-        setTimeout(() => {
-            const randomNumber =
-            Math.floor(100000 + Math.random() * 900000);
+        try {
+            /*
+            * Enviar pedido al backend
+            */
+            const response = await fetch(
+            "http://localhost:3000/api/orders",
+            {
+                method: "POST",
 
-            orderNumber.textContent = `TK-${randomNumber}`;
+                headers: {
+                "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                customer: {
+                    name: `${firstName} ${lastName}`.trim(),
+                    email,
+                    phone,
+                },
+
+                shipping: {
+                    name: `${firstName} ${lastName}`.trim(),
+                    address:
+                    reference
+                        ? `${address}. Referencia: ${reference}`
+                        : address,
+                    city,
+                    country,
+                    phone,
+                },
+
+                items: cart.map((item) => ({
+                    productId: Number(item.id),
+                    quantity: item.quantity,
+                })),
+
+                paymentMethod,
+
+                notes: orderNotes || null,
+                }),
+            }
+            );
+
+            const result = await response.json();
+
+            /*
+            * Si el backend devuelve un error
+            */
+            if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "No se pudo crear el pedido"
+            );
+            }
+
+            /*
+            * Pedido creado correctamente
+            */
+            orderNumber.textContent =
+            result.data.orderNumber;
 
             successModal.classList.add("visible");
 
-            // Vaciar el carrito después de confirmar el pedido
+            /*
+            * Vaciar carrito
+            */
             localStorage.removeItem(CART_KEY);
 
-            // Actualizar el resumen del checkout
             renderCheckout();
 
-            // Avisar al resto de la aplicación que el carrito cambió
+            /*
+            * Avisar al resto de la aplicación
+            * que el carrito cambió
+            */
             window.dispatchEvent(
             new StorageEvent("storage", {
                 key: CART_KEY,
                 newValue: null,
             })
             );
-        }, 800);
+
+        } catch (error) {
+
+            console.error(
+            "Error al crear el pedido:",
+            error
+            );
+
+            alert(
+            error instanceof Error
+                ? error.message
+                : "No se pudo procesar el pedido."
+            );
+
+            placeOrderButton.disabled = false;
+            placeOrderButton.textContent =
+            "Confirmar pedido";
+        }
         });
+
 
       /*
        * Actualizar si otra pestaña modifica el carrito

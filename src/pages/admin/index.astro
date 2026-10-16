@@ -1,0 +1,630 @@
+---
+// src/pages/admin/index.astro
+const pageTitle = "Panel de Administración | TEKITI";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="admin-brand">
+        <h1>TEKITI</h1>
+        <span>Panel de Control</span>
+      </div>
+      <a href="/" class="store-link">Ver tienda online →</a>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-container">
+        
+        <!-- PESTAÑAS DE NAVEGACIÓN -->
+        <nav class="admin-tabs">
+          <button class="tab-btn active" data-tab="orders">📦 Pedidos Recibidos</button>
+          <button class="tab-btn" data-tab="inventory">artesanías & Inventario</button>
+        </nav>
+
+        <!-- SECCIÓN DE PEDIDOS -->
+        <section id="orders-tab" class="admin-section active">
+          <div class="section-header">
+            <h2>Gestión de Pedidos</h2>
+            <p>Monitorea las compras realizadas y su estado actual.</p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <button id="btn-picking-list" style="background-color: #2563eb; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                📦 Preparar Pendientes y Generar PDF
+            </button>
+            </div>
+
+            <script>
+            document.getElementById('btn-picking-list')?.addEventListener('click', () => {
+                // Abre el endpoint del backend en una nueva pestaña
+                window.open('http://localhost:3000/api/orders/picking-list', '_blank');
+                
+                // Recargar la página del panel después de unos segundos para ver los cambios a "PROCESSING"
+                setTimeout(() => {
+                window.location.reload();
+                }, 2000);
+            });
+            </script>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>N° de Orden</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody">
+                <tr><td colspan="6" class="loading-text">Cargando pedidos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECCIÓN DE INVENTARIO -->
+        <section id="inventory-tab" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2>Inventario de Productos</h2>
+            <p>Controla el stock y precios de las piezas artesanales.</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Stock Actual</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-tbody">
+                <tr><td colspan="5" class="loading-text">Cargando inventario...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- MODAL DETALLE DE PEDIDO -->
+    <div id="order-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h3 id="modal-title">Detalle del Pedido</h3>
+        <button id="close-modal" class="close-btn">&times;</button>
+        </div>
+        <div id="modal-body" class="modal-body">
+        <!-- Los productos se cargarán dinámicamente aquí -->
+        </div>
+    </div>
+    </div>
+    </main>
+
+    <style>
+      :global(body) {
+        margin: 0;
+        background: #f7f4ef;
+        color: #252525;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .admin-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5%;
+        background: #fff;
+        border-bottom: 1px solid #e7e0d5;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: baseline;
+        gap: 15px;
+      }
+
+      .admin-brand h1 {
+        margin: 0;
+        font-family: Georgia, serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+      }
+
+      .admin-brand span {
+        color: #898177;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .store-link {
+        color: #b85c38;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .admin-main {
+        padding: 40px 5% 80px;
+      }
+
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .admin-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e7e0d5;
+        padding-bottom: 10px;
+      }
+
+      .tab-btn {
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #777068;
+        transition: all 0.2s ease;
+      }
+
+      .tab-btn.active {
+        background: #252525;
+        color: #fff;
+      }
+
+      .admin-section .section-header {
+        margin-bottom: 20px;
+      }
+
+      .admin-section h2 {
+        font-family: Georgia, serif;
+        font-size: 1.6rem;
+        margin: 0 0 5px;
+      }
+
+      .admin-section p {
+        margin: 0;
+        color: #898177;
+        font-size: 0.85rem;
+      }
+
+      .table-responsive {
+        background: #fff;
+        border: 1px solid #e7e0d5;
+        overflow-x: auto;
+      }
+
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.85rem;
+      }
+
+      .admin-table th, .admin-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee8df;
+      }
+
+      .admin-table th {
+        background: #faf8f3;
+        font-weight: 600;
+        color: #48433e;
+      }
+
+      .admin-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .loading-text {
+        text-align: center;
+        color: #898177;
+        padding: 30px !important;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .badge.pending {
+        background: #fdf3e6;
+        color: #b87a38;
+      }
+
+      .badge.success {
+        background: #eaf2ea;
+        color: #465a45;
+      }
+
+      .badge.low-stock {
+        background: #fde8e8;
+        color: #c74747;
+      }
+
+      .badge.in-stock {
+        background: #eaf2ea;
+        color: #465a45;
+      }
+
+      .status-select {
+        padding: 6px 10px;
+        border: 1px solid #e7e0d5;
+        background: #fff;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .status-select:focus {
+        outline: none;
+        border-color: #b85c38;
+      }
+
+      .view-detail-btn {
+        padding: 6px 12px;
+        background: #f0ebe1;
+        border: 1px solid #dcd4c7;
+        color: #252525;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .view-detail-btn:hover {
+        background: #e2dacd;
+      }
+
+      /* MODAL */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: #fff;
+        width: 90%;
+        max-width: 650px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: #faf8f3;
+        border-bottom: 1px solid #e7e0d5;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-family: Georgia, serif;
+        font-size: 1.2rem;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #898177;
+      }
+
+      .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .modal-customer-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        background: #f7f4ef;
+        padding: 12px 15px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+      }
+
+      .modal-customer-info p {
+        margin: 0;
+      }
+
+      .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+      }
+
+      .detail-table th, .detail-table td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+      }
+
+      .detail-table th {
+        background: #faf8f3;
+      }
+
+      .modal-total {
+        text-align: right;
+        font-size: 1.1rem;
+        padding-top: 10px;
+        border-top: 2px solid #252525;
+      }
+    </style>
+
+    <script>
+      const API_URL = "http://localhost:3000/api";
+
+      // Manejo de pestañas
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const ordersTab = document.querySelector("#orders-tab") as HTMLElement;
+      const inventoryTab = document.querySelector("#inventory-tab") as HTMLElement;
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const target = btn.getAttribute("data-tab");
+          if (target === "orders") {
+            ordersTab.style.display = "block";
+            inventoryTab.style.display = "none";
+            loadOrders();
+          } else {
+            ordersTab.style.display = "none";
+            inventoryTab.style.display = "block";
+            loadInventory();
+          }
+        });
+      });
+
+      function formatPrice(value: number) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(value);
+      }
+
+      // Cargar Pedidos
+      async function loadOrders() {
+        const tbody = document.querySelector("#orders-tbody");
+        if (!tbody) return;
+
+        try {
+          const res = await fetch(`${API_URL}/orders`);
+          const result = await res.json();
+
+          if (!result.success || result.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-text">No hay pedidos registrados todavía.</td></tr>`;
+            return;
+          }
+
+          // Guardar pedidos globalmente para acceder al detalle sin hacer otro fetch
+          window._ordersData = result.data;
+
+          tbody.innerHTML = result.data.map((order: any) => `
+            <tr>
+              <td><strong>${order.orderNumber}</strong></td>
+              <td>
+                ${order.customer?.name || "Cliente"}<br>
+                <small style="color:#898177;">${order.customer?.email || ""}</small>
+              </td>
+              <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+              <td><strong>${formatPrice(order.total)}</strong></td>
+              <td>${order.paymentMethod}</td>
+              <td>
+                <select class="status-select" data-order-id="${order.id}">
+                    <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>⏳ PENDIENTE</option>
+                    <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>📦 PREPARANDO</option>
+                    <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>🚚 ENVIADO</option>
+                    <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>✅ ENTREGADO</option>
+                    <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>❌ CANCELADO</option>
+                </select>
+              </td>
+              <td>
+                <button class="view-detail-btn" data-order-id="${order.id}">
+                  👁️ Ver detalle
+                </button>
+              </td>
+            </tr>
+          `).join("");
+
+          // Event Listeners para actualización de estado
+          document.querySelectorAll(".status-select").forEach(select => {
+            select.addEventListener("change", async (e) => {
+              const target = e.target as HTMLSelectElement;
+              const orderId = Number(target.getAttribute("data-order-id"));
+              const newStatus = target.value;
+
+              try {
+                const updateRes = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ status: newStatus }),
+                });
+
+                const updateResult = await updateRes.json();
+                if (updateResult.success) {
+                  // 1. Actualizar el estado en la variable global en memoria para que no se pierda al cambiar de pestaña
+                  if ((window as any)._ordersData) {
+                    const orderItem = (window as any)._ordersData.find((o: any) => o.id === orderId);
+                    if (orderItem) {
+                      orderItem.paymentStatus = newStatus;
+                    }
+                  }
+                  alert(`Estado de la orden #${orderId} actualizado a ${newStatus}.`);
+                } else {
+                  alert(updateResult.message || "Error al actualizar estado.");
+                }
+              } catch (err) {
+                console.error("Error al actualizar estado:", err);
+                alert("Error de conexión al servidor.");
+              }
+            });
+          });
+
+          // Event Listeners para abrir el Modal de Detalle
+          document.querySelectorAll(".view-detail-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+              const target = e.currentTarget as HTMLButtonElement;
+              const orderId = Number(target.getAttribute("data-order-id"));
+              showOrderDetails(orderId);
+            });
+          });
+
+        } catch (error) {
+          console.error("Error cargando pedidos:", error);
+          tbody.innerHTML = `<tr><td colspan="7" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
+        }
+      }
+
+      // Función para mostrar los detalles del pedido en el Modal
+      function showOrderDetails(orderId: number) {
+        const modal = document.querySelector("#order-modal") as HTMLElement;
+        const modalTitle = document.querySelector("#modal-title");
+        const modalBody = document.querySelector("#modal-body");
+
+        const order = (window as any)._ordersData?.find((o: any) => o.id === orderId);
+        if (!order || !modalBody || !modalTitle) return;
+
+        modalTitle.textContent = `Detalle de Orden #${order.orderNumber}`;
+
+        modalBody.innerHTML = `
+          <div class="modal-customer-info">
+            <p><strong>Cliente:</strong> ${order.customer?.name || 'N/A'}</p>
+            <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
+            <p><strong>Teléfono:</strong> ${order.customer?.phone || 'N/A'}</p>
+            <p><strong>Dirección:</strong> ${order.customer?.address || 'N/A'}</p>
+          </div>
+          <h4>Productos Comprados:</h4>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio Unit.</th>
+                <th>Cant.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map((item: any) => {
+                // Obtener el precio desde el ítem o desde el producto relacionado
+                const itemPrice = item.price ?? item.product?.price ?? 0;
+                const subtotal = itemPrice * item.quantity;
+
+                return `
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        ${item.product?.image ? `<img src="${item.product.image}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;" />` : ''}
+                        <span>${item.product?.name || 'Producto artesanal'}</span>
+                      </div>
+                    </td>
+                    <td>${formatPrice(itemPrice)}</td>
+                    <td>x${item.quantity}</td>
+                    <td><strong>${formatPrice(subtotal)}</strong></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+          <div class="modal-total">
+            <strong>Total del Pedido: ${formatPrice(order.total)}</strong>
+          </div>
+        `;
+
+        modal.style.display = "flex";
+      }
+
+      // Evento para cerrar el modal
+      document.querySelector("#close-modal")?.addEventListener("click", () => {
+        const modal = document.querySelector("#order-modal") as HTMLElement;
+        if (modal) modal.style.display = "none";
+      });
+      // Cargar Inventario
+      async function loadInventory() {
+        const tbody = document.querySelector("#inventory-tbody");
+        if (!tbody) return;
+
+        try {
+          const res = await fetch(`${API_URL}/products`);
+          const result = await res.json();
+
+          if (!result.success || result.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="loading-text">No hay productos en el inventario.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = result.data.map((product: any) => `
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  ${product.image ? `<img src="${product.image}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px;" />` : ""}
+                  <strong>${product.name}</strong>
+                </div>
+              </td>
+              <td>${product.category?.name || "Sin categoría"}</td>
+              <td>${formatPrice(product.price)}</td>
+              <td>
+                <strong>${product.stock}</strong> un.
+              </td>
+              <td>
+                <span class="badge ${product.stock > 3 ? 'in-stock' : 'low-stock'}">
+                  ${product.stock > 3 ? 'Disponible' : 'Stock bajo'}
+                </span>
+              </td>
+            </tr>
+          `).join("");
+
+        } catch (error) {
+          console.error("Error cargando inventario:", error);
+          tbody.innerHTML = `<tr><td colspan="5" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
+        }
+      }
+
+      // Cargar pedidos por defecto al abrir la página
+      loadOrders();
+    </script>
+    
+  </body>
+</html>

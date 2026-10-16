@@ -81,7 +81,7 @@ router.post("/", async (req, res) => {
       price,
       offerPrice,
       stock,
-      image,
+      images, // 👈 Cambiado de 'image' (string) a 'images' (arreglo)
       isFeatured,
       isOffer,
       categoryId,
@@ -92,6 +92,22 @@ router.post("/", async (req, res) => {
         success: false,
         message: "Faltan campos obligatorios",
       });
+    }
+
+    // Validación: Comprobar que si se envían imágenes, sea un arreglo y no rebase las 5
+    if (images !== undefined) {
+      if (!Array.isArray(images)) {
+        return res.status(400).json({
+          success: false,
+          message: "El campo images debe ser un arreglo de URLs",
+        });
+      }
+      if (images.length > 5) {
+        return res.status(400).json({
+          success: false,
+          message: "Solo puedes subir un máximo de 5 fotografías por producto",
+        });
+      }
     }
 
     const category = await prisma.category.findUnique({
@@ -118,7 +134,7 @@ router.post("/", async (req, res) => {
             ? Number(offerPrice)
             : null,
         stock: stock !== undefined ? Number(stock) : 0,
-        image: image || null,
+        images: Array.isArray(images) ? images : [], // 👈 Se guarda el arreglo (vacío si no envían nada)
         isFeatured: Boolean(isFeatured),
         isOffer: Boolean(isOffer),
         categoryId: Number(categoryId),
@@ -174,12 +190,28 @@ router.put("/:id", async (req, res) => {
       price,
       offerPrice,
       stock,
-      image,
+      images, // 👈 Cambiado a 'images'
       isFeatured,
       isOffer,
       isActive,
       categoryId,
     } = req.body;
+
+    // Validación del límite de 5 imágenes en actualización si se envían
+    if (images !== undefined) {
+      if (!Array.isArray(images)) {
+        return res.status(400).json({
+          success: false,
+          message: "El campo images debe ser un arreglo de URLs",
+        });
+      }
+      if (images.length > 5) {
+        return res.status(400).json({
+          success: false,
+          message: "Solo puedes subir un máximo de 5 fotografías por producto",
+        });
+      }
+    }
 
     if (categoryId !== undefined) {
       const category = await prisma.category.findUnique({
@@ -210,7 +242,7 @@ router.put("/:id", async (req, res) => {
             offerPrice === null ? null : Number(offerPrice),
         }),
         ...(stock !== undefined && { stock: Number(stock) }),
-        ...(image !== undefined && { image }),
+        ...(images !== undefined && { images }), // 👈 Actualiza el arreglo de imágenes si viene en la petición
         ...(isFeatured !== undefined && {
           isFeatured: Boolean(isFeatured),
         }),

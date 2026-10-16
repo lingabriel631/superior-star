@@ -1,146 +1,19 @@
 ---
-const products = [
-  {
-    name: "Bolso de cuero artesanal",
-    category: "Accesorios",
-    price: 85,
-    image:
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Jarrón de cerámica",
-    category: "Hogar",
-    price: 48,
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Collar artesanal",
-    category: "Joyería",
-    price: 36,
-    image:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Canasto tejido",
-    category: "Decoración",
-    price: 42,
-    image:
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Cerámica pintada a mano",
-    category: "Hogar",
-    price: 32,
-    image:
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Pulsera tejida",
-    category: "Accesorios",
-    price: 18,
-    image:
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Lámpara artesanal",
-    category: "Decoración",
-    price: 95,
-    image:
-      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Textil artesanal",
-    category: "Textiles",
-    price: 54,
-    image:
-      "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Anillo artesanal",
-    category: "Joyería",
-    price: 29,
-    image:
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Bolso tejido",
-    category: "Moda",
-    price: 68,
-    image:
-      "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Taza de cerámica",
-    category: "Hogar",
-    price: 24,
-    image:
-      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Bandeja de madera",
-    category: "Hogar",
-    price: 45,
-    image:
-      "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Aretes artesanales",
-    category: "Joyería",
-    price: 27,
-    image:
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Cesta de fibras naturales",
-    category: "Decoración",
-    price: 58,
-    image:
-      "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Bufanda artesanal",
-    category: "Moda",
-    price: 39,
-    image:
-      "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Figura decorativa",
-    category: "Arte",
-    price: 62,
-    image:
-      "https://images.unsplash.com/photo-1577083552431-6e5fd01988f5?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Plato artesanal",
-    category: "Hogar",
-    price: 34,
-    image:
-      "https://images.unsplash.com/photo-1603199506016-b9a594b593c0?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Sombrero artesanal",
-    category: "Moda",
-    price: 72,
-    image:
-      "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Vela artesanal",
-    category: "Decoración",
-    price: 22,
-    image:
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    name: "Cuenco de madera",
-    category: "Hogar",
-    price: 41,
-    image:
-      "https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=900&q=80",
-  },
-];
+
+const response = await fetch("http://localhost:3000/api/products");
+
+const result = await response.json();
+
+const products = result.success
+  ? result.data.filter(
+      (product: {
+        isFeatured: boolean;
+        isActive: boolean;
+      }) =>
+        product.isFeatured &&
+        product.isActive
+    )
+  : [];
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("en-US", {
@@ -236,6 +109,7 @@ const formatPrice = (price: number) =>
                     class="quantity-control"
                     data-product={product.name}
                     data-price={product.price}
+                    data-id={product.id}
                   >
 
                     <button
@@ -716,6 +590,7 @@ const formatPrice = (price: number) =>
 
 <script>
   interface CartItem {
+    id: number;
     name: string;
     price: number;
     quantity: number;
@@ -723,220 +598,154 @@ const formatPrice = (price: number) =>
 
   const STORAGE_KEY = "tekiti-cart";
 
-  const track =
-    document.querySelector<HTMLElement>(
-      "#products-track"
-    );
-
-  const prevButton =
-    document.querySelector<HTMLButtonElement>(
-      "#prev-products"
-    );
-
-  const nextButton =
-    document.querySelector<HTMLButtonElement>(
-      "#next-products"
-    );
-
-  const counter =
-    document.querySelector<HTMLElement>(
-      "#products-counter"
-    );
-
-  const progress =
-    document.querySelector<HTMLElement>(
-      "#products-progress"
-    );
-
-  const quantityControls =
-    document.querySelectorAll<HTMLElement>(
-      ".quantity-control"
-    );
+  const track = document.querySelector<HTMLElement>("#products-track");
+  const prevButton = document.querySelector<HTMLButtonElement>("#prev-products");
+  const nextButton = document.querySelector<HTMLButtonElement>("#next-products");
+  const counter = document.querySelector<HTMLElement>("#products-counter");
+  const progress = document.querySelector<HTMLElement>("#products-progress");
+  const quantityControls = document.querySelectorAll<HTMLElement>(".quantity-control");
 
   if (track && prevButton && nextButton && counter && progress) {
 
     /* =========================
-       CARRITO
+       CARRITO DE COMPRAS
     ========================= */
 
-    let cart: CartItem[] = [];
-
-    try {
-      const savedCart =
-        localStorage.getItem(STORAGE_KEY);
-
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-
-        if (Array.isArray(parsedCart)) {
-          cart = parsedCart;
-        }
+    function getCart(): CartItem[] {
+      try {
+        const savedCart = localStorage.getItem(STORAGE_KEY);
+        const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+        return Array.isArray(parsedCart) ? parsedCart : [];
+      } catch (error) {
+        console.error("Error al obtener el carrito:", error);
+        return [];
       }
-    } catch {
-      cart = [];
     }
 
-    function saveCart() {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(cart)
-      );
+    function saveCart(cart: CartItem[]) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     }
 
-    function getCartQuantity(productName: string) {
-      const item = cart.find(
-        (product) =>
-          product.name === productName
-      );
-
-      return item ? item.quantity : 0;
+    function getCartQuantity(productId: number): number {
+      const cart = getCart();
+      const item = cart.find((product) => Number(product.id) === Number(productId));
+      return item ? Number(item.quantity) || 0 : 0;
     }
 
-    function getTotalQuantity() {
-      return cart.reduce(
-        (total, item) =>
-          total + item.quantity,
-        0
-      );
+    function getTotalQuantity(): number {
+      const cart = getCart();
+      return cart.reduce((total, item) => total + Number(item.quantity || 0), 0);
     }
 
     function updateHeaderCounter() {
-      const headerCounter =
-        document.querySelector<HTMLElement>(
-          "#cart-count"
-        );
-
-      if (!headerCounter) {
-        return;
-      }
+      const headerCounter = document.querySelector<HTMLElement>("#cart-count");
+      if (!headerCounter) return;
 
       const total = getTotalQuantity();
-
-      headerCounter.textContent =
-        String(total);
-
-      if (total > 0) {
-        headerCounter.classList.add("visible");
-      } else {
-        headerCounter.classList.remove("visible");
-      }
+      headerCounter.textContent = String(total);
+      headerCounter.classList.toggle("visible", total > 0);
     }
 
     function updateProductQuantity(
       productName: string,
       price: number,
-      quantity: number
+      quantity: number,
+      productId: number
     ) {
-      const existingItem =
-        cart.find(
-          (product) =>
-            product.name === productName
-        );
+      let cart = getCart();
+
+      const existingItem = cart.find(
+        (product) => Number(product.id) === Number(productId)
+      );
 
       if (quantity <= 0) {
-
         cart = cart.filter(
-          (product) =>
-            product.name !== productName
+          (product) => Number(product.id) !== Number(productId)
         );
-
       } else if (existingItem) {
-
         existingItem.quantity = quantity;
-
       } else {
-
         cart.push({
+          id: Number(productId),
           name: productName,
-          price,
+          price: Number(price),
           quantity,
         });
-
       }
 
-      saveCart();
+      saveCart(cart);
       updateHeaderCounter();
+
+      // Disparar evento para avisarle a las demás secciones / drawer que el carrito cambió
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: STORAGE_KEY,
+          newValue: JSON.stringify(cart),
+        })
+      );
+      window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
     }
 
     /* =========================
-       CANTIDADES
+       CONTROLES DE CANTIDAD
     ========================= */
 
-    quantityControls.forEach(
-      (control) => {
+    quantityControls.forEach((control) => {
+      const productName = control.dataset.product || "";
+      const price = Number(control.dataset.price || 0);
+      const productId = Number(control.dataset.id || 0);
 
-        const productName =
-          control.dataset.product || "";
+      const quantityElement = control.querySelector<HTMLElement>(".quantity");
+      const decreaseButton = control.querySelector<HTMLButtonElement>(".decrease");
+      const increaseButton = control.querySelector<HTMLButtonElement>(".increase");
 
-        const price =
-          Number(control.dataset.price || 0);
+      if (!quantityElement || !decreaseButton || !increaseButton) return;
 
-        const quantityElement =
-          control.querySelector<HTMLElement>(
-            ".quantity"
-          );
-
-        const decreaseButton =
-          control.querySelector<HTMLButtonElement>(
-            ".decrease"
-          );
-
-        const increaseButton =
-          control.querySelector<HTMLButtonElement>(
-            ".increase"
-          );
-
-        if (
-          !quantityElement ||
-          !decreaseButton ||
-          !increaseButton
-        ) {
-          return;
-        }
-
-        let quantity =
-          getCartQuantity(productName);
-
-        quantityElement.textContent =
-          String(quantity);
-
-        decreaseButton.addEventListener(
-          "click",
-          () => {
-
-            if (quantity > 0) {
-              quantity--;
-            }
-
-            quantityElement.textContent =
-              String(quantity);
-
-            updateProductQuantity(
-              productName,
-              price,
-              quantity
-            );
-          }
-        );
-
-        increaseButton.addEventListener(
-          "click",
-          () => {
-
-            quantity++;
-
-            quantityElement.textContent =
-              String(quantity);
-
-            updateProductQuantity(
-              productName,
-              price,
-              quantity
-            );
-          }
-        );
+      function refreshQuantity() {
+        const currentQuantity = getCartQuantity(productId);
+        quantityElement.textContent = String(currentQuantity);
       }
-    );
+
+      refreshQuantity();
+
+      // Botón Disminuir
+      decreaseButton.addEventListener("click", () => {
+        const currentQuantity = getCartQuantity(productId);
+        const newQuantity = Math.max(0, currentQuantity - 1);
+
+        updateProductQuantity(productName, price, newQuantity, productId);
+        refreshQuantity();
+      });
+
+      // Botón Aumentar
+      increaseButton.addEventListener("click", () => {
+        const currentQuantity = getCartQuantity(productId);
+        const newQuantity = currentQuantity + 1;
+
+        updateProductQuantity(productName, price, newQuantity, productId);
+        refreshQuantity();
+      });
+    });
+
+    // Escuchar cambios para sincronizar la UI si se cambia la cantidad en el carrito lateral
+    window.addEventListener("tekiti-cart-updated", () => {
+      quantityControls.forEach((control) => {
+        const productId = Number(control.dataset.id || 0);
+        const quantityElement = control.querySelector<HTMLElement>(".quantity");
+
+        if (quantityElement) {
+          quantityElement.textContent = String(getCartQuantity(productId));
+        }
+      });
+
+      updateHeaderCounter();
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === STORAGE_KEY) {
+        window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+      }
+    });
 
     updateHeaderCounter();
 
@@ -947,32 +756,16 @@ const formatPrice = (price: number) =>
     let currentPosition = 0;
 
     function getVisibleProducts() {
-
-      if (window.innerWidth <= 600) {
-        return 1;
-      }
-
-      if (window.innerWidth <= 1000) {
-        return 3;
-      }
-
+      if (window.innerWidth <= 600) return 1;
+      if (window.innerWidth <= 1000) return 3;
       return 4;
     }
 
     function getCardWidth() {
+      const firstCard = track.querySelector<HTMLElement>(".product-card");
+      if (!firstCard) return 0;
 
-      const firstCard =
-        track.querySelector<HTMLElement>(
-          ".product-card"
-        );
-
-      if (!firstCard) {
-        return 0;
-      }
-
-      const styles =
-        window.getComputedStyle(track);
-
+      const styles = window.getComputedStyle(track);
       const gap =
         parseFloat(styles.columnGap) ||
         parseFloat(styles.gap) ||
@@ -981,111 +774,56 @@ const formatPrice = (price: number) =>
       return firstCard.offsetWidth + gap;
     }
 
+    function productsCount() {
+      return track.querySelectorAll(".product-card").length;
+    }
+
     function updateCarousel() {
+      const visibleProducts = getVisibleProducts();
+      const totalProducts = productsCount();
 
-      const visibleProducts =
-        getVisibleProducts();
+      const maxPosition = Math.max(0, totalProducts - visibleProducts);
 
-      const totalProducts =
-        productsCount();
+      currentPosition = Math.min(currentPosition, maxPosition);
 
-      const maxPosition =
-        Math.max(
-          0,
-          totalProducts -
-            visibleProducts
-        );
+      const offset = currentPosition * getCardWidth();
 
-      currentPosition =
-        Math.min(
-          currentPosition,
-          maxPosition
-        );
+      track.style.transform = `translateX(-${offset}px)`;
 
-      const offset =
-        currentPosition *
-        getCardWidth();
+      prevButton.disabled = currentPosition === 0;
+      nextButton.disabled = currentPosition >= maxPosition;
 
-      track.style.transform =
-        `translateX(-${offset}px)`;
+      const first = totalProducts === 0 ? 0 : currentPosition + 1;
+      const last = Math.min(currentPosition + visibleProducts, totalProducts);
 
-      prevButton.disabled =
-        currentPosition === 0;
-
-      nextButton.disabled =
-        currentPosition >=
-        maxPosition;
-
-      const first =
-        currentPosition + 1;
-
-      const last =
-        Math.min(
-          currentPosition +
-            visibleProducts,
-          totalProducts
-        );
-
-      counter.textContent =
-        `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
+      counter.textContent = `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
 
       const progressPercentage =
         maxPosition === 0
-          ? 100
-          : ((currentPosition + 1) /
-              (maxPosition + 1)) *
-            100;
+          ? totalProducts > 0 ? 100 : 0
+          : ((currentPosition + 1) / (maxPosition + 1)) * 100;
 
-      progress.style.width =
-        `${progressPercentage}%`;
+      progress.style.width = `${progressPercentage}%`;
     }
 
-    function productsCount() {
-      return track.querySelectorAll(
-        ".product-card"
-      ).length;
-    }
-
-    prevButton.addEventListener(
-      "click",
-      () => {
-
-        if (currentPosition > 0) {
-          currentPosition--;
-          updateCarousel();
-        }
+    prevButton.addEventListener("click", () => {
+      if (currentPosition > 0) {
+        currentPosition--;
+        updateCarousel();
       }
-    );
+    });
 
-    nextButton.addEventListener(
-      "click",
-      () => {
+    nextButton.addEventListener("click", () => {
+      const visibleProducts = getVisibleProducts();
+      const maxPosition = Math.max(0, productsCount() - visibleProducts);
 
-        const visibleProducts =
-          getVisibleProducts();
-
-        const maxPosition =
-          Math.max(
-            0,
-            productsCount() -
-              visibleProducts
-          );
-
-        if (
-          currentPosition <
-          maxPosition
-        ) {
-          currentPosition++;
-          updateCarousel();
-        }
+      if (currentPosition < maxPosition) {
+        currentPosition++;
+        updateCarousel();
       }
-    );
+    });
 
-    window.addEventListener(
-      "resize",
-      updateCarousel
-    );
-
+    window.addEventListener("resize", updateCarousel);
     updateCarousel();
   }
 </script>
