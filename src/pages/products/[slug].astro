@@ -1,7 +1,5 @@
 ---
-// src/pages/products/[slug].astro
-
-// Obtener el slug desde los parámetros de la URL
+export const prerender = false;
 const { slug } = Astro.params;
 
 let product = null;

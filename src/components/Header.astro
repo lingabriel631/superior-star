@@ -1,4 +1,17 @@
 ---
+// src/components/Header.astro (o el nombre de tu archivo de menú)
+
+let categories = [];
+
+try {
+  const res = await fetch('http://localhost:3000/api/categories');
+  const result = await res.json();
+  if (result.success && Array.isArray(result.data)) {
+    categories = result.data;
+  }
+} catch (err) {
+  console.error("Error al cargar categorías en el menú:", err);
+}
 ---
 
 <header class="header">
@@ -42,45 +55,17 @@
           class="categories-dropdown"
         >
 
-          <a href="#moda" class="category-item">
-            <span class="category-icon">👕</span>
-            <span>Moda</span>
-          </a>
-
-          <a href="#joyeria" class="category-item">
-            <span class="category-icon">💎</span>
-            <span>Joyería</span>
-          </a>
-
-          <a href="#accesorios" class="category-item">
-            <span class="category-icon">👜</span>
-            <span>Accesorios</span>
-          </a>
-
-          <a href="#hogar" class="category-item">
-            <span class="category-icon">🏠</span>
-            <span>Hogar</span>
-          </a>
-
-          <a href="#artesania" class="category-item">
-            <span class="category-icon">🧺</span>
-            <span>Artesanía</span>
-          </a>
-
-          <a href="#textiles" class="category-item">
-            <span class="category-icon">🧵</span>
-            <span>Textiles</span>
-          </a>
-
-          <a href="#arte" class="category-item">
-            <span class="category-icon">🎨</span>
-            <span>Arte</span>
-          </a>
-
-          <a href="#regalos" class="category-item">
-            <span class="category-icon">🎁</span>
-            <span>Regalos</span>
-          </a>
+          {categories.length > 0 ? (
+            categories.map((cat: any) => (
+              <a href={`/categorias/${cat.slug}`} class="category-item">
+                <!-- Puedes usar un ícono por defecto o mapearlo según convenga -->
+                <span class="category-icon">🏺</span>
+                <span>{cat.name}</span>
+              </a>
+            ))
+          ) : (
+            <span class="category-item" style="color: #898177;">No hay categorías</span>
+          )}
 
         </div>
 

@@ -1,0 +1,282 @@
+---
+// src/pages/categorias/[slug].astro
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+let category = null;
+let products = [];
+let errorMessage = null;
+
+try {
+  const response = await fetch(`http://localhost:3000/api/categories/${slug}`);
+  const result = await response.json();
+
+  if (result.success && result.data) {
+    category = result.data.category || result.data;
+    products = result.data.products || [];
+  } else {
+    errorMessage = "La categoría que buscas no existe o no tiene productos.";
+  }
+} catch (err) {
+  console.error("Error al conectar con el servidor:", err);
+  errorMessage = "No se pudo conectar con el servidor para cargar la categoría.";
+}
+
+const pageTitle = category ? `${category.name} | TEKITI` : "Categoría | TEKITI";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <!-- HEADER / NAVEGACIÓN SUPERIOR -->
+    <header class="store-header">
+      <div class="brand">
+        <a href="/">TEKITI</a>
+        <span>Catálogo Artesanal</span>
+      </div>
+      <a href="/" class="back-link">← Volver al inicio</a>
+    </header>
+
+    <main class="main-container">
+      {errorMessage || !category ? (
+        <div class="error-container">
+          <h2>Categoría no encontrada</h2>
+          <p>{errorMessage || "Lo sentimos, no pudimos encontrar esta categoría."}</p>
+          <a href="/" class="btn-primary">Regresar a la tienda</a>
+        </div>
+      ) : (
+        <>
+          <div class="category-header">
+            <h1>{category.name}</h1>
+            <p>{category.description || `Explora nuestra selección de piezas artesanales de la categoría ${category.name}.`}</p>
+          </div>
+
+          {products.length === 0 ? (
+            <div class="empty-state">
+              <p>No hay productos disponibles en esta categoría por el momento.</p>
+              <a href="/" class="btn-primary">Ver todos los productos</a>
+            </div>
+          ) : (
+            <div class="products-grid">
+              {products.map((product: any) => {
+                const mainImg = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300';
+                return (
+                  <a href={`/products/${product.slug}`} class="product-card">
+                    <div class="product-img-container">
+                      <img src={mainImg} alt={product.name} class="product-img" />
+                      {product.offerPrice && <span class="badge-offer">Oferta</span>}
+                    </div>
+                    <div class="product-info">
+                      <span class="product-origin">{product.origin ? `📍 ${product.origin}` : 'El Salvador'}</span>
+                      <h3 class="product-name">{product.name}</h3>
+                      <div class="product-pricing">
+                        {product.offerPrice ? (
+                          <>
+                            <span class="price-offer">${Number(product.offerPrice).toFixed(2)}</span>
+                            <span class="price-original">${Number(product.price).toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <span class="price-normal">${Number(product.price).toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+    </main>
+
+    <!-- ESTILOS CSS PURO -->
+    <style>
+      :global(body) {
+        margin: 0;
+        background: #f7f4ef;
+        color: #252525;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .store-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5%;
+        background: #fff;
+        border-bottom: 1px solid #e7e0d5;
+      }
+
+      .brand a {
+        font-family: Georgia, serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+        color: #252525;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .brand span {
+        color: #898177;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-left: 10px;
+      }
+
+      .back-link {
+        color: #b85c38;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .back-link:hover { text-decoration: underline; }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      .category-header {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e7e0d5;
+        padding-bottom: 15px;
+      }
+
+      .category-header h1 {
+        font-family: Georgia, serif;
+        font-size: 2.2rem;
+        margin: 0 0 8px 0;
+        color: #252525;
+      }
+
+      .category-header p {
+        margin: 0;
+        color: #898177;
+        font-size: 0.95rem;
+      }
+
+      /* CUADRÍCULA DE PRODUCTOS */
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 25px;
+      }
+
+      .product-card {
+        background: #fff;
+        border: 1px solid #e7e0d5;
+        border-radius: 8px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      }
+
+      .product-img-container {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        background: #faf8f3;
+      }
+
+      .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .badge-offer {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #c74747;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+      }
+
+      .product-info {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+
+      .product-origin {
+        font-size: 0.75rem;
+        color: #b85c38;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .product-name {
+        font-family: Georgia, serif;
+        font-size: 1.1rem;
+        margin: 0 0 10px 0;
+        color: #252525;
+      }
+
+      .product-pricing {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .price-normal, .price-offer {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #252525;
+      }
+
+      .price-offer {
+        color: #b85c38;
+      }
+
+      .price-original {
+        font-size: 0.9rem;
+        text-decoration: line-through;
+        color: #898177;
+      }
+
+      .empty-state, .error-container {
+        text-align: center;
+        background: #fff;
+        padding: 60px 20px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+      }
+
+      .btn-primary {
+        display: inline-block;
+        margin-top: 15px;
+        background: #252525;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      .btn-primary:hover { background: #b85c38; }
+    </style>
+  </body>
+</html>
