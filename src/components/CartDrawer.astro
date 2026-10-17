@@ -111,524 +111,193 @@
 </aside>
 
 
-<script>
-
-  interface CartItem {
-    name: string;
-    price: number;
-    quantity: number;
-  }
-
+<script is:inline>
 
   const CART_KEY = "tekiti-cart";
 
+  const cartDrawer = document.getElementById("cart-drawer");
+  const cartOverlay = document.getElementById("cart-overlay");
+  const closeCart = document.getElementById("close-cart");
+  const cartItems = document.getElementById("cart-items");
+  const emptyCart = document.getElementById("empty-cart");
+  const cartSummary = document.getElementById("cart-summary");
+  const cartSubtotal = document.getElementById("cart-subtotal");
+  const continueShopping = document.getElementById("continue-shopping");
 
-  const cartDrawer =
-    document.getElementById("cart-drawer");
-
-  const cartOverlay =
-    document.getElementById("cart-overlay");
-
-  const closeCart =
-    document.getElementById("close-cart");
-
-  const cartItems =
-    document.getElementById("cart-items");
-
-  const emptyCart =
-    document.getElementById("empty-cart");
-
-  const cartSummary =
-    document.getElementById("cart-summary");
-
-  const cartSubtotal =
-    document.getElementById("cart-subtotal");
-
-  const continueShopping =
-    document.getElementById("continue-shopping");
-
-
-  function getCart(): CartItem[] {
-
+  function getCart() {
     try {
-
-      const savedCart =
-        localStorage.getItem(CART_KEY);
-
-      return savedCart
-        ? JSON.parse(savedCart)
-        : [];
-
+      const savedCart = localStorage.getItem(CART_KEY);
+      return savedCart ? JSON.parse(savedCart) : [];
     } catch {
-
       return [];
-
     }
-
   }
 
-
-  function saveCart(cart: CartItem[]) {
-
-    localStorage.setItem(
-      CART_KEY,
-      JSON.stringify(cart)
-    );
-
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
 
-
-  function formatPrice(price: number) {
-
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency: "USD"
-      }
-    ).format(price);
-
+  function formatPrice(price) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD"
+    }).format(price);
   }
-
 
   function updateHeaderCounter() {
-
-    const cart =
-      getCart();
-
-    const totalQuantity =
-      cart.reduce(
-        (total, item) =>
-          total + item.quantity,
-        0
-      );
-
-    const counter =
-      document.getElementById(
-        "cart-count"
-      );
-
+    const cart = getCart();
+    const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
+    const counter = document.getElementById("cart-count");
     if (!counter) return;
 
-
-    counter.textContent =
-      String(totalQuantity);
-
-
-    counter.classList.toggle(
-      "visible",
-      totalQuantity > 0
-    );
-
+    counter.textContent = String(totalQuantity);
+    counter.classList.toggle("visible", totalQuantity > 0);
   }
 
-
   function renderCart() {
-
     if (!cartItems) return;
-
-    const cart =
-      getCart();
-
-
+    const cart = getCart();
     cartItems.innerHTML = "";
-
-    /*
-    Actualizamos siempre el contador
-    */
 
     updateHeaderCounter();
 
-    /*
-      CARRITO VACÍO
-    */
-
     if (cart.length === 0) {
-
       cartItems.classList.remove("has-items");
-
-      emptyCart?.classList.add(
-        "visible"
-      );
-
-      cartSummary?.classList.remove(
-        "visible"
-      );
-
+      emptyCart?.classList.add("visible");
+      cartSummary?.classList.remove("visible");
       return;
-
     }
 
-
-    /*
-      CARRITO CON PRODUCTOS
-    */
-
-    cartItems.classList.add(
-      "has-items"
-    );
-
-    emptyCart?.classList.remove(
-      "visible"
-    );
-
-    cartSummary?.classList.add(
-      "visible"
-    );
-
+    cartItems.classList.add("has-items");
+    emptyCart?.classList.remove("visible");
+    cartSummary?.classList.add("visible");
 
     let subtotal = 0;
 
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      subtotal += itemTotal;
 
-    cart.forEach(
-      (item, index) => {
+      const element = document.createElement("article");
+      element.className = "cart-item";
 
-        const itemTotal =
-          item.price *
-          item.quantity;
-
-        subtotal += itemTotal;
-
-
-        const element =
-          document.createElement(
-            "article"
-          );
-
-        element.className =
-          "cart-item";
-
-
-        element.innerHTML = `
-
-          <div class="item-info">
-
-            <h3>
-              ${item.name}
-            </h3>
-
-            <span>
-              ${formatPrice(item.price)}
-              por unidad
-            </span>
-
+      element.innerHTML = `
+        <div class="item-info">
+          <h3>${item.name}</h3>
+          <span>${formatPrice(item.price)} por unidad</span>
+        </div>
+        <div class="item-bottom">
+          <div class="quantity-control">
+            <button
+              type="button"
+              class="quantity-button"
+              data-action="decrease"
+              data-index="${index}"
+              aria-label="Disminuir cantidad"
+            >
+              −
+            </button>
+            <span>${item.quantity}</span>
+            <button
+              type="button"
+              class="quantity-button"
+              data-action="increase"
+              data-index="${index}"
+              aria-label="Aumentar cantidad"
+            >
+              +
+            </button>
           </div>
+          <strong class="item-total">${formatPrice(itemTotal)}</strong>
+        </div>
+      `;
 
-
-          <div class="item-bottom">
-
-            <div class="quantity-control">
-
-              <button
-                type="button"
-                class="quantity-button"
-                data-action="decrease"
-                data-index="${index}"
-                aria-label="Disminuir cantidad"
-              >
-                −
-              </button>
-
-              <span>
-                ${item.quantity}
-              </span>
-
-              <button
-                type="button"
-                class="quantity-button"
-                data-action="increase"
-                data-index="${index}"
-                aria-label="Aumentar cantidad"
-              >
-                +
-              </button>
-
-            </div>
-
-
-            <strong class="item-total">
-              ${formatPrice(itemTotal)}
-            </strong>
-
-          </div>
-
-        `;
-
-
-        cartItems.appendChild(
-          element
-        );
-
-      }
-    );
-
-    /* Actualizar subtotal */
+      cartItems.appendChild(element);
+    });
 
     if (cartSubtotal) {
-
-      cartSubtotal.textContent =
-        formatPrice(subtotal);
-
+      cartSubtotal.textContent = formatPrice(subtotal);
     }
-
 
     updateHeaderCounter();
-
   }
-
 
   function openCart() {
-
-    if (!cartDrawer || !cartOverlay)
-      return;
-
-
+    if (!cartDrawer || !cartOverlay) return;
     renderCart();
-
-
-    cartDrawer.classList.add(
-      "open"
-    );
-
-    cartOverlay.classList.add(
-      "visible"
-    );
-
-
-    cartDrawer.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-    cartOverlay.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-
-    document.body.classList.add(
-      "cart-open"
-    );
-
+    cartDrawer.classList.add("open");
+    cartOverlay.classList.add("visible");
+    cartDrawer.setAttribute("aria-hidden", "false");
+    cartOverlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("cart-open");
   }
-
 
   function closeCartDrawer() {
-
-    if (!cartDrawer || !cartOverlay)
-      return;
-
-
-    cartDrawer.classList.remove(
-      "open"
-    );
-
-    cartOverlay.classList.remove(
-      "visible"
-    );
-
-
-    cartDrawer.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    cartOverlay.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-
-    document.body.classList.remove(
-      "cart-open"
-    );
-
+    if (!cartDrawer || !cartOverlay) return;
+    cartDrawer.classList.remove("open");
+    cartOverlay.classList.remove("visible");
+    cartDrawer.setAttribute("aria-hidden", "true");
+    cartOverlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("cart-open");
   }
 
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
 
-  /*
-    ABRIR DESDE EL HEADER
-  */
-
-  document.addEventListener(
-    "click",
-    (event) => {
-
-      const target =
-        event.target;
-
-      if (
-        !(target instanceof Element)
-      ) return;
-
-
-      const cartTrigger =
-        target.closest(
-          ".cart-action"
-        );
-
-
-      if (cartTrigger) {
-
-        event.preventDefault();
-
-        openCart();
-
-      }
-
+    const cartTrigger = target.closest(".cart-action");
+    if (cartTrigger) {
+      event.preventDefault();
+      event.stopPropagation();
+      openCart();
     }
-  );
+  });
 
+  closeCart?.addEventListener("click", closeCartDrawer);
+  cartOverlay?.addEventListener("click", closeCartDrawer);
+  continueShopping?.addEventListener("click", closeCartDrawer);
 
-  /*
-    CERRAR
-  */
-
-  closeCart?.addEventListener(
-    "click",
-    closeCartDrawer
-  );
-
-
-  cartOverlay?.addEventListener(
-    "click",
-    closeCartDrawer
-  );
-
-
-  continueShopping?.addEventListener(
-    "click",
-    closeCartDrawer
-  );
-
-
-  /*
-    ESC PARA CERRAR
-  */
-
-  document.addEventListener(
-    "keydown",
-    (event) => {
-
-      if (
-        event.key === "Escape"
-      ) {
-
-        closeCartDrawer();
-
-      }
-
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeCartDrawer();
     }
-  );
+  });
 
+  cartItems?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
 
-  /*
-    CAMBIAR CANTIDAD
-  */
+    const button = target.closest(".quantity-button");
+    if (!button) return;
 
-  cartItems?.addEventListener(
-    "click",
-    (event) => {
+    const index = Number(button.dataset.index);
+    const action = button.dataset.action;
 
-      const target =
-        event.target;
+    const cart = getCart();
+    if (!cart[index]) return;
 
-      if (
-        !(target instanceof Element)
-      ) return;
+    if (action === "increase") {
+      cart[index].quantity += 1;
+    }
+    if (action === "decrease") {
+      cart[index].quantity -= 1;
+    }
 
+    if (cart[index].quantity <= 0) {
+      cart.splice(index, 1);
+    }
 
-      const button =
-        target.closest(
-          ".quantity-button"
-        );
+    saveCart(cart);
+    renderCart();
+  });
 
-
-      if (!button) return;
-
-
-      const index =
-        Number(
-          button.dataset.index
-        );
-
-      const action =
-        button.dataset.action;
-
-
-      const cart =
-        getCart();
-
-
-      if (!cart[index]) return;
-
-
-      if (
-        action === "increase"
-      ) {
-
-        cart[index].quantity += 1;
-
-      }
-
-
-      if (
-        action === "decrease"
-      ) {
-
-        cart[index].quantity -= 1;
-
-      }
-
-
-      /*
-        Si llega a 0,
-        eliminamos el producto.
-      */
-
-      if (
-        cart[index].quantity <= 0
-      ) {
-
-        cart.splice(index, 1);
-
-      }
-
-
-      saveCart(cart);
-
+  window.addEventListener("storage", (event) => {
+    if (event.key === CART_KEY) {
       renderCart();
-
     }
-  );
-
-
-  /*
-    ESCUCHAR CAMBIOS DEL CARRITO
-  */
-
-  window.addEventListener(
-    "storage",
-    (event) => {
-
-      if (
-        event.key === CART_KEY
-      ) {
-
-        renderCart();
-
-      }
-
-    }
-  );
-
-
-  /*
-    ESTADO INICIAL
-  */
+  });
 
   updateHeaderCounter();
-
 </script>
 
 

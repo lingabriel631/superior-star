@@ -1,15 +1,14 @@
 ---
-// src/pages/products/[slug].astro (o en categorias/[slug].astro)
+// src/pages/products/[slug].astro
 export const prerender = false;
 
 const { slug } = Astro.params;
 
-let product = null; // o 'category = null' según sea el caso
+let product = null;
 let errorMessage = null;
 
 try {
-  // En lugar de 'http://localhost:3000/api/products/slug/...', usa:
-const response = await fetch(`http://127.0.0.1:3000/api/products/slug/${slug}`);
+  const response = await fetch(`http://127.0.0.1:3000/api/products/slug/${slug}`);
   const result = await response.json();
 
   if (result.success && result.data) {
@@ -22,7 +21,6 @@ const response = await fetch(`http://127.0.0.1:3000/api/products/slug/${slug}`);
   errorMessage = "No se pudo conectar con el servidor.";
 }
 
-// 🟢 DECLARA ESTO AQUÍ ABAJO (fuera del try/catch)
 const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
 ---
 
@@ -67,7 +65,11 @@ const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
             {product.images && product.images.length > 1 && (
               <div class="thumbnails-list">
                 {product.images.map((imgUrl: string, index: number) => (
-                  <button type="button" class={`thumb-btn ${index === 0 ? 'active' : ''}`} onclick={`document.getElementById('active-product-img').src='${imgUrl}'`}>
+                  <button 
+                    type="button" 
+                    class={`thumb-btn ${index === 0 ? 'active' : ''}`}
+                    onclick={`document.getElementById('active-product-img').src='${imgUrl}'`}
+                  >
                     <img src={imgUrl} alt={`${product.name} ${index + 1}`} />
                   </button>
                 ))}
@@ -95,12 +97,21 @@ const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
               {product.description || "Pieza artesanal elaborada con dedicación y técnicas tradicionales."}
             </p>
 
+            <!-- SECCIÓN META (Solo Stock) -->
             <div class="product-meta">
               <p><strong>Stock disponible:</strong> {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}</p>
-              <p><strong>Costo de producción:</strong> ${product.cost ? Number(product.cost).toFixed(2) : 'N/D'}</p>
             </div>
 
-            <button type="button" class="btn-add-cart" disabled={product.stock <= 0}>
+            <!-- BOTÓN PRINCIPAL DE AGREGAR AL CARRITO -->
+            <button 
+              type="button" 
+              class="btn-add-cart" 
+              disabled={product.stock <= 0}
+              data-id={product.id}
+              data-name={product.name}
+              data-price={product.offerPrice ? product.offerPrice : product.price}
+              data-image={product.images && product.images.length > 0 ? product.images[0] : ''}
+            >
               {product.stock > 0 ? '🛒 Agregar al carrito' : 'Sin stock'}
             </button>
           </div>
@@ -328,5 +339,54 @@ const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
       }
       .btn-primary:hover { background: #b85c38; }
     </style>
+
+    <script>
+      const CART_KEY = "tekiti-cart";
+      const addToCartBtn = document.querySelector('.btn-add-cart');
+
+      if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+          // Usamos addToCartBtn en lugar de 'button'
+          const id = addToCartBtn.getAttribute('data-id');
+          const name = addToCartBtn.getAttribute('data-name');
+          const price = parseFloat(addToCartBtn.getAttribute('data-price') || '0');
+          const image = addToCartBtn.getAttribute('data-image');
+
+          if (!id || !name) {
+            alert("Error al obtener la información del producto.");
+            return;
+          }
+
+          const newItem = {
+            id,
+            name,
+            price,
+            image,
+            quantity: 1
+          };
+
+          let cart = [];
+          try {
+            cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+          } catch (e) {
+            cart = [];
+          }
+
+          const existingIndex = cart.findIndex((item: any) => String(item.id) === String(id));
+
+          if (existingIndex > -1) {
+            cart[existingIndex].quantity += 1;
+          } else {
+            cart.push(newItem);
+          }
+
+          localStorage.setItem(CART_KEY, JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent('storage', { key: CART_KEY }));
+
+          alert(`¡"${name}" se ha añadido al carrito!`);
+        });
+      }
+    </script>
+    
   </body>
 </html>
