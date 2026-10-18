@@ -1,5 +1,7 @@
 ---
 // src/pages/products/[slug].astro
+import SEO from '../../components/SEO.astro';
+
 export const prerender = false;
 
 const { slug } = Astro.params;
@@ -21,15 +23,39 @@ try {
   errorMessage = "No se pudo conectar con el servidor.";
 }
 
-const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
+// Datos estructurados para Google (Schema.org / Product)
+const productSchema = product ? {
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": product.name,
+  "description": product.description || "Pieza artesanal elaborada con dedicación y técnicas tradicionales.",
+  "image": product.images && product.images.length > 0 ? product.images[0] : '',
+  "brand": {
+    "@type": "Brand",
+    "name": product.brand || "TEKITI"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "USD",
+    "price": product.offerPrice ? product.offerPrice : product.price,
+    "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+  }
+} : null;
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{pageTitle}</title>
+    <SEO 
+      title={product ? product.name : "Producto no encontrado"}
+      description={product ? (product.description || `Compra ${product.name} en TEKITI. Artesanía de alta calidad.`) : "El producto que buscas no existe o ya no está disponible."}
+      image={product && product.images && product.images.length > 0 ? product.images[0] : undefined}
+      type="product"
+    />
+
+    {productSchema && (
+      <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+    )}
   </head>
   <body>
     <!-- HEADER / NAVEGACIÓN -->
@@ -346,7 +372,6 @@ const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
 
       if (addToCartBtn) {
         addToCartBtn.addEventListener('click', () => {
-          // Usamos addToCartBtn en lugar de 'button'
           const id = addToCartBtn.getAttribute('data-id');
           const name = addToCartBtn.getAttribute('data-name');
           const price = parseFloat(addToCartBtn.getAttribute('data-price') || '0');
@@ -387,6 +412,5 @@ const pageTitle = product ? `${product.name} | TEKITI` : "Producto | TEKITI";
         });
       }
     </script>
-    
   </body>
 </html>

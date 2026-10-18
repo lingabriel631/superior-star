@@ -1,0 +1,44 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  canonicalURL?: string;
+  type?: 'website' | 'product';
+}
+
+const { 
+  title, 
+  description, 
+  image = '/images/default-og.jpg', // Ruta de una imagen por defecto en tu carpeta public
+  canonicalURL = Astro.url.href,
+  type = 'website'
+} = Astro.props;
+
+const siteTitle = `${title} | Tekiti - Artesanías de El Salvador`;
+---
+
+<!-- Metadatos Básicos -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{siteTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Open Graph / Redes Sociales (Facebook, WhatsApp, LinkedIn) -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={siteTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
+<meta property="og:locale" content="es_SV" />
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={siteTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
