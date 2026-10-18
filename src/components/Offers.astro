@@ -158,13 +158,6 @@
   }
 
 
-  /*
-    IMPORTANTE:
-    flex: 1 + min-width: 0 evita que
-    el carrusel se salga del contenedor
-    por culpa de las flechas.
-  */
-
   .offers-window {
     flex: 1 1 auto;
     min-width: 0;
@@ -201,6 +194,12 @@
     aspect-ratio: 0.82;
     overflow: hidden;
     background: #e5ded2;
+  }
+
+  .offer-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
 
@@ -304,15 +303,21 @@
 
   .offer-info h3 {
     min-height: 44px;
-
     margin: 0;
+  }
 
+  .product-title-link {
     color: #252525;
-
     font-family: Georgia, serif;
     font-size: 1.05rem;
     font-weight: 400;
     line-height: 1.35;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .product-title-link:hover {
+    color: #b85c38;
   }
 
 
@@ -600,7 +605,7 @@
     }
 
 
-    .offer-info h3 {
+    .product-title-link {
       font-size: 0.9rem;
     }
 
@@ -670,7 +675,6 @@
     document.querySelector("#offers-progress");
 
   let cart = [];
-
   let currentPosition = 0;
 
 
@@ -679,159 +683,93 @@
   ======================================== */
 
   function loadCart() {
-
     try {
-
-      const savedCart =
-        localStorage.getItem(STORAGE_KEY);
-
-      if (!savedCart) {
-
-        cart = [];
-
-        return;
-
-      }
-
-      const parsedCart =
-        JSON.parse(savedCart);
-
-      cart =
-        Array.isArray(parsedCart)
-          ? parsedCart
-          : [];
-
+      const savedCart = localStorage.getItem(STORAGE_KEY);
+      const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+      cart = Array.isArray(parsedCart) ? parsedCart : [];
     } catch {
-
       cart = [];
-
     }
-
   }
 
 
   function saveCart() {
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(cart)
-    );
-
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
   }
 
 
   function getCartQuantity(productId) {
-
-    const item =
-      cart.find(
-        (product) =>
-          Number(product.id) ===
-          Number(productId)
-      );
-
-    return item
-      ? item.quantity
-      : 0;
-
+    const item = cart.find(
+      (product) => Number(product.id) === Number(productId)
+    );
+    return item ? item.quantity : 0;
   }
 
 
   function getTotalQuantity() {
-
     return cart.reduce(
-      (total, item) =>
-        total + Number(item.quantity || 0),
+      (total, item) => total + Number(item.quantity || 0),
       0
     );
-
   }
 
 
   function updateHeaderCounter() {
-
-    const headerCounter =
-      document.querySelector("#cart-count");
-
+    const headerCounter = document.querySelector("#cart-count");
     if (!headerCounter) return;
 
-    const total =
-      getTotalQuantity();
-
-    headerCounter.textContent =
-      String(total);
-
-    headerCounter.classList.toggle(
-      "visible",
-      total > 0
-    );
-
+    const total = getTotalQuantity();
+    headerCounter.textContent = String(total);
+    headerCounter.classList.toggle("visible", total > 0);
   }
 
 
-      function updateProductQuantity(
-      productId,
-      productName,
-      price,
-      quantity
-    ) {
-      // Leer siempre la versión más reciente del carrito.
-      try {
-        const savedCart = localStorage.getItem(STORAGE_KEY);
+  function updateProductQuantity(
+    productId,
+    productName,
+    price,
+    quantity
+  ) {
+    loadCart();
 
-        cart = savedCart ? JSON.parse(savedCart) : [];
+    const existingItem = cart.find(
+      (product) => Number(product.id) === Number(productId)
+    );
 
-        if (!Array.isArray(cart)) {
-          cart = [];
-        }
-      } catch (error) {
-        console.error("Error al leer el carrito:", error);
-        return;
-      }
-
-      const existingItem = cart.find(
-        (product) =>
-          Number(product.id) === Number(productId)
+    if (quantity <= 0) {
+      cart = cart.filter(
+        (product) => Number(product.id) !== Number(productId)
       );
-
-      if (quantity <= 0) {
-        cart = cart.filter(
-          (product) =>
-            Number(product.id) !== Number(productId)
-        );
-      } else if (existingItem) {
-        existingItem.quantity = quantity;
-      } else {
-        cart.push({
-          id: Number(productId),
-          name: productName,
-          price: Number(price),
-          quantity,
-        });
-      }
-
-      saveCart();
-      updateHeaderCounter();
-
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: STORAGE_KEY,
-          newValue: JSON.stringify(cart),
-        })
-      );
+    } else if (existingItem) {
+      existingItem.quantity = quantity;
+    } else {
+      cart.push({
+        id: Number(productId),
+        name: productName,
+        price: Number(price),
+        quantity,
+      });
     }
 
+    saveCart();
+    updateHeaderCounter();
 
-      function formatPrice(price) {
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: STORAGE_KEY,
+        newValue: JSON.stringify(cart),
+      })
+    );
+    window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+  }
 
-        return new Intl.NumberFormat(
-          "en-US",
-          {
-            style: "currency",
-            currency: "USD",
-          }
-        ).format(Number(price));
 
-      }
+  function formatPrice(price) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(Number(price));
+  }
 
 
   /* ========================================
@@ -839,316 +777,139 @@
   ======================================== */
 
   function createOfferCard(product) {
-
-    const originalPrice =
-      Number(product.price);
-
-    const offerPrice =
-      Number(
-        product.offerPrice ??
-        product.price
-      );
+    const originalPrice = Number(product.price);
+    const offerPrice = Number(product.offerPrice ?? product.price);
 
     const discount =
       originalPrice > 0
-        ? Math.round(
-            ((originalPrice - offerPrice) /
-              originalPrice) *
-              100
-          )
+        ? Math.round(((originalPrice - offerPrice) / originalPrice) * 100)
         : 0;
 
-    const category =
-      product.category?.name ||
-      "Artesanía";
-
+    const category = product.category?.name || "Artesanía";
     const image =
       product.image ||
       "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80";
 
-
-    const article =
-      document.createElement("article");
-
-    article.className =
-      "offer-card";
-
+    const article = document.createElement("article");
+    article.className = "offer-card";
 
     article.innerHTML = `
-
       <div class="offer-image">
-
-        <img
-          src="${image}"
-          alt="${product.name}"
-          loading="lazy"
-        />
-
-        <span class="discount-badge">
-          -${discount}%
-        </span>
-
-        <button
-          class="favorite"
-          type="button"
-          aria-label="Agregar ${product.name} a favoritos"
-        >
-          ♡
-        </button>
-
+        <a href="/products/${product.slug}">
+          <img src="${image}" alt="${product.name}" loading="lazy"/>
+        </a>
+        <span class="discount-badge">-${discount}%</span>
+        <button class="favorite" type="button" aria-label="Agregar ${product.name} a favoritos">♡</button>
       </div>
-
-
       <div class="offer-info">
-
-        <span class="offer-category">
-          ${category}
-        </span>
-
+        <span class="offer-category">${category}</span>
         <h3>
-          ${product.name}
+          <a href="/products/${product.slug}" class="product-title-link">${product.name}</a>
         </h3>
-
-
         <div class="prices">
-
-          <span class="old-price">
-            ${formatPrice(originalPrice)}
-          </span>
-
-          <span class="offer-price">
-            ${formatPrice(offerPrice)}
-          </span>
-
+          <span class="old-price">${formatPrice(originalPrice)}</span>
+          <span class="offer-price">${formatPrice(offerPrice)}</span>
         </div>
-
-
-        <div class="cart-label">
-          Agregar al carrito
-        </div>
-
-
+        <div class="cart-label">Agregar al carrito</div>
         <div
           class="quantity-control"
           data-product-id="${product.id}"
           data-product="${product.name}"
           data-price="${offerPrice}"
         >
-
-          <button
-            type="button"
-            class="quantity-button decrease"
-            aria-label="Quitar una unidad de ${product.name}"
-          >
-            −
-          </button>
-
-          <span
-            class="quantity"
-            aria-live="polite"
-          >
-            0
-          </span>
-
-          <button
-            type="button"
-            class="quantity-button increase"
-            aria-label="Agregar una unidad de ${product.name}"
-          >
-            +
-          </button>
-
+          <button type="button" class="quantity-button decrease" aria-label="Quitar una unidad">−</button>
+          <span class="quantity" aria-live="polite">0</span>
+          <button type="button" class="quantity-button increase" aria-label="Agregar una unidad">+</button>
         </div>
-
       </div>
-
     `;
 
+    const control = article.querySelector(".quantity-control");
+    const quantityElement = article.querySelector(".quantity");
+    const decreaseButton = article.querySelector(".decrease");
+    const increaseButton = article.querySelector(".increase");
 
-    const control =
-      article.querySelector(
-        ".quantity-control"
-      );
-
-    const quantityElement =
-      article.querySelector(
-        ".quantity"
-      );
-
-    const decreaseButton =
-      article.querySelector(
-        ".decrease"
-      );
-
-    const increaseButton =
-      article.querySelector(
-        ".increase"
-      );
-
-
-    if (
-      !control ||
-      !quantityElement ||
-      !decreaseButton ||
-      !increaseButton
-    ) {
-
+    if (!control || !quantityElement || !decreaseButton || !increaseButton) {
       return article;
-
     }
 
+    const productId = Number(control.dataset.productId);
+    const productName = control.dataset.product || "";
+    const price = Number(control.dataset.price || 0);
 
-    const productId =
-      Number(
-        control.dataset.productId
-      );
+    let quantity = getCartQuantity(productId);
+    quantityElement.textContent = String(quantity);
 
-    const productName =
-      control.dataset.product || "";
+    decreaseButton.addEventListener("click", () => {
+      const current = getCartQuantity(productId);
+      const newQty = Math.max(0, current - 1);
+      quantityElement.textContent = String(newQty);
+      updateProductQuantity(productId, productName, price, newQty);
+    });
 
-    const price =
-      Number(
-        control.dataset.price || 0
-      );
-
-
-    let quantity =
-      getCartQuantity(productId);
-
-
-    quantityElement.textContent =
-      String(quantity);
-
-
-    decreaseButton.addEventListener(
-      "click",
-      () => {
-
-        if (quantity > 0) {
-
-          quantity--;
-
-        }
-
-        quantityElement.textContent =
-          String(quantity);
-
-        updateProductQuantity(
-          productId,
-          productName,
-          price,
-          quantity
-        );
-
-      }
-    );
-
-
-    increaseButton.addEventListener(
-      "click",
-      () => {
-
-        quantity++;
-
-        quantityElement.textContent =
-          String(quantity);
-
-        updateProductQuantity(
-          productId,
-          productName,
-          price,
-          quantity
-        );
-
-      }
-    );
-
+    increaseButton.addEventListener("click", () => {
+      const current = getCartQuantity(productId);
+      const newQty = current + 1;
+      quantityElement.textContent = String(newQty);
+      updateProductQuantity(productId, productName, price, newQty);
+    });
 
     return article;
-
   }
 
 
   async function loadOffers() {
-
     if (!track) return;
 
-
     try {
+      const response = await fetch("http://localhost:3000/api/products");
+      if (!response.ok) throw new Error("No se pudieron cargar los productos");
 
-      const response =
-        await fetch(
-          "http://localhost:3000/api/products"
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          "No se pudieron cargar los productos"
-        );
-
-      }
-
-
-      const result =
-        await response.json();
-
-
-      const offers =
-        result.success
-          ? result.data.filter(
-              (product) =>
-                product.isOffer &&
-                product.isActive
-            )
-          : [];
-
+      const result = await response.json();
+      const offers = result.success
+        ? result.data.filter((product) => product.isOffer && product.isActive)
+        : [];
 
       track.innerHTML = "";
-
-
-      offers.forEach(
-        (product) => {
-
-          track.appendChild(
-            createOfferCard(product)
-          );
-
-        }
-      );
-
+      offers.forEach((product) => {
+        track.appendChild(createOfferCard(product));
+      });
 
       currentPosition = 0;
-
       updateCarousel();
-
     } catch (error) {
-
-      console.error(
-        "Error cargando ofertas:",
-        error
-      );
-
-      track.innerHTML = `
-
-        <p
-          style="
-            width:100%;
-            padding:40px 0;
-            color:#777168;
-          "
-        >
-          No se pudieron cargar las ofertas.
-        </p>
-
-      `;
-
+      console.error("Error cargando ofertas:", error);
+      track.innerHTML = `<p style="width:100%;padding:40px 0;color:#777168;">No se pudieron cargar las ofertas.</p>`;
       updateCarousel();
-
     }
-
   }
+
+
+  /* ========================================
+     SINCRONIZACIÓN GLOBAL DEL CARRITO
+  ======================================== */
+
+  window.addEventListener("tekiti-cart-updated", () => {
+    loadCart();
+    if (!track) return;
+
+    const controls = track.querySelectorAll(".quantity-control");
+    controls.forEach((control) => {
+      const productId = Number(control.dataset.productId || 0);
+      const quantityElement = control.querySelector(".quantity");
+      if (quantityElement) {
+        quantityElement.textContent = String(getCartQuantity(productId));
+      }
+    });
+
+    updateHeaderCounter();
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (STORAGE_KEY) {
+      window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+    }
+  });
 
 
   /* ========================================
@@ -1156,226 +917,72 @@
   ======================================== */
 
   function getVisibleOffers() {
-
-    if (window.innerWidth <= 430) {
-
-      return 1;
-
-    }
-
-    if (window.innerWidth <= 600) {
-
-      return 2;
-
-    }
-
-    if (window.innerWidth <= 1000) {
-
-      return 3;
-
-    }
-
+    if (window.innerWidth <= 430) return 1;
+    if (window.innerWidth <= 600) return 2;
+    if (window.innerWidth <= 1000) return 3;
     return 4;
-
   }
-
 
   function getCardWidth() {
-
     if (!track) return 0;
+    const firstCard = track.querySelector(".offer-card");
+    if (!firstCard) return 0;
 
-
-    const firstCard =
-      track.querySelector(
-        ".offer-card"
-      );
-
-
-    if (!firstCard) {
-
-      return 0;
-
-    }
-
-
-    const styles =
-      window.getComputedStyle(track);
-
-
-    const gap =
-      parseFloat(styles.columnGap) ||
-      parseFloat(styles.gap) ||
-      0;
-
-
-    return (
-      firstCard.offsetWidth +
-      gap
-    );
-
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap) || parseFloat(styles.gap) || 0;
+    return firstCard.offsetWidth + gap;
   }
 
-
   function updateCarousel() {
+    if (!track || !prevButton || !nextButton || !counter || !progress) return;
 
-    if (
-      !track ||
-      !prevButton ||
-      !nextButton ||
-      !counter ||
-      !progress
-    ) {
+    const visibleOffers = getVisibleOffers();
+    const totalOffers = track.querySelectorAll(".offer-card").length;
+    const maxPosition = Math.max(0, totalOffers - visibleOffers);
 
-      return;
+    currentPosition = Math.min(currentPosition, maxPosition);
+    const offset = currentPosition * getCardWidth();
 
-    }
+    track.style.transform = `translateX(-${offset}px)`;
+    prevButton.disabled = currentPosition === 0;
+    nextButton.disabled = currentPosition >= maxPosition;
 
+    const first = totalOffers === 0 ? 0 : currentPosition + 1;
+    const last = totalOffers === 0 ? 0 : Math.min(currentPosition + visibleOffers, totalOffers);
 
-    const visibleOffers =
-      getVisibleOffers();
-
-
-    const totalOffers =
-      track.querySelectorAll(
-        ".offer-card"
-      ).length;
-
-
-    const maxPosition =
-      Math.max(
-        0,
-        totalOffers - visibleOffers
-      );
-
-
-    currentPosition =
-      Math.min(
-        currentPosition,
-        maxPosition
-      );
-
-
-    const offset =
-      currentPosition *
-      getCardWidth();
-
-
-    track.style.transform =
-      `translateX(-${offset}px)`;
-
-
-    prevButton.disabled =
-      currentPosition === 0;
-
-
-    nextButton.disabled =
-      currentPosition >=
-      maxPosition;
-
-
-    const first =
-      totalOffers === 0
-        ? 0
-        : currentPosition + 1;
-
-
-    const last =
-      totalOffers === 0
-        ? 0
-        : Math.min(
-            currentPosition +
-              visibleOffers,
-            totalOffers
-          );
-
-
-    counter.textContent =
-      `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
-
+    counter.textContent = `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
 
     const percentage =
       maxPosition === 0
-        ? totalOffers > 0
-          ? 100
-          : 0
-        : ((currentPosition + 1) /
-            (maxPosition + 1)) *
-          100;
+        ? totalOffers > 0 ? 100 : 0
+        : ((currentPosition + 1) / (maxPosition + 1)) * 100;
 
-
-    progress.style.width =
-      `${percentage}%`;
-
+    progress.style.width = `${percentage}%`;
   }
-
 
   if (prevButton) {
-
-    prevButton.addEventListener(
-      "click",
-      () => {
-
-        if (
-          currentPosition > 0
-        ) {
-
-          currentPosition--;
-
-          updateCarousel();
-
-        }
-
+    prevButton.addEventListener("click", () => {
+      if (currentPosition > 0) {
+        currentPosition--;
+        updateCarousel();
       }
-    );
-
+    });
   }
-
 
   if (nextButton) {
+    nextButton.addEventListener("click", () => {
+      const visibleOffers = getVisibleOffers();
+      const totalOffers = track ? track.querySelectorAll(".offer-card").length : 0;
+      const maxPosition = Math.max(0, totalOffers - visibleOffers);
 
-    nextButton.addEventListener(
-      "click",
-      () => {
-
-        const visibleOffers =
-          getVisibleOffers();
-
-        const totalOffers =
-          track
-            ? track.querySelectorAll(
-                ".offer-card"
-              ).length
-            : 0;
-
-        const maxPosition =
-          Math.max(
-            0,
-            totalOffers -
-              visibleOffers
-          );
-
-
-        if (
-          currentPosition <
-          maxPosition
-        ) {
-
-          currentPosition++;
-
-          updateCarousel();
-
-        }
-
+      if (currentPosition < maxPosition) {
+        currentPosition++;
+        updateCarousel();
       }
-    );
-
+    });
   }
 
-
-  window.addEventListener(
-    "resize",
-    updateCarousel
-  );
+  window.addEventListener("resize", updateCarousel);
 
 
   /* ========================================
@@ -1383,9 +990,7 @@
   ======================================== */
 
   loadCart();
-
   updateHeaderCounter();
-
   loadOffers();
 
 </script>
