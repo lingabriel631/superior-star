@@ -40,8 +40,10 @@ model Product {
   name        String
   slug        String    @unique
   description String?
-  price       Decimal   @db.Decimal(10, 2)
-  offerPrice  Decimal?  @db.Decimal(10, 2)
+  cost        Float?
+  brand       String?
+  price       Float
+  offerPrice  Float?
   stock       Int       @default(0)
   images      String[]  @default([])
 
