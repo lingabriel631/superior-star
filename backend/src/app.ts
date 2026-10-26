@@ -3,11 +3,19 @@ import cors from "cors";
 import productsRoutes from "./routes/products.routes";
 import categoriesRoutes from "./routes/categories.routes";
 import ordersRoutes from "./routes/orders.routes";
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:4321', 'http://127.0.0.1:4321'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
+
+app.use('/api/auth', authRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({
