@@ -11,9 +11,10 @@
     "noImplicitAny":false,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "./src"
   },
   "include": [
-    "**/*.ts"
+    "src/**/*.ts"
   ]
 }
