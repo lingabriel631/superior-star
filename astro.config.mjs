@@ -4,13 +4,13 @@ import node from '@astrojs/node';
 
 import sitemap from '@astrojs/sitemap';
 
+import vercel from '@astrojs/vercel';
+
 export default defineConfig({
   site: 'https://tekiti.com',
   output: 'server',
 
-  adapter: node({
-    mode: 'standalone'
-  }),
+  adapter: vercel(),
 
   integrations: [sitemap()]
 });
