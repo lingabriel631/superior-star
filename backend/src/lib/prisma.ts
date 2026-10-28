@@ -1,12 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import pkg from "pg";
-
-const { Pool } = pkg;
+import { Pool } from "pg";
 
 const connectionString = process.env.DATABASE_URL;
 
-// Configuramos el Pool de pg con SSL requerido para la nube (Render y Supabase)
+// Creamos el Pool de Postgres explícitamente permitiendo el certificado de Supabase en la nube
 const pool = new Pool({
   connectionString,
   ssl: {
