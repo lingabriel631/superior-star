@@ -354,12 +354,21 @@ async function main() {
   ];
 
   for (const producto of productos) {
+    // Extraemos 'image' y guardamos el resto de propiedades en 'rest'
+    const { image, ...rest } = producto;
+
+    // Creamos el objeto adaptado transformando 'image' en un array 'images'
+    const productoData = {
+      ...rest,
+      images: [image],
+    };
+
     await prisma.product.upsert({
       where: {
         slug: producto.slug,
       },
-      update: producto,
-      create: producto,
+      update: productoData,
+      create: productoData,
     });
   }
 
