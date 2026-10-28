@@ -4,7 +4,7 @@ import { Pool } from "pg";
 
 const connectionString = process.env.DATABASE_URL;
 
-// Creamos el Pool de Postgres explícitamente permitiendo el certificado de Supabase en la nube
+// Creamos el Pool de Postgres permitiendo el certificado de Supabase en la nube
 const pool = new Pool({
   connectionString,
   ssl: {
