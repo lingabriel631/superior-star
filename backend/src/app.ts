@@ -7,15 +7,14 @@ import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
-aconst allowedOrigins = [
+const allowedOrigins = [
   'http://localhost:4321',
   'http://127.0.0.1:4321',
-  process.env.FRONTEND_URL, // Aquí puedes poner la URL de tu frontend en Vercel
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Permitir solicitudes sin origen (como Postman o apps móviles) o si están en la lista
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
@@ -26,6 +25,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
