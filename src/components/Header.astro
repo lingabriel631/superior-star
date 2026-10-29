@@ -4,7 +4,8 @@
 let categories = [];
 
 try {
-  const res = await fetch('http://localhost:3000/api/categories');
+  const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+  const res = await fetch(`${API_URL}/api/categories`);
   const result = await res.json();
   if (result.success && Array.isArray(result.data)) {
     categories = result.data;
