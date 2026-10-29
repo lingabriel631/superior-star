@@ -9,8 +9,8 @@ let products = [];
 let errorMessage = null;
 
 try {
-  // En lugar de 'http://localhost:3000/api/products/slug/...', usa:
-const response = await fetch(`http://127.0.0.1:3000/api/categories/${slug}`);
+  const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+  const response = await fetch(`${API_URL}/api/categories/${slug}`);
   const result = await response.json();
 
   if (result.success && result.data) {

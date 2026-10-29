@@ -10,7 +10,8 @@ let product = null;
 let errorMessage = null;
 
 try {
-  const response = await fetch(`http://127.0.0.1:3000/api/products/slug/${slug}`);
+  const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+  const response = await fetch(`${API_URL}/api/products/slug/${slug}`);
   const result = await response.json();
 
   if (result.success && result.data) {
