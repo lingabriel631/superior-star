@@ -862,7 +862,8 @@
     if (!track) return;
 
     try {
-      const response = await fetch("http://localhost:3000/api/products");
+      const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+      const response = await fetch(`${API_URL}/api/products`);
       if (!response.ok) throw new Error("No se pudieron cargar los productos");
 
       const result = await response.json();
