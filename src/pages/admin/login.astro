@@ -153,32 +153,34 @@
         const email = (document.getElementById('email') as HTMLInputElement).value;
         const password = (document.getElementById('password') as HTMLInputElement).value;
 
+        // Utiliza la variable de entorno de Vercel con la URL de Render como respaldo
+        const API_URL = import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com';
+
         try {
-        const res = await fetch('http://localhost:3000/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+            const res = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        if (data.success) {
-            // 1. Guardar en localStorage para las llamadas API del cliente
-            localStorage.setItem('token', data.token);
-            
-            // 2. Guardar en Cookie para que el Middleware de Astro autorice las rutas
-            document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
+            if (data.success) {
+                // 1. Guardar en localStorage para las llamadas API del cliente
+                localStorage.setItem('token', data.token);
+                
+                // 2. Guardar en Cookie para que el Middleware de Astro autorice las rutas
+                document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
 
-            // 3. Redirigir al dashboard
-            window.location.href = '/admin';
-        } else {
-            errorDiv.textContent = data.message || 'Credenciales inválidas';
-            errorDiv.classList.remove('hidden');
-        }
+                // 3. Redirigir al dashboard
+                window.location.href = '/admin';
+            } else {
+                errorDiv.textContent = data.message || 'Credenciales inválidas';
+                errorDiv.classList.remove('hidden');
+            }
         } catch (err) {
-        // ⚠️ ESTO ERA LO QUE FALTABA (El catch que solucionará el error de compilación)
-        errorDiv.textContent = 'Error de conexión con el servidor backend';
-        errorDiv.classList.remove('hidden');
+            errorDiv.textContent = 'Error de conexión con el servidor backend';
+            errorDiv.classList.remove('hidden');
         }
     });
     </script>
