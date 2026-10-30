@@ -46,18 +46,16 @@ const suppliers = [
     </div>
 
     <!-- CONTENEDOR DE PROVEEDORES (Renderizado dinámico con Astro) -->
-    <div class="suppliers-grid">
-      {suppliers.map((supplier) => (
-        <article class="supplier-card">
-          <div class="supplier-avatar">
-            <img src={supplier.image} alt={supplier.name} loading="lazy" />
-          </div>
-          <h3 class="supplier-name">{supplier.name}</h3>
-          <span class="supplier-location">📍 {supplier.location}</span>
-          <p class="supplier-bio">{supplier.bio}</p>
-        </article>
-      ))}
-    </div>
+    {suppliers.map((supplier) => (
+      <a href={`/proveedores/${supplier.slug}`} class="supplier-card">
+        <div class="supplier-avatar">
+          <img src={supplier.image} alt={supplier.name} loading="lazy" />
+        </div>
+        <h3 class="supplier-name">{supplier.name}</h3>
+        <span class="supplier-location">📍 {supplier.location}</span>
+        <p class="supplier-bio">{supplier.bio}</p>
+      </a>
+    ))}
 
   </div>
 </section>

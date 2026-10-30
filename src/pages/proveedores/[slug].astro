@@ -1,0 +1,306 @@
+---
+// src/pages/proveedores/[slug].astro
+import SEO from '../../components/SEO.astro';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+// Base de datos local de proveedores (puedes moverla a un archivo JSON o expandirla cuando gustes)
+const suppliersData = [
+  {
+    slug: "cooperativa-manos-de-suchitoto",
+    name: "Cooperativa Manos de Suchitoto",
+    location: "Suchitoto, Cuscatlán",
+    bio: "Especialistas en textiles tradicionales y tejido en telar de pedal. Con más de 20 años de trayectoria, esta cooperativa familiar transmite de generación en generación el amor por el diseño textil y el rescate de patrones ancestrales salvadoreños.",
+    artisanImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    workshopImages: [
+      "https://images.unsplash.com/photo-1590736969955-71cc94901055?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1582582494705-f829b314e691?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    slug: "talleres-artesanales-la-palma",
+    name: "Talleres Artesanales La Palma",
+    location: "La Palma, Chalatenango",
+    bio: "Familia dedicada al trabajo en madera de pino y coloridas pinturas inspiradas en el estilo y legado del maestro Fernando Llort. Cada pieza de madera es cortada, lijada y pintada a mano con pinceles finos.",
+    artisanImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+    workshopImages: [
+      "https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80"
+    ]
+  }
+];
+
+// Buscamos el proveedor que coincida con el slug de la URL
+const supplier = suppliersData.find((s) => s.slug === slug);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <SEO 
+      title={supplier ? `${supplier.name} | TEKITI` : "Proveedor no encontrado"}
+      description={supplier ? supplier.bio : "Conoce más sobre nuestros artesanos en TEKITI."}
+    />
+  </head>
+  <body>
+    <!-- HEADER / NAVEGACIÓN -->
+    <header class="store-header">
+      <div class="brand">
+        <a href="/">TEKITI</a>
+        <span>Manos Artesanas</span>
+      </div>
+      <a href="/" class="back-link">← Volver al inicio</a>
+    </header>
+
+    <main class="main-container">
+      {!supplier ? (
+        <div class="error-container">
+          <h2>Proveedor no encontrado</h2>
+          <p>Lo sentimos, no pudimos encontrar la información de este artesano.</p>
+          <a href="/" class="btn-primary">Regresar a la tienda</a>
+        </div>
+      ) : (
+        <article class="supplier-profile">
+          
+          <!-- SECCIÓN PRINCIPAL: PERFIL Y ARTESANO -->
+          <div class="profile-hero">
+            <div class="artisan-photo-container">
+              <img src={supplier.artisanImage} alt={supplier.name} class="artisan-img" />
+            </div>
+            <div class="profile-info">
+              <span class="supplier-location">📍 {supplier.location}</span>
+              <h1 class="supplier-title">{supplier.name}</h1>
+              <p class="supplier-bio">{supplier.bio}</p>
+            </div>
+          </div>
+
+          <!-- SECCIÓN: GALERÍA DEL TALLER -->
+          <section class="workshop-section">
+            <div class="section-title-wrapper">
+              <span class="eyebrow">EL PROCESO</span>
+              <h2>Así se vive en el <em>taller</em></h2>
+              <p>Un vistazo íntimo al espacio de trabajo, herramientas y dedicación diaria.</p>
+            </div>
+
+            {supplier.workshopImages && supplier.workshopImages.length > 0 ? (
+              <div class="workshop-grid">
+                {supplier.workshopImages.map((img: string, index: number) => (
+                  <div class="workshop-img-card">
+                    <img src={img} alt={`Taller de ${supplier.name} - Imagen ${index + 1}`} loading="lazy" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="no-photos">Próximamente compartiremos fotografías del taller.</p>
+            )}
+          </section>
+
+        </article>
+      )}
+    </main>
+
+    <style>
+      :global(body) {
+        margin: 0;
+        background: #f7f4ef;
+        color: #252525;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .store-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5%;
+        background: #fff;
+        border-bottom: 1px solid #e7e0d5;
+      }
+
+      .brand a {
+        font-family: Georgia, serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+        color: #252525;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .brand span {
+        color: #898177;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-left: 10px;
+      }
+
+      .back-link {
+        color: #b85c38;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .back-link:hover { text-decoration: underline; }
+
+      .main-container {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+      }
+
+      /* PERFIL HERO */
+      .profile-hero {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 50px;
+        align-items: center;
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+        margin-bottom: 60px;
+      }
+
+      .artisan-photo-container {
+        width: 100%;
+        height: 380px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #b85c38;
+      }
+
+      .artisan-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .supplier-location {
+        display: inline-block;
+        font-size: 0.8rem;
+        color: #b85c38;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 10px;
+      }
+
+      .supplier-title {
+        font-family: Georgia, serif;
+        font-size: 2.2rem;
+        margin: 0 0 20px 0;
+        color: #252525;
+        line-height: 1.1;
+      }
+
+      .supplier-bio {
+        font-size: 1.05rem;
+        color: #555;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      /* TALLER SECTION */
+      .workshop-section {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+      }
+
+      .section-title-wrapper {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .eyebrow {
+        color: #b85c38;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .section-title-wrapper h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        margin: 0 0 10px 0;
+        color: #252525;
+      }
+
+      .section-title-wrapper h2 em {
+        color: #b85c38;
+        font-style: italic;
+      }
+
+      .section-title-wrapper p {
+        color: #777168;
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      .workshop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .workshop-img-card {
+        height: 240px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e7e0d5;
+        background: #faf8f3;
+      }
+
+      .workshop-img-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .workshop-img-card img:hover {
+        transform: scale(1.03);
+      }
+
+      .error-container {
+        text-align: center;
+        background: #fff;
+        padding: 60px 20px;
+        border-radius: 12px;
+        border: 1px solid #e7e0d5;
+      }
+
+      .btn-primary {
+        display: inline-block;
+        margin-top: 15px;
+        background: #252525;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      .btn-primary:hover { background: #b85c38; }
+
+      @media (max-width: 768px) {
+        .profile-hero {
+          grid-template-columns: 1fr;
+          padding: 20px;
+        }
+        .artisan-photo-container {
+          height: 280px;
+        }
+        .workshop-section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </body>
+</html>
