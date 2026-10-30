@@ -45,15 +45,17 @@ const pageTitle = "Panel de Administración | TEKITI";
             </div>
 
             <script>
-            document.getElementById('btn-picking-list')?.addEventListener('click', () => {
-                // Abre el endpoint del backend en una nueva pestaña
-                window.open('http://localhost:3000/api/orders/picking-list', '_blank');
-                
-                // Recargar la página del panel después de unos segundos para ver los cambios a "PROCESSING"
-                setTimeout(() => {
-                window.location.reload();
-                }, 2000);
-            });
+              const BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com';
+
+              document.getElementById('btn-picking-list')?.addEventListener('click', () => {
+                  // Abre el endpoint del backend apuntando a Render
+                  window.open(`${BASE_URL}/api/orders/picking-list`, '_blank');
+                  
+                  // Recargar la página del panel después de unos segundos para ver los cambios a "PROCESSING"
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 2000);
+              });
             </script>
 
           <div class="table-responsive">
@@ -396,238 +398,238 @@ const pageTitle = "Panel de Administración | TEKITI";
     </style>
 
     <script>
-      const API_URL = "http://localhost:3000/api";
+        const BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com';
+        const API_URL = `${BASE_URL}/api`;
 
-      // Manejo de pestañas
-      const tabBtns = document.querySelectorAll(".tab-btn");
-      const ordersTab = document.querySelector("#orders-tab") as HTMLElement;
-      const inventoryTab = document.querySelector("#inventory-tab") as HTMLElement;
+        // Manejo de pestañas
+        const tabBtns = document.querySelectorAll(".tab-btn");
+        const ordersTab = document.querySelector("#orders-tab") as HTMLElement;
+        const inventoryTab = document.querySelector("#inventory-tab") as HTMLElement;
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-          tabBtns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
+        tabBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            tabBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
 
-          const target = btn.getAttribute("data-tab");
-          if (target === "orders") {
-            ordersTab.style.display = "block";
-            inventoryTab.style.display = "none";
-            loadOrders();
-          } else {
-            ordersTab.style.display = "none";
-            inventoryTab.style.display = "block";
-            loadInventory();
-          }
+            const target = btn.getAttribute("data-tab");
+            if (target === "orders") {
+              ordersTab.style.display = "block";
+              inventoryTab.style.display = "none";
+              loadOrders();
+            } else {
+              ordersTab.style.display = "none";
+              inventoryTab.style.display = "block";
+              loadInventory();
+            }
+          });
         });
-      });
 
-      function formatPrice(value: number) {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(value);
-      }
-
-      // Cargar Pedidos
-      async function loadOrders() {
-        const tbody = document.querySelector("#orders-tbody");
-        if (!tbody) return;
-
-        try {
-          const res = await fetch(`${API_URL}/orders`);
-          const result = await res.json();
-
-          if (!result.success || result.data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="loading-text">No hay pedidos registrados todavía.</td></tr>`;
-            return;
-          }
-
-          // Guardar pedidos globalmente para acceder al detalle sin hacer otro fetch
-          window._ordersData = result.data;
-
-          tbody.innerHTML = result.data.map((order: any) => `
-            <tr>
-              <td><strong>${order.orderNumber}</strong></td>
-              <td>
-                ${order.customer?.name || "Cliente"}<br>
-                <small style="color:#898177;">${order.customer?.email || ""}</small>
-              </td>
-              <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-              <td><strong>${formatPrice(order.total)}</strong></td>
-              <td>${order.paymentMethod}</td>
-              <td>
-                <select class="status-select" data-order-id="${order.id}">
-                    <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>⏳ PENDIENTE</option>
-                    <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>📦 PREPARANDO</option>
-                    <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>🚚 ENVIADO</option>
-                    <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>✅ ENTREGADO</option>
-                    <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>❌ CANCELADO</option>
-                </select>
-              </td>
-              <td>
-                <button class="view-detail-btn" data-order-id="${order.id}">
-                  👁️ Ver detalle
-                </button>
-              </td>
-            </tr>
-          `).join("");
-
-          // Event Listeners para actualización de estado
-          document.querySelectorAll(".status-select").forEach(select => {
-            select.addEventListener("change", async (e) => {
-              const target = e.target as HTMLSelectElement;
-              const orderId = Number(target.getAttribute("data-order-id"));
-              const newStatus = target.value;
-
-              try {
-                const updateRes = await fetch(`${API_URL}/orders/${orderId}/status`, {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ status: newStatus }),
-                });
-
-                const updateResult = await updateRes.json();
-                if (updateResult.success) {
-                  // 1. Actualizar el estado en la variable global en memoria para que no se pierda al cambiar de pestaña
-                  if ((window as any)._ordersData) {
-                    const orderItem = (window as any)._ordersData.find((o: any) => o.id === orderId);
-                    if (orderItem) {
-                      orderItem.paymentStatus = newStatus;
-                    }
-                  }
-                  alert(`Estado de la orden #${orderId} actualizado a ${newStatus}.`);
-                } else {
-                  alert(updateResult.message || "Error al actualizar estado.");
-                }
-              } catch (err) {
-                console.error("Error al actualizar estado:", err);
-                alert("Error de conexión al servidor.");
-              }
-            });
-          });
-
-          // Event Listeners para abrir el Modal de Detalle
-          document.querySelectorAll(".view-detail-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-              const target = e.currentTarget as HTMLButtonElement;
-              const orderId = Number(target.getAttribute("data-order-id"));
-              showOrderDetails(orderId);
-            });
-          });
-
-        } catch (error) {
-          console.error("Error cargando pedidos:", error);
-          tbody.innerHTML = `<tr><td colspan="7" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
+        function formatPrice(value: number) {
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(value);
         }
-      }
 
-      // Función para mostrar los detalles del pedido en el Modal
-      function showOrderDetails(orderId: number) {
-        const modal = document.querySelector("#order-modal") as HTMLElement;
-        const modalTitle = document.querySelector("#modal-title");
-        const modalBody = document.querySelector("#modal-body");
+        // Cargar Pedidos
+        async function loadOrders() {
+          const tbody = document.querySelector("#orders-tbody");
+          if (!tbody) return;
 
-        const order = (window as any)._ordersData?.find((o: any) => o.id === orderId);
-        if (!order || !modalBody || !modalTitle) return;
+          try {
+            const res = await fetch(`${API_URL}/orders`);
+            const result = await res.json();
 
-        modalTitle.textContent = `Detalle de Orden #${order.orderNumber}`;
+            if (!result.success || result.data.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="7" class="loading-text">No hay pedidos registrados todavía.</td></tr>`;
+              return;
+            }
 
-        modalBody.innerHTML = `
-          <div class="modal-customer-info">
-            <p><strong>Cliente:</strong> ${order.customer?.name || 'N/A'}</p>
-            <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
-            <p><strong>Teléfono:</strong> ${order.customer?.phone || 'N/A'}</p>
-            <p><strong>Dirección:</strong> ${order.customer?.address || 'N/A'}</p>
-          </div>
-          <h4>Productos Comprados:</h4>
-          <table class="detail-table">
-            <thead>
+            // Guardar pedidos globalmente para acceder al detalle sin hacer otro fetch
+            window._ordersData = result.data;
+
+            tbody.innerHTML = result.data.map((order: any) => `
               <tr>
-                <th>Producto</th>
-                <th>Precio Unit.</th>
-                <th>Cant.</th>
-                <th>Subtotal</th>
+                <td><strong>${order.orderNumber}</strong></td>
+                <td>
+                  ${order.customer?.name || "Cliente"}<br>
+                  <small style="color:#898177;">${order.customer?.email || ""}</small>
+                </td>
+                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                <td><strong>${formatPrice(order.total)}</strong></td>
+                <td>${order.paymentMethod}</td>
+                <td>
+                  <select class="status-select" data-order-id="${order.id}">
+                      <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>⏳ PENDIENTE</option>
+                      <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>📦 PREPARANDO</option>
+                      <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>🚚 ENVIADO</option>
+                      <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>✅ ENTREGADO</option>
+                      <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>❌ CANCELADO</option>
+                  </select>
+                </td>
+                <td>
+                  <button class="view-detail-btn" data-order-id="${order.id}">
+                    👁️ Ver detalle
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              ${order.items.map((item: any) => {
-                // Obtener el precio desde el ítem o desde el producto relacionado
-                const itemPrice = item.price ?? item.product?.price ?? 0;
-                const subtotal = itemPrice * item.quantity;
+            `).join("");
 
-                return `
-                  <tr>
-                    <td>
-                      <div style="display:flex; align-items:center; gap:10px;">
-                        ${item.product?.image ? `<img src="${item.product.image}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;" />` : ''}
-                        <span>${item.product?.name || 'Producto artesanal'}</span>
-                      </div>
-                    </td>
-                    <td>${formatPrice(itemPrice)}</td>
-                    <td>x${item.quantity}</td>
-                    <td><strong>${formatPrice(subtotal)}</strong></td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-          <div class="modal-total">
-            <strong>Total del Pedido: ${formatPrice(order.total)}</strong>
-          </div>
-        `;
+            // Event Listeners para actualización de estado
+            document.querySelectorAll(".status-select").forEach(select => {
+              select.addEventListener("change", async (e) => {
+                const target = e.target as HTMLSelectElement;
+                const orderId = Number(target.getAttribute("data-order-id"));
+                const newStatus = target.value;
 
-        modal.style.display = "flex";
-      }
+                try {
+                  const updateRes = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: newStatus }),
+                  });
 
-      // Evento para cerrar el modal
-      document.querySelector("#close-modal")?.addEventListener("click", () => {
-        const modal = document.querySelector("#order-modal") as HTMLElement;
-        if (modal) modal.style.display = "none";
-      });
-      // Cargar Inventario
-      async function loadInventory() {
-        const tbody = document.querySelector("#inventory-tbody");
-        if (!tbody) return;
+                  const updateResult = await updateRes.json();
+                  if (updateResult.success) {
+                    if ((window as any)._ordersData) {
+                      const orderItem = (window as any)._ordersData.find((o: any) => o.id === orderId);
+                      if (orderItem) {
+                        orderItem.paymentStatus = newStatus;
+                      }
+                    }
+                    alert(`Estado de la orden #${orderId} actualizado a ${newStatus}.`);
+                  } else {
+                    alert(updateResult.message || "Error al actualizar estado.");
+                  }
+                } catch (err) {
+                  console.error("Error al actualizar estado:", err);
+                  alert("Error de conexión al servidor.");
+                }
+              });
+            });
 
-        try {
-          const res = await fetch(`${API_URL}/products`);
-          const result = await res.json();
+            // Event Listeners para abrir el Modal de Detalle
+            document.querySelectorAll(".view-detail-btn").forEach(btn => {
+              btn.addEventListener("click", (e) => {
+                const target = e.currentTarget as HTMLButtonElement;
+                const orderId = Number(target.getAttribute("data-order-id"));
+                showOrderDetails(orderId);
+              });
+            });
 
-          if (!result.success || result.data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="loading-text">No hay productos en el inventario.</td></tr>`;
-            return;
+          } catch (error) {
+            console.error("Error cargando pedidos:", error);
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
           }
-
-          tbody.innerHTML = result.data.map((product: any) => `
-            <tr>
-              <td>
-                <div style="display:flex; align-items:center; gap:12px;">
-                  ${product.image ? `<img src="${product.image}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px;" />` : ""}
-                  <strong>${product.name}</strong>
-                </div>
-              </td>
-              <td>${product.category?.name || "Sin categoría"}</td>
-              <td>${formatPrice(product.price)}</td>
-              <td>
-                <strong>${product.stock}</strong> un.
-              </td>
-              <td>
-                <span class="badge ${product.stock > 3 ? 'in-stock' : 'low-stock'}">
-                  ${product.stock > 3 ? 'Disponible' : 'Stock bajo'}
-                </span>
-              </td>
-            </tr>
-          `).join("");
-
-        } catch (error) {
-          console.error("Error cargando inventario:", error);
-          tbody.innerHTML = `<tr><td colspan="5" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
         }
-      }
 
-      // Cargar pedidos por defecto al abrir la página
-      loadOrders();
-    </script>
+        // Función para mostrar los detalles del pedido en el Modal
+        function showOrderDetails(orderId: number) {
+          const modal = document.querySelector("#order-modal") as HTMLElement;
+          const modalTitle = document.querySelector("#modal-title");
+          const modalBody = document.querySelector("#modal-body");
+
+          const order = (window as any)._ordersData?.find((o: any) => o.id === orderId);
+          if (!order || !modalBody || !modalTitle) return;
+
+          modalTitle.textContent = `Detalle de Orden #${order.orderNumber}`;
+
+          modalBody.innerHTML = `
+            <div class="modal-customer-info">
+              <p><strong>Cliente:</strong> ${order.customer?.name || 'N/A'}</p>
+              <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
+              <p><strong>Teléfono:</strong> ${order.customer?.phone || 'N/A'}</p>
+              <p><strong>Dirección:</strong> ${order.customer?.address || 'N/A'}</p>
+            </div>
+            <h4>Productos Comprados:</h4>
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio Unit.</th>
+                  <th>Cant.</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map((item: any) => {
+                  const itemPrice = item.price ?? item.product?.price ?? 0;
+                  const subtotal = itemPrice * item.quantity;
+
+                  return `
+                    <tr>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          ${item.product?.image ? `<img src="${item.product.image}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;" />` : ''}
+                          <span>${item.product?.name || 'Producto artesanal'}</span>
+                        </div>
+                      </td>
+                      <td>${formatPrice(itemPrice)}</td>
+                      <td>x${item.quantity}</td>
+                      <td><strong>${formatPrice(subtotal)}</strong></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+            <div class="modal-total">
+              <strong>Total del Pedido: ${formatPrice(order.total)}</strong>
+            </div>
+          `;
+
+          modal.style.display = "flex";
+        }
+
+        // Evento para cerrar el modal
+        document.querySelector("#close-modal")?.addEventListener("click", () => {
+          const modal = document.querySelector("#order-modal") as HTMLElement;
+          if (modal) modal.style.display = "none";
+        });
+
+        // Cargar Inventario
+        async function loadInventory() {
+          const tbody = document.querySelector("#inventory-tbody");
+          if (!tbody) return;
+
+          try {
+            const res = await fetch(`${API_URL}/products`);
+            const result = await res.json();
+
+            if (!result.success || result.data.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="5" class="loading-text">No hay productos en el inventario.</td></tr>`;
+              return;
+            }
+
+            tbody.innerHTML = result.data.map((product: any) => `
+              <tr>
+                <td>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    ${product.image ? `<img src="${product.image}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px;" />` : ""}
+                    <strong>${product.name}</strong>
+                  </div>
+                </td>
+                <td>${product.category?.name || "Sin categoría"}</td>
+                <td>${formatPrice(product.price)}</td>
+                <td>
+                  <strong>${product.stock}</strong> un.
+                </td>
+                <td>
+                  <span class="badge ${product.stock > 3 ? 'in-stock' : 'low-stock'}">
+                    ${product.stock > 3 ? 'Disponible' : 'Stock bajo'}
+                  </span>
+                </td>
+              </tr>
+            `).join("");
+
+          } catch (error) {
+            console.error("Error cargando inventario:", error);
+            tbody.innerHTML = `<tr><td colspan="5" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
+          }
+        }
+
+        // Cargar pedidos por defecto al abrir la página
+        loadOrders();
+</script>
     
   </body>
 </html>
