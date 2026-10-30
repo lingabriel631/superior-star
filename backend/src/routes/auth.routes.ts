@@ -53,4 +53,31 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/setup-admin', async (_req: Request, res: Response) => {
+  try {
+    const email = 'admin@tekiti.com';
+    const rawPassword = 'admin123';
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: { password: hashedPassword },
+      create: {
+        email,
+        password: hashedPassword,
+        name: 'Administrador Tekiti',
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: '¡Administrador creado/actualizado con éxito!',
+      email: user.email,
+    });
+  } catch (error) {
+    console.error('Error al configurar admin:', error);
+    return res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
 export default router;
