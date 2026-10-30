@@ -1,10 +1,10 @@
 ---
 // src/components/Suppliers.astro
 
-// Aquí defines tu lista de proveedores de manera dinámica
 const suppliers = [
   {
     id: 1,
+    slug: "cooperativa-manos-de-suchitoto",
     name: "Cooperativa Manos de Suchitoto",
     location: "Suchitoto",
     bio: "Especialistas en textiles tradicionales y tejido en telar de pedal, transmitiendo el arte de generación en generación.",
@@ -12,6 +12,7 @@ const suppliers = [
   },
   {
     id: 2,
+    slug: "talleres-artesanales-la-palma",
     name: "Talleres Artesanales La Palma",
     location: "La Palma, Chalatenango",
     bio: "Familia dedicada al trabajo en madera de pino y coloridas pinturas inspiradas en el estilo del maestro Fernando Llort.",
@@ -19,6 +20,7 @@ const suppliers = [
   },
   {
     id: 3,
+    slug: "artesanias-de-barro-ilobasco",
     name: "Artesanías de Barro Ilobasco",
     location: "Ilobasco",
     bio: "Renombrados creadores de miniatura en barro y alfarería tradicional con acabados finamente detallados a mano.",
@@ -45,17 +47,19 @@ const suppliers = [
       </p>
     </div>
 
-    <!-- CONTENEDOR DE PROVEEDORES (Renderizado dinámico con Astro) -->
-    {suppliers.map((supplier) => (
-      <a href={`/proveedores/${supplier.slug}`} class="supplier-card">
-        <div class="supplier-avatar">
-          <img src={supplier.image} alt={supplier.name} loading="lazy" />
-        </div>
-        <h3 class="supplier-name">{supplier.name}</h3>
-        <span class="supplier-location">📍 {supplier.location}</span>
-        <p class="supplier-bio">{supplier.bio}</p>
-      </a>
-    ))}
+    <!-- CONTENEDOR DE PROVEEDORES (Restaurado el grid) -->
+    <div class="suppliers-grid">
+      {suppliers.map((supplier) => (
+        <a href={`/proveedores/${supplier.slug}`} class="supplier-card">
+          <div class="supplier-avatar">
+            <img src={supplier.image} alt={supplier.name} loading="lazy" />
+          </div>
+          <h3 class="supplier-name">{supplier.name}</h3>
+          <span class="supplier-location">📍 {supplier.location}</span>
+          <p class="supplier-bio">{supplier.bio}</p>
+        </a>
+      ))}
+    </div>
 
   </div>
 </section>
@@ -123,7 +127,11 @@ const suppliers = [
     border-radius: 8px;
     padding: 30px 25px;
     text-align: center;
+    text-decoration: none; /* Asegura que no se subraye el texto del enlace */
+    color: inherit;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
   }
 
   .supplier-card:hover {
