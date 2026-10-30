@@ -529,8 +529,9 @@
 
     <!-- SCRIPT DE INTERACCIÓN -->
     <script is:inline>
-      const API_URL = 'http://localhost:3000/api/products';
-      const CATEGORIES_URL = 'http://localhost:3000/api/categories';
+      const BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com';
+      const API_URL = `${BASE_URL}/api/products`;
+      const CATEGORIES_URL = `${BASE_URL}/api/categories`;
       
       const modal = document.getElementById('productModal');
       const openBtn = document.getElementById('openCreateModalBtn');
