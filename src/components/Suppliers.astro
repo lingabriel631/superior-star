@@ -1,0 +1,184 @@
+---
+// src/components/Suppliers.astro
+
+// Aquí defines tu lista de proveedores de manera dinámica
+const suppliers = [
+  {
+    id: 1,
+    name: "Cooperativa Manos de Suchitoto",
+    location: "Suchitoto",
+    bio: "Especialistas en textiles tradicionales y tejido en telar de pedal, transmitiendo el arte de generación en generación.",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80"
+  },
+  {
+    id: 2,
+    name: "Talleres Artesanales La Palma",
+    location: "La Palma, Chalatenango",
+    bio: "Familia dedicada al trabajo en madera de pino y coloridas pinturas inspiradas en el estilo del maestro Fernando Llort.",
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80"
+  },
+  {
+    id: 3,
+    name: "Artesanías de Barro Ilobasco",
+    location: "Ilobasco",
+    bio: "Renombrados creadores de miniatura en barro y alfarería tradicional con acabados finamente detallados a mano.",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+  }
+];
+---
+
+<section class="suppliers" id="proveedores">
+  <div class="container">
+
+    <!-- ENCABEZADO -->
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">MANOS ARTESANAS</span>
+        <h2>
+          Conoce a nuestros
+          <em>proveedores</em>
+        </h2>
+      </div>
+
+      <p class="section-description">
+        Detrás de cada diseño hay historias de tradición, talento y dedicación familiar provenientes de diferentes rincones.
+      </p>
+    </div>
+
+    <!-- CONTENEDOR DE PROVEEDORES (Renderizado dinámico con Astro) -->
+    <div class="suppliers-grid">
+      {suppliers.map((supplier) => (
+        <article class="supplier-card">
+          <div class="supplier-avatar">
+            <img src={supplier.image} alt={supplier.name} loading="lazy" />
+          </div>
+          <h3 class="supplier-name">{supplier.name}</h3>
+          <span class="supplier-location">📍 {supplier.location}</span>
+          <p class="supplier-bio">{supplier.bio}</p>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .suppliers {
+    padding: 100px 0;
+    background: #f7f4ef;
+    border-top: 1px solid #e5ded2;
+  }
+
+  .container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 50px;
+    margin-bottom: 55px;
+  }
+
+  .eyebrow {
+    display: block;
+    margin-bottom: 14px;
+    color: #b85c38;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+  }
+
+  h2 {
+    margin: 0;
+    color: #252525;
+    font-family: Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 0.95;
+  }
+
+  h2 em {
+    color: #b85c38;
+    font-style: italic;
+  }
+
+  .section-description {
+    max-width: 380px;
+    margin: 0;
+    color: #777168;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .suppliers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+  }
+
+  .supplier-card {
+    background: #fff;
+    border: 1px solid #d8d0c4;
+    border-radius: 8px;
+    padding: 30px 25px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .supplier-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(37, 37, 37, 0.06);
+  }
+
+  .supplier-avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 18px auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e5ded2;
+    border: 2px solid #b85c38;
+  }
+
+  .supplier-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .supplier-name {
+    font-family: Georgia, serif;
+    font-size: 1.25rem;
+    color: #252525;
+    margin: 0 0 6px 0;
+  }
+
+  .supplier-location {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #b85c38;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .supplier-bio {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .section-header {
+      display: block;
+    }
+    .section-description {
+      margin-top: 20px;
+    }
+  }
+</style>
