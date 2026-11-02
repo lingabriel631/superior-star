@@ -393,9 +393,9 @@ const pageTitle = "Checkout | TEKITI";
       </div>
     </div>
 
-    <script>
+    <script is:inline define:vars={{ BACKEND_URL: import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com' }}>
       const CART_KEY = "tekiti-cart";
-
+      
       interface CartItem {
         id?: string;
         name: string;
@@ -634,7 +634,7 @@ const pageTitle = "Checkout | TEKITI";
             * Enviar pedido al backend
             */
             const response = await fetch(
-            "http://localhost:3000/api/orders",
+            `${BACKEND_URL}/api/orders`,
             {
                 method: "POST",
 
