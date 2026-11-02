@@ -395,52 +395,26 @@ const pageTitle = "Checkout | TEKITI";
 
     <script is:inline define:vars={{ BACKEND_URL: import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com' }}>
       const CART_KEY = "tekiti-cart";
-      
-      interface CartItem {
-        id?: string;
-        name: string;
-        price: number;
-        quantity: number;
-      }
 
-      const summaryItems =
-        document.querySelector("#summary-items") as HTMLElement;
+      const summaryItems = document.querySelector("#summary-items");
+      const emptyCheckout = document.querySelector("#empty-checkout");
+      const summaryCount = document.querySelector("#summary-count");
+      const subtotalElement = document.querySelector("#subtotal");
+      const shippingElement = document.querySelector("#shipping");
+      const totalElement = document.querySelector("#total");
+      const placeOrderButton = document.querySelector("#place-order");
+      const successModal = document.querySelector("#success-modal");
+      const orderNumber = document.querySelector("#order-number");
 
-      const emptyCheckout =
-        document.querySelector("#empty-checkout") as HTMLElement;
-
-      const summaryCount =
-        document.querySelector("#summary-count") as HTMLElement;
-
-      const subtotalElement =
-        document.querySelector("#subtotal") as HTMLElement;
-
-      const shippingElement =
-        document.querySelector("#shipping") as HTMLElement;
-
-      const totalElement =
-        document.querySelector("#total") as HTMLElement;
-
-      const placeOrderButton =
-        document.querySelector("#place-order") as HTMLButtonElement;
-
-      const successModal =
-        document.querySelector("#success-modal") as HTMLElement;
-
-      const orderNumber =
-        document.querySelector("#order-number") as HTMLElement;
-
-      function getCart(): CartItem[] {
+      function getCart() {
         try {
-          return JSON.parse(
-            localStorage.getItem(CART_KEY) || "[]"
-          );
+          return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
         } catch {
           return [];
         }
       }
 
-      function formatPrice(value: number) {
+      function formatPrice(value) {
         return new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
@@ -449,7 +423,6 @@ const pageTitle = "Checkout | TEKITI";
 
       function renderCheckout() {
         const cart = getCart();
-
         summaryItems.innerHTML = "";
 
         const totalProducts = cart.reduce(
@@ -457,19 +430,15 @@ const pageTitle = "Checkout | TEKITI";
           0
         );
 
-        summaryCount.textContent =
-          `${totalProducts} ${totalProducts === 1 ? "producto" : "productos"}`;
+        summaryCount.textContent = `${totalProducts} ${totalProducts === 1 ? "producto" : "productos"}`;
 
         if (cart.length === 0) {
           summaryItems.style.display = "none";
           emptyCheckout.style.display = "flex";
-
           subtotalElement.textContent = "$0.00";
           shippingElement.textContent = "$0.00";
           totalElement.textContent = "$0.00";
-
           placeOrderButton.disabled = true;
-
           return;
         }
 
@@ -481,23 +450,19 @@ const pageTitle = "Checkout | TEKITI";
 
         cart.forEach((item) => {
           subtotal += item.price * item.quantity;
-
           const itemElement = document.createElement("div");
-
           itemElement.className = "summary-item";
 
           itemElement.innerHTML = `
             <div class="summary-item-quantity">
               ${item.quantity}
             </div>
-
             <div class="summary-item-info">
               <strong>${item.name}</strong>
               <span>
                 ${item.quantity} × ${formatPrice(item.price)}
               </span>
             </div>
-
             <strong class="summary-item-price">
               ${formatPrice(item.price * item.quantity)}
             </strong>
@@ -506,232 +471,111 @@ const pageTitle = "Checkout | TEKITI";
           summaryItems.appendChild(itemElement);
         });
 
-        /*
-         * Por ahora usamos un costo fijo de envío.
-         * Más adelante podremos calcularlo según:
-         * país + departamento + peso + método de envío.
-         */
         const shipping = subtotal >= 100 ? 0 : 7.5;
-
         const total = subtotal + shipping;
 
         subtotalElement.textContent = formatPrice(subtotal);
-
-        shippingElement.textContent =
-          shipping === 0
-            ? "Gratis"
-            : formatPrice(shipping);
-
+        shippingElement.textContent = shipping === 0 ? "Gratis" : formatPrice(shipping);
         totalElement.textContent = formatPrice(total);
       }
 
-      /*
-        * Método de pago (Únicamente Tarjeta)
-        */
-        const paymentMethod = "CARD";
-
-      /*
-       * Confirmar pedido
-       */
-    
-    
-        placeOrderButton.addEventListener("click", async () => {
+      placeOrderButton.addEventListener("click", async () => {
         const cart = getCart();
-
-        if (cart.length === 0) {
-            return;
-        }
+        if (cart.length === 0) return;
 
         const requiredFields = document.querySelectorAll(
-            "input[required], select[required], textarea[required]"
+          "input[required], select[required], textarea[required]"
         );
 
         let valid = true;
-
         requiredFields.forEach((field) => {
-            const input = field as HTMLInputElement;
-
-            if (!input.value.trim()) {
-            input.classList.add("error");
+          if (!field.value.trim()) {
+            field.classList.add("error");
             valid = false;
-            } else {
-            input.classList.remove("error");
-            }
+          } else {
+            field.classList.remove("error");
+          }
         });
 
         if (!valid) {
-            const firstError =
-            document.querySelector(".error") as HTMLElement;
-
-            firstError?.focus();
-
-            return;
+          const firstError = document.querySelector(".error");
+          firstError?.focus();
+          return;
         }
 
-        /*
-        * Datos del cliente
-        */
-        const email =
-            (document.querySelector("#email") as HTMLInputElement).value.trim();
+        const email = document.querySelector("#email").value.trim();
+        const firstName = document.querySelector("#firstName").value.trim();
+        const lastName = document.querySelector("#lastName").value.trim();
+        const phone = document.querySelector("#phone").value.trim();
 
-        const firstName =
-            (document.querySelector("#firstName") as HTMLInputElement).value.trim();
+        const countrySelect = document.querySelector("#country");
+        const country = countrySelect.options[countrySelect.selectedIndex]?.text || "";
+        const city = document.querySelector("#city").value.trim();
+        const department = document.querySelector("#department").value.trim();
+        const address = document.querySelector("#address").value.trim();
+        const reference = document.querySelector("#reference").value.trim();
 
-        const lastName =
-            (document.querySelector("#lastName") as HTMLInputElement).value.trim();
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+        const paymentMethod = selectedPayment?.value === "transfer" ? "BANK_TRANSFER" : "CARD";
+        const orderNotes = document.querySelector("#orderNotes").value.trim();
 
-        const phone =
-            (document.querySelector("#phone") as HTMLInputElement).value.trim();
-
-        /*
-        * Datos de envío
-        */
-        const countrySelect =
-            document.querySelector("#country") as HTMLSelectElement;
-
-        const country =
-            countrySelect.options[countrySelect.selectedIndex]?.text || "";
-
-        const city =
-            (document.querySelector("#city") as HTMLInputElement).value.trim();
-
-        const department =
-            (document.querySelector("#department") as HTMLInputElement).value.trim();
-
-        const address =
-            (document.querySelector("#address") as HTMLTextAreaElement).value.trim();
-
-        const reference =
-            (document.querySelector("#reference") as HTMLInputElement).value.trim();
-
-        /*
-        * Método de pago
-        */
-        const selectedPayment =
-            document.querySelector(
-            'input[name="payment"]:checked'
-            ) as HTMLInputElement;
-
-        const paymentMethod =
-            selectedPayment?.value === "transfer"
-            ? "BANK_TRANSFER"
-            : "CARD";
-
-        /*
-        * Notas
-        */
-        const orderNotes =
-            (document.querySelector("#orderNotes") as HTMLTextAreaElement).value.trim();
-
-        /*
-        * Deshabilitar botón
-        */
         placeOrderButton.disabled = true;
         placeOrderButton.textContent = "Procesando pedido...";
 
         try {
-            /*
-            * Enviar pedido al backend
-            */
-            const response = await fetch(
-            `${BACKEND_URL}/api/orders`,
-            {
-                method: "POST",
+          const response = await fetch(`${BACKEND_URL}/api/orders`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              customer: {
+                name: `${firstName} ${lastName}`.trim(),
+                email,
+                phone,
+              },
+              shipping: {
+                name: `${firstName} ${lastName}`.trim(),
+                address: reference ? `${address}. Referencia: ${reference}` : address,
+                city,
+                country,
+                phone,
+              },
+              items: cart.map((item) => ({
+                productId: Number(item.id),
+                quantity: item.quantity,
+              })),
+              paymentMethod,
+              notes: orderNotes || null,
+            }),
+          });
 
-                headers: {
-                "Content-Type": "application/json",
-                },
+          const result = await response.json();
 
-                body: JSON.stringify({
-                customer: {
-                    name: `${firstName} ${lastName}`.trim(),
-                    email,
-                    phone,
-                },
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "No se pudo crear el pedido");
+          }
 
-                shipping: {
-                    name: `${firstName} ${lastName}`.trim(),
-                    address:
-                    reference
-                        ? `${address}. Referencia: ${reference}`
-                        : address,
-                    city,
-                    country,
-                    phone,
-                },
+          orderNumber.textContent = result.data.orderNumber;
+          successModal.classList.add("visible");
 
-                items: cart.map((item) => ({
-                    productId: Number(item.id),
-                    quantity: item.quantity,
-                })),
+          localStorage.removeItem(CART_KEY);
+          renderCheckout();
 
-                paymentMethod,
-
-                notes: orderNotes || null,
-                }),
-            }
-            );
-
-            const result = await response.json();
-
-            /*
-            * Si el backend devuelve un error
-            */
-            if (!response.ok || !result.success) {
-            throw new Error(
-                result.message || "No se pudo crear el pedido"
-            );
-            }
-
-            /*
-            * Pedido creado correctamente
-            */
-            orderNumber.textContent =
-            result.data.orderNumber;
-
-            successModal.classList.add("visible");
-
-            /*
-            * Vaciar carrito
-            */
-            localStorage.removeItem(CART_KEY);
-
-            renderCheckout();
-
-            /*
-            * Avisar al resto de la aplicación
-            * que el carrito cambió
-            */
-            window.dispatchEvent(
+          window.dispatchEvent(
             new StorageEvent("storage", {
-                key: CART_KEY,
-                newValue: null,
+              key: CART_KEY,
+              newValue: null,
             })
-            );
-
+          );
         } catch (error) {
-
-            console.error(
-            "Error al crear el pedido:",
-            error
-            );
-
-            alert(
-            error instanceof Error
-                ? error.message
-                : "No se pudo procesar el pedido."
-            );
-
-            placeOrderButton.disabled = false;
-            placeOrderButton.textContent =
-            "Confirmar pedido";
+          console.error("Error al crear el pedido:", error);
+          alert(error instanceof Error ? error.message : "No se pudo procesar el pedido.");
+          placeOrderButton.disabled = false;
+          placeOrderButton.textContent = "Confirmar pedido";
         }
-        });
+      });
 
-
-      /*
-       * Actualizar si otra pestaña modifica el carrito
-       */
       window.addEventListener("storage", (event) => {
         if (event.key === CART_KEY) {
           renderCheckout();
