@@ -13,8 +13,6 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-import cors from 'cors';
-
 // Configuración de CORS permitiendo PATCH y otros métodos
 app.use(cors({
   origin: '*', // O puedes especificar tu dominio de Vercel: 'https://superior-star-jxllvnvxu-tekiti.vercel.app'
