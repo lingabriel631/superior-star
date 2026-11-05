@@ -45,9 +45,12 @@ app.get("/api/health", (_req, res) => {
 // 2. Endpoint para subir imágenes a Cloudinary
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
+    // Validar primero para que TypeScript sepa que req.file existe de aquí en adelante
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No se envió ninguna imagen.' });
     }
+
+    const file = req.file; // Asignamos a una constante validada
 
     const uploadPromise = new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -57,7 +60,7 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
           else resolve(result);
         }
       );
-      stream.end(req.file.buffer);
+      stream.end(file.buffer); // Usamos file.buffer de manera segura
     });
 
     const result: any = await uploadPromise;
