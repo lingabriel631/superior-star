@@ -134,16 +134,62 @@
             </div>
           </div>
 
-          <!-- Fotografías (Hasta 5 URLs) -->
+          <!-- Fotografías (Hasta 5 URLs o Carga directa a Cloudinary) -->
           <div class="section-divider">
-            <label>Fotografías del Producto (Hasta 5 URLs)</label>
-            <p class="help-text">La primera URL será la imagen principal que se mostrará en el catálogo.</p>
-            <div class="images-container">
-              <input type="url" class="image-input" placeholder="URL Foto 1 (Principal)" />
-              <input type="url" class="image-input" placeholder="URL Foto 2 (Opcional)" />
-              <input type="url" class="image-input" placeholder="URL Foto 3 (Opcional)" />
-              <input type="url" class="image-input" placeholder="URL Foto 4 (Opcional)" />
-              <input type="url" class="image-input" placeholder="URL Foto 5 (Opcional)" />
+            <label>Fotografías del Producto (Hasta 5 imágenes)</label>
+            <p class="help-text">Sube una imagen desde tu dispositivo (se guardará en Cloudinary) o ingresa su URL directamente.</p>
+            <div class="images-container" style="display: flex; flex-direction: column; gap: 12px;">
+              
+              <!-- Slot 1 -->
+              <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Foto 1 (Principal)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                  <input type="file" accept="image/*" class="image-file-input" data-index="0" style="font-size: 12px;" />
+                  <span class="upload-loader-0" style="font-size: 12px; color: var(--primary); display: none;">Subiendo a Cloudinary...</span>
+                </div>
+                <input type="url" class="image-input" placeholder="https://res.cloudinary.com/... o enlace directo" />
+              </div>
+
+              <!-- Slot 2 -->
+              <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Foto 2 (Opcional)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                  <input type="file" accept="image/*" class="image-file-input" data-index="1" style="font-size: 12px;" />
+                  <span class="upload-loader-1" style="font-size: 12px; color: var(--primary); display: none;">Subiendo a Cloudinary...</span>
+                </div>
+                <input type="url" class="image-input" placeholder="https://res.cloudinary.com/... o enlace directo" />
+              </div>
+
+              <!-- Slot 3 -->
+              <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Foto 3 (Opcional)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                  <input type="file" accept="image/*" class="image-file-input" data-index="2" style="font-size: 12px;" />
+                  <span class="upload-loader-2" style="font-size: 12px; color: var(--primary); display: none;">Subiendo a Cloudinary...</span>
+                </div>
+                <input type="url" class="image-input" placeholder="https://res.cloudinary.com/... o enlace directo" />
+              </div>
+
+              <!-- Slot 4 -->
+              <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Foto 4 (Opcional)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                  <input type="file" accept="image/*" class="image-file-input" data-index="3" style="font-size: 12px;" />
+                  <span class="upload-loader-3" style="font-size: 12px; color: var(--primary); display: none;">Subiendo a Cloudinary...</span>
+                </div>
+                <input type="url" class="image-input" placeholder="https://res.cloudinary.com/... o enlace directo" />
+              </div>
+
+              <!-- Slot 5 -->
+              <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Foto 5 (Opcional)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                  <input type="file" accept="image/*" class="image-file-input" data-index="4" style="font-size: 12px;" />
+                  <span class="upload-loader-4" style="font-size: 12px; color: var(--primary); display: none;">Subiendo a Cloudinary...</span>
+                </div>
+                <input type="url" class="image-input" placeholder="https://res.cloudinary.com/... o enlace directo" />
+              </div>
+
             </div>
           </div>
 
@@ -758,6 +804,44 @@
       // Inicialización al cargar la página
       fetchCategories();
       fetchProducts();
+
+      // Manejar subida automática de archivos a Cloudinary
+      document.querySelectorAll('.image-file-input').forEach(fileInput => {
+        fileInput.addEventListener('change', async (e) => {
+          const target = e.target;
+          const index = target.getAttribute('data-index');
+          const file = target.files?.[0];
+          if (!file) return;
+
+          const loader = document.querySelector(`.upload-loader-${index}`);
+          const textInput = document.querySelectorAll('.image-input')[Number(index)];
+
+          if (loader) loader.style.display = 'inline';
+
+          const formData = new FormData();
+          formData.append('image', file);
+
+          try {
+            const res = await fetch(`${BACKEND_URL}/api/upload`, {
+              method: 'POST',
+              body: formData
+            });
+            const result = await res.json();
+
+            if (result.success && result.url) {
+              textInput.value = result.url; // Asigna la URL segura de Cloudinary al input
+            } else {
+              alert('Error al subir la imagen: ' + (result.message || 'Error desconocido'));
+            }
+          } catch (err) {
+            console.error('Error de red al subir imagen:', err);
+            alert('Error al conectar con el servidor para subir la imagen.');
+          } finally {
+            if (loader) loader.style.display = 'none';
+            target.value = ''; // Limpiar el selector de archivos
+          }
+        });
+      });
     </script>
   </body>
 </html>
