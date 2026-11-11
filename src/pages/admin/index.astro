@@ -38,26 +38,6 @@ const pageTitle = "Panel de Administración | TEKITI";
             <p>Monitorea las compras realizadas y su estado actual.</p>
           </div>
 
-          <div style="margin-bottom: 20px;">
-            <button id="btn-picking-list" style="background-color: #2563eb; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                📦 Preparar Pendientes y Generar PDF
-            </button>
-            </div>
-
-            <script>
-              const BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com';
-
-              document.getElementById('btn-picking-list')?.addEventListener('click', () => {
-                  // Abre el endpoint del backend apuntando a Render
-                  window.open(`${BASE_URL}/api/orders/picking-list`, '_blank');
-                  
-                  // Recargar la página del panel después de unos segundos para ver los cambios a "PROCESSING"
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 2000);
-              });
-            </script>
-
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
@@ -72,9 +52,19 @@ const pageTitle = "Panel de Administración | TEKITI";
                 </tr>
               </thead>
               <tbody id="orders-tbody">
-                <tr><td colspan="6" class="loading-text">Cargando pedidos...</td></tr>
+                <tr><td colspan="7" class="loading-text">Cargando pedidos...</td></tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- BOTONES DE ACCIÓN GLOBAL DEBAJO DE LA TABLA -->
+          <div class="orders-global-actions" style="margin-top: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <button id="btn-picking-list" class="action-btn secondary" style="background-color: #2563eb; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                📦 Preparar Pendientes y Generar PDF
+            </button>
+            <button id="btn-prepare-shipping" class="action-btn primary" style="background-color: #10b981; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+              🚚 Preparar envío
+            </button>
           </div>
         </section>
 
@@ -106,17 +96,46 @@ const pageTitle = "Panel de Administración | TEKITI";
       </div>
 
       <!-- MODAL DETALLE DE PEDIDO -->
-    <div id="order-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h3 id="modal-title">Detalle del Pedido</h3>
-        <button id="close-modal" class="close-btn">&times;</button>
+      <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3 id="modal-title">Detalle del Pedido</h3>
+            <button id="close-modal" class="close-btn">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body">
+            <!-- Los productos se cargarán dinámicamente aquí -->
+            </div>
         </div>
-        <div id="modal-body" class="modal-body">
-        <!-- Los productos se cargarán dinámicamente aquí -->
+      </div>
+
+      <!-- MODAL PARA PREPARAR ENVÍO Y ASIGNAR GUÍA -->
+      <div id="shipping-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card" style="background: #fff; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+          <h3 style="margin-top: 0; font-size: 1.15rem; color: #2d2824; margin-bottom: 16px;">🚚 Registrar Número de Guía de Envío</h3>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #48433e;">Seleccionar Orden:</label>
+            <select id="shipping-order-select" style="width: 100%; padding: 8px 12px; border: 1px solid #e7e0d5; border-radius: 6px; font-size: 0.9rem;">
+              <option value="">Cargando órdenes...</option>
+            </select>
+          </div>
+
+          <div id="shipping-order-details" style="background: #faf8f3; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; color: #5a524a; max-height: 150px; overflow-y: auto;">
+            Selecciona una orden para ver sus detalles.
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #48433e;">Número de Guía de la Empresa:</label>
+            <input type="text" id="shipping-tracking-input" placeholder="Ej: TRK-987654321" style="width: 100%; padding: 8px 12px; border: 1px solid #e7e0d5; border-radius: 6px; font-size: 0.9rem;" />
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button id="shipping-modal-cancel" class="action-btn secondary" style="background: #f1ede4; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cancelar</button>
+            <button id="shipping-modal-save" class="action-btn primary" style="background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Guardar Guía y Enviar</button>
+          </div>
         </div>
-    </div>
-    </div>
+      </div>
+
     </main>
 
     <style>
@@ -306,7 +325,7 @@ const pageTitle = "Panel de Administración | TEKITI";
       }
 
       /* MODAL */
-      .modal {
+      .modal, .custom-modal-overlay {
         display: none;
         position: fixed;
         top: 0;
@@ -319,7 +338,7 @@ const pageTitle = "Panel de Administración | TEKITI";
         z-index: 1000;
       }
 
-      .modal-content {
+      .modal-content, .custom-modal-card {
         background: #fff;
         width: 90%;
         max-width: 650px;
@@ -431,6 +450,14 @@ const pageTitle = "Panel de Administración | TEKITI";
           }).format(value);
         }
 
+        // Lógica del botón Preparar Pendientes y Generar PDF
+        document.getElementById('btn-picking-list')?.addEventListener('click', () => {
+            window.open(`${BASE_URL}/api/orders/picking-list`, '_blank');
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+        });
+
         // Cargar Pedidos
         async function loadOrders() {
           const tbody = document.querySelector("#orders-tbody");
@@ -445,7 +472,7 @@ const pageTitle = "Panel de Administración | TEKITI";
               return;
             }
 
-            // Guardar pedidos globalmente para acceder al detalle sin hacer otro fetch
+            // Guardar pedidos globalmente
             window._ordersData = result.data;
 
             tbody.innerHTML = result.data.map((order: any) => `
@@ -491,12 +518,6 @@ const pageTitle = "Panel de Administración | TEKITI";
 
                   const updateResult = await updateRes.json();
                   if (updateResult.success) {
-                    if ((window as any)._ordersData) {
-                      const orderItem = (window as any)._ordersData.find((o: any) => o.id === orderId);
-                      if (orderItem) {
-                        orderItem.paymentStatus = newStatus;
-                      }
-                    }
                     alert(`Estado de la orden #${orderId} actualizado a ${newStatus}.`);
                   } else {
                     alert(updateResult.message || "Error al actualizar estado.");
@@ -523,7 +544,104 @@ const pageTitle = "Panel de Administración | TEKITI";
           }
         }
 
-        // Función para mostrar los detalles del pedido en el Modal
+        // Elementos y lógica del Modal de Preparar Envío (Número de Guía)
+        const shippingModal = document.getElementById("shipping-modal");
+        const btnPrepareShipping = document.getElementById("btn-prepare-shipping");
+        const shippingModalCancel = document.getElementById("shipping-modal-cancel");
+        const shippingModalSave = document.getElementById("shipping-modal-save");
+        const shippingOrderSelect = document.getElementById("shipping-order-select") as HTMLSelectElement;
+        const shippingOrderDetails = document.getElementById("shipping-order-details");
+        const shippingTrackingInput = document.getElementById("shipping-tracking-input") as HTMLInputElement;
+
+        btnPrepareShipping?.addEventListener("click", async () => {
+          if (shippingModal) shippingModal.style.display = "flex";
+          if (shippingTrackingInput) shippingTrackingInput.value = "";
+          
+          try {
+            const res = await fetch(`${API_URL}/orders`);
+            const data = await res.json();
+            if (data.success) {
+              const activeOrders = data.data.filter((o: any) => o.status === 'PROCESSING' || o.status === 'PENDING');
+              
+              if (activeOrders.length === 0) {
+                if (shippingOrderSelect) shippingOrderSelect.innerHTML = `<option value="">No hay órdenes pendientes o en preparación</option>`;
+                if (shippingOrderDetails) shippingOrderDetails.innerHTML = `No hay órdenes disponibles para asignar guía de envío.`;
+                return;
+              }
+
+              if (shippingOrderSelect) {
+                shippingOrderSelect.innerHTML = activeOrders.map((o: any) => `
+                  <option value="${o.id}">Orden #${o.orderNumber} - ${o.customer?.name || 'Cliente'} (${formatPrice(o.total)})</option>
+                `).join("");
+              }
+
+              updateShippingDetails(activeOrders[0]);
+              
+              shippingOrderSelect.onchange = () => {
+                const selectedId = Number(shippingOrderSelect.value);
+                const found = activeOrders.find((o: any) => o.id === selectedId);
+                if (found) updateShippingDetails(found);
+              };
+            }
+          } catch (err) {
+            console.error("Error al cargar órdenes para envío:", err);
+          }
+        });
+
+        function updateShippingDetails(order: any) {
+          if (!shippingOrderDetails) return;
+          const itemsList = order.items?.map((i: any) => `- ${i.quantity}x ${i.product?.name || 'Producto'} (${formatPrice(i.price ?? i.product?.price ?? 0)})`).join('<br>') || 'Sin detalles de productos';
+          shippingOrderDetails.innerHTML = `
+            <strong>Cliente:</strong> ${order.customer?.name || 'N/A'}<br>
+            <strong>Email / Tel:</strong> ${order.customer?.email || 'N/A'} / ${order.customer?.phone || 'N/A'}<br>
+            <strong>Dirección:</strong> ${order.customer?.address || 'No especificada'}<br>
+            <strong>Productos:</strong><br>${itemsList}
+          `;
+        }
+
+        shippingModalCancel?.addEventListener("click", () => {
+          if (shippingModal) shippingModal.style.display = "none";
+        });
+
+        shippingModalSave?.addEventListener("click", async () => {
+          const orderId = shippingOrderSelect?.value;
+          const trackingNumber = shippingTrackingInput?.value.trim();
+
+          if (!orderId) {
+            alert("Selecciona una orden válida.");
+            return;
+          }
+
+          if (!trackingNumber) {
+            alert("Por favor digita el número de guía de la empresa.");
+            return;
+          }
+
+          try {
+            const res = await fetch(`${API_URL}/orders/${orderId}/shipping`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                trackingNumber: trackingNumber,
+                status: "SHIPPED"
+              })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+              alert("Número de guía guardado exitosamente y pedido marcado como Enviado.");
+              if (shippingModal) shippingModal.style.display = "none";
+              loadOrders();
+            } else {
+              alert(result.message || "Error al guardar la guía.");
+            }
+          } catch (err) {
+            console.error("Error al guardar guía de envío:", err);
+            alert("Error de conexión con el servidor.");
+          }
+        });
+
+        // Función para mostrar los detalles del pedido en el Modal normal
         function showOrderDetails(orderId: number) {
           const modal = document.querySelector("#order-modal") as HTMLElement;
           const modalTitle = document.querySelector("#modal-title");
@@ -577,10 +695,10 @@ const pageTitle = "Panel de Administración | TEKITI";
             </div>
           `;
 
-          modal.style.display = "flex";
+          if (modal) modal.style.display = "flex";
         }
 
-        // Evento para cerrar el modal
+        // Evento para cerrar el modal normal
         document.querySelector("#close-modal")?.addEventListener("click", () => {
           const modal = document.querySelector("#order-modal") as HTMLElement;
           if (modal) modal.style.display = "none";
@@ -629,7 +747,7 @@ const pageTitle = "Panel de Administración | TEKITI";
 
         // Cargar pedidos por defecto al abrir la página
         loadOrders();
-</script>
+    </script>
     
   </body>
 </html>

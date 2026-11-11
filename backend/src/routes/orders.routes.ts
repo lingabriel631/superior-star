@@ -346,8 +346,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
-
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -394,10 +392,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-export default router;
-
-// backend/src/routes/orders.routes.ts (Agrega esto arriba de las demás rutas)
-
 router.get("/", async (_req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -427,11 +421,9 @@ router.get("/", async (_req, res) => {
   }
 });
 
-// backend/src/routes/orders.routes.ts
-
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // Aquí llega el valor seleccionado ("PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED")
+  const { status } = req.body;
 
   const validStatuses = ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
   if (!validStatuses.includes(status)) {
@@ -462,7 +454,6 @@ router.patch("/:id/status", async (req, res) => {
 
     const previousStatus = currentOrder.status;
 
-    // RESTRICCIÓN DE NEGOCIO: No se puede cancelar si ya fue enviado o entregado
     if (status === "CANCELLED" && (previousStatus === "SHIPPED" || previousStatus === "DELIVERED")) {
       return res.status(400).json({
         success: false,
@@ -470,7 +461,6 @@ router.patch("/:id/status", async (req, res) => {
       });
     }
 
-    // Si cambia a CANCELLED y antes no lo estaba, reponemos stock y actualizamos
     if (status === "CANCELLED" && previousStatus !== "CANCELLED") {
       await prisma.$transaction(async (tx) => {
         for (const item of currentOrder.items) {
@@ -491,18 +481,14 @@ router.patch("/:id/status", async (req, res) => {
       });
     } 
     else if (status === "PAID") {
-      // Si el estado es PAID, actualizamos paymentStatus (y opcionalmente status)
       await prisma.order.update({
         where: { id: orderId },
         data: { 
           paymentStatus: "PAID" 
-          // Si tu OrderStatus tiene un equivalente como 'PROCESSING', puedes incluirlo aquí:
-          // status: "PROCESSING" 
         },
       });
     } 
     else {
-      // Para PENDING, SHIPPED, DELIVERED
       await prisma.order.update({
         where: { id: orderId },
         data: { status: status },
@@ -523,3 +509,57 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+// NUEVO ENDPOINT: Guardar número de guía y marcar como enviado
+router.patch("/:id/shipping", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { trackingNumber, status } = req.body;
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El ID del pedido no es válido",
+      });
+    }
+
+    if (!trackingNumber || typeof trackingNumber !== "string" || !trackingNumber.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "El número de guía es obligatorio.",
+      });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Pedido no encontrado.",
+      });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: {
+        trackingNumber: trackingNumber.trim(),
+        status: status || "SHIPPED",
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Número de guía guardado exitosamente.",
+      data: updatedOrder,
+    });
+  } catch (error: any) {
+    console.error("❌ Error al guardar el número de guía:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error interno al guardar la guía de envío.",
+    });
+  }
+});
+
+export default router;
