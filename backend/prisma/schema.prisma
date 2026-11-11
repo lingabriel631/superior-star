@@ -88,6 +88,8 @@ model Order {
   customerId      Int
   customer        Customer      @relation(fields: [customerId], references: [id])
 
+  trackingNumber  String?
+
   status          OrderStatus   @default(PENDING)
   paymentMethod   PaymentMethod
   paymentStatus   PaymentStatus @default(PENDING)
