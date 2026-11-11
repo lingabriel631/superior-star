@@ -6,6 +6,7 @@ import productsRoutes from "./routes/products.routes.js";
 import categoriesRoutes from "./routes/categories.routes.js";
 import ordersRoutes from "./routes/orders.routes.js";
 import authRoutes from './routes/auth.routes.js';
+import { Readable } from 'stream';
 
 const app = express();
 
@@ -45,34 +46,46 @@ app.get("/api/health", (_req, res) => {
 // 2. Endpoint para subir imágenes a Cloudinary
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
-    // Validar primero para que TypeScript sepa que req.file existe de aquí en adelante
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No se envió ninguna imagen.' });
     }
 
-    const file = req.file; // Asignamos a una constante validada
+    const file = req.file;
 
-    const uploadPromise = new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'tekiti_products' }, 
+    // Verificar que la configuración exista
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('Faltan variables de entorno de Cloudinary en Render.');
+      return res.status(500).json({ success: false, message: 'Error de configuración en el servidor.' });
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'tekiti_products' },
         (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
+          if (error) {
+            console.error('Error desde la API de Cloudinary:', error);
+            return reject(error);
+          }
+          resolve(result);
         }
       );
-      stream.end(file.buffer); // Usamos file.buffer de manera segura
-    });
 
-    const result: any = await uploadPromise;
+      // Convertir el buffer a Readable Stream para enviarlo de forma limpia
+      Readable.from(file.buffer).pipe(uploadStream);
+    });
 
     return res.json({
       success: true,
-      url: result.secure_url
+      url: (result as any).secure_url
     });
 
-  } catch (error) {
-    console.error('Error al subir la imagen:', error);
-    return res.status(500).json({ success: false, message: 'Error interno al procesar la imagen.' });
+  } catch (error: any) {
+    console.error('Error en /api/upload:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Error interno al procesar la imagen.',
+      error: error?.message || error 
+    });
   }
 });
 
