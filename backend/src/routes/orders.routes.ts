@@ -536,7 +536,7 @@ router.patch("/:id/status", async (req, res) => {
           where: { id: orderId },
           data: { 
             status: status as any,
-            returnReason: status === ("RETURNED" as any) ? (returnReason || null) : undefined
+            returnReason: (status as any) === "RETURNED" ? (returnReason || null) : undefined
           },
         });
       });
