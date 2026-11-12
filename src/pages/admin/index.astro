@@ -670,12 +670,19 @@ const pageTitle = "Panel de Administración | TEKITI";
           modalTitle.textContent = `Detalle de Orden #${order.orderNumber}`;
 
           modalBody.innerHTML = `
-            <div class="modal-customer-info">
+            <div class="modal-customer-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f7f4ef; padding: 12px 15px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;">
               <p><strong>Cliente:</strong> ${order.customer?.name || 'N/A'}</p>
               <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
-              <p><strong>Teléfono:</strong> ${order.customer?.phone || 'N/A'}</p>
-              <p><strong>Dirección:</strong> ${order.customer?.address || 'N/A'}</p>
+              <p><strong>Teléfono:</strong> ${order.shippingPhone || order.customer?.phone || 'N/A'}</p>
+              <p><strong>Método de Pago:</strong> ${order.paymentMethod} (${order.paymentStatus})</p>
             </div>
+
+            <div style="background: #faf8f3; border: 1px solid #e7e0d5; padding: 12px 15px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px;">
+              <p style="margin: 0 0 6px 0;"><strong>📍 Dirección de Envío:</strong> ${order.shippingAddress || 'No especificada'}, ${order.shippingCity || ''}, ${order.shippingCountry || ''}</p>
+              <p style="margin: 0 0 6px 0;"><strong>🚚 Número de Guía:</strong> <span style="color: ${order.trackingNumber ? '#2563eb' : '#898177'}; font-weight: ${order.trackingNumber ? 'bold' : 'normal'};">${order.trackingNumber || 'Aún no asignado'}</span></p>
+              <p style="margin: 0;"><strong>📝 Notas / Indicaciones:</strong> <span style="color: ${order.notes ? '#b85c38' : '#898177'}; font-style: ${order.notes ? 'normal' : 'italic'};">${order.notes || 'Ninguna indicación adicional'}</span></p>
+            </div>
+
             <h4>Productos Comprados:</h4>
             <table class="detail-table">
               <thead>
@@ -688,7 +695,7 @@ const pageTitle = "Panel de Administración | TEKITI";
               </thead>
               <tbody>
                 ${order.items.map((item: any) => {
-                  const itemPrice = item.price ?? item.product?.price ?? 0;
+                  const itemPrice = item.unitPrice ?? item.price ?? item.product?.price ?? 0;
                   const subtotal = itemPrice * item.quantity;
 
                   return `
@@ -707,7 +714,7 @@ const pageTitle = "Panel de Administración | TEKITI";
                 }).join('')}
               </tbody>
             </table>
-            <div class="modal-total">
+            <div class="modal-total" style="margin-top: 15px;">
               <strong>Total del Pedido: ${formatPrice(order.total)}</strong>
             </div>
           `;
