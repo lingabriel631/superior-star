@@ -378,6 +378,6 @@ router.patch("/:id/status", async (req, res) => {
     console.error("❌ Error al actualizar estado:", error);
     res.status(500).json({ success: false, message: error.message || "Error interno." });
   }
-});
+}); //archivo nuevo
 
 export default router;
