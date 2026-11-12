@@ -3,11 +3,8 @@ import prisma from "../lib/prisma.js";
 
 const router = Router();
 
-// backend/src/routes/orders.routes.ts
-
 router.get("/picking-list", async (req, res) => {
   try {
-    // 1. Traemos todas las órdenes para evitar problemas de tipos con los enums en Prisma
     const allOrders = await prisma.order.findMany({
       include: {
         customer: true,
@@ -17,7 +14,6 @@ router.get("/picking-list", async (req, res) => {
       }
     });
 
-    // 2. Filtramos en JavaScript las que tengan el estado PENDING
     const pendingOrders = allOrders.filter(order => order.status === "PENDING");
 
     if (pendingOrders.length === 0) {
@@ -33,16 +29,14 @@ router.get("/picking-list", async (req, res) => {
       `);
     }
 
-    // 3. Actualizamos masivamente su estado logístico a PROCESSING usando sus IDs
     const pendingIds = pendingOrders.map(o => o.id);
     await prisma.order.updateMany({
       where: { 
         id: { in: pendingIds } 
       },
-      data: { status: "PROCESSING" }
+      data: { status: "PROCESSING" as any }
     });
 
-    // 4. Consolidar los productos totales a preparar
     const productSummary: { [key: string]: { name: string; quantity: number } } = {};
     
     pendingOrders.forEach(order => {
@@ -55,7 +49,6 @@ router.get("/picking-list", async (req, res) => {
       });
     });
 
-    // 5. Generar HTML limpio para impresión / PDF
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -105,7 +98,7 @@ router.get("/picking-list", async (req, res) => {
         <h2>Detalle por Pedido</h2>
         ${pendingOrders.map(order => `
           <div class="order-box">
-            <p><strong>Pedido #${order.orderNumber}</strong> | 👤 Cliente ID: ${order.customerId} \vert{} 💳 Pago: ${order.paymentStatus}</p>
+            <p><strong>Pedido #${order.orderNumber}</strong> | 👤 Cliente ID: ${order.customerId} | 💳 Pago: ${order.paymentStatus}</p>
             <ul>
               ${order.items.map(i => `<li>${i.quantity}x ${i.product?.name || 'Producto'}</li>`).join('')}
             </ul>
@@ -129,155 +122,77 @@ router.get("/picking-list", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      customer,
-      shipping,
-      items,
-      paymentMethod,
-      notes,
-    } = req.body;
+    const { customer, shipping, items, paymentMethod, notes } = req.body;
 
     if (!customer || !shipping || !items || !paymentMethod) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltan datos obligatorios del pedido",
-      });
+      return res.status(400).json({ success: false, message: "Faltan datos obligatorios del pedido" });
     }
 
     if (!customer.name || !customer.email) {
-      return res.status(400).json({
-        success: false,
-        message: "El nombre y correo del cliente son obligatorios",
-      });
+      return res.status(400).json({ success: false, message: "El nombre y correo del cliente son obligatorios" });
     }
 
-    if (
-      !shipping.name ||
-      !shipping.address ||
-      !shipping.city ||
-      !shipping.country
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltan datos de envío",
-      });
+    if (!shipping.name || !shipping.address || !shipping.city || !shipping.country) {
+      return res.status(400).json({ success: false, message: "Faltan datos de envío" });
     }
 
     if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El pedido debe contener al menos un producto",
-      });
+      return res.status(400).json({ success: false, message: "El pedido debe contener al menos un producto" });
     }
 
     if (!["CARD", "BANK_TRANSFER"].includes(paymentMethod)) {
-      return res.status(400).json({
-        success: false,
-        message: "Método de pago no válido",
-      });
+      return res.status(400).json({ success: false, message: "Método de pago no válido" });
     }
 
-    const productIds = items.map((item: { productId: number }) =>
-      Number(item.productId)
-    );
-
+    const productIds = items.map((item: { productId: number }) => Number(item.productId));
     const products = await prisma.product.findMany({
-      where: {
-        id: {
-          in: productIds,
-        },
-        isActive: true,
-      },
+      where: { id: { in: productIds }, isActive: true },
     });
 
     if (products.length !== productIds.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Uno o más productos no existen o están inactivos",
-      });
+      return res.status(400).json({ success: false, message: "Uno o más productos no existen o están inactivos" });
     }
 
     for (const item of items) {
-      const product = products.find(
-        (product) => product.id === Number(item.productId)
-      );
-
+      const product = products.find(p => p.id === Number(item.productId));
       if (!product) {
-        return res.status(400).json({
-          success: false,
-          message: `Producto ${item.productId} no encontrado`,
-        });
+        return res.status(400).json({ success: false, message: `Producto ${item.productId} no encontrado` });
       }
-
       const quantity = Number(item.quantity);
-
       if (!Number.isInteger(quantity) || quantity <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Cantidad no válida para el producto ${product.name}`,
-        });
+        return res.status(400).json({ success: false, message: `Cantidad no válida para el producto ${product.name}` });
       }
-
       if (product.stock < quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Stock insuficiente para ${product.name}`,
-        });
+        return res.status(400).json({ success: false, message: `Stock insuficiente para ${product.name}` });
       }
     }
 
     let customerRecord = await prisma.customer.findUnique({
-      where: {
-        email: customer.email,
-      },
+      where: { email: customer.email },
     });
 
     if (!customerRecord) {
       customerRecord = await prisma.customer.create({
-        data: {
-          name: customer.name,
-          email: customer.email,
-          phone: customer.phone || null,
-        },
+        data: { name: customer.name, email: customer.email, phone: customer.phone || null },
       });
     } else {
       customerRecord = await prisma.customer.update({
-        where: {
-          id: customerRecord.id,
-        },
-        data: {
-          name: customer.name,
-          phone: customer.phone || null,
-        },
+        where: { id: customerRecord.id },
+        data: { name: customer.name, phone: customer.phone || null },
       });
     }
 
     let subtotal = 0;
-
-    const orderItems = items.map(
-      (item: { productId: number; quantity: number }) => {
-        const product = products.find(
-          (product) => product.id === Number(item.productId)
-        )!;
-
-        const quantity = Number(item.quantity);
-
-        const unitPrice =
-          product.offerPrice ?? product.price;
-
-        subtotal += Number(unitPrice) * quantity;
-
-        return {
-          productId: product.id,
-          quantity,
-          unitPrice,
-        };
-      }
-    );
+    const orderItems = items.map((item: { productId: number; quantity: number }) => {
+      const product = products.find(p => p.id === Number(item.productId))!;
+      const quantity = Number(item.quantity);
+      const unitPrice = product.offerPrice ?? product.price;
+      subtotal += Number(unitPrice) * quantity;
+      return { productId: product.id, quantity, unitPrice };
+    });
 
     const shippingCost = subtotal >= 100 ? 0 : 7.5;
     const total = subtotal + shippingCost;
-
     const orderNumber = `TK-${Date.now()}`;
 
     const order = await prisma.$transaction(async (tx) => {
@@ -285,171 +200,92 @@ router.post("/", async (req, res) => {
         data: {
           orderNumber,
           customerId: customerRecord.id,
-
           paymentMethod,
           paymentStatus: "PENDING",
-
           subtotal,
           shippingCost,
           total,
-
           shippingName: shipping.name,
           shippingAddress: shipping.address,
           shippingCity: shipping.city,
           shippingCountry: shipping.country,
           shippingPhone: shipping.phone || null,
-
           notes: notes || null,
-
-          items: {
-            create: orderItems,
-          },
+          items: { create: orderItems },
         },
-        include: {
-          customer: true,
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
+        include: { customer: true, items: { include: { product: true } } },
       });
 
       for (const item of items) {
         await tx.product.update({
-          where: {
-            id: Number(item.productId),
-          },
-          data: {
-            stock: {
-              decrement: Number(item.quantity),
-            },
-          },
+          where: { id: Number(item.productId) },
+          data: { stock: { decrement: Number(item.quantity) } },
         });
       }
 
       return newOrder;
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Pedido creado correctamente",
-      data: order,
-    });
+    res.status(201).json({ success: true, message: "Pedido creado correctamente", data: order });
   } catch (error) {
     console.error("Error al crear el pedido:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Error al crear el pedido",
-    });
+    res.status(500).json({ success: false, message: "Error al crear el pedido" });
   }
 });
 
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-
     if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El ID del pedido no es válido",
-      });
+      return res.status(400).json({ success: false, message: "El ID del pedido no es válido" });
     }
 
     const order = await prisma.order.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        customer: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+      where: { id },
+      include: { customer: true, items: { include: { product: true } } },
     });
 
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Pedido no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Pedido no encontrado" });
     }
 
-    res.json({
-      success: true,
-      data: order,
-    });
+    res.json({ success: true, data: order });
   } catch (error) {
     console.error("Error al obtener el pedido:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Error al obtener el pedido",
-    });
+    res.status(500).json({ success: false, message: "Error al obtener el pedido" });
   }
 });
 
 router.get("/", async (_req, res) => {
   try {
     const orders = await prisma.order.findMany({
-      include: {
-        customer: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      include: { customer: true, items: { include: { product: true } } },
+      orderBy: { createdAt: "desc" },
     });
 
-    res.json({
-      success: true,
-      data: orders,
-    });
+    res.json({ success: true, data: orders });
   } catch (error) {
     console.error("Error al obtener los pedidos:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error al obtener los pedidos",
-    });
+    res.status(500).json({ success: false, message: "Error al obtener los pedidos" });
   }
 });
 
-// NUEVO ENDPOINT: Guardar número de guía y marcar como enviado
 router.patch("/:id/shipping", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { trackingNumber, status } = req.body;
 
     if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El ID del pedido no es válido",
-      });
+      return res.status(400).json({ success: false, message: "El ID del pedido no es válido" });
     }
 
     if (!trackingNumber || typeof trackingNumber !== "string" || !trackingNumber.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "El número de guía es obligatorio.",
-      });
+      return res.status(400).json({ success: false, message: "El número de guía es obligatorio." });
     }
 
-    const order = await prisma.order.findUnique({
-      where: { id },
-    });
-
+    const order = await prisma.order.findUnique({ where: { id } });
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Pedido no encontrado.",
-      });
+      return res.status(404).json({ success: false, message: "Pedido no encontrado." });
     }
 
     const updatedOrder = await prisma.order.update({
@@ -460,50 +296,31 @@ router.patch("/:id/shipping", async (req, res) => {
       },
     });
 
-    res.json({
-      success: true,
-      message: "Número de guía guardado exitosamente.",
-      data: updatedOrder,
-    });
+    res.json({ success: true, message: "Número de guía guardado exitosamente.", data: updatedOrder });
   } catch (error: any) {
     console.error("❌ Error al guardar el número de guía:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error interno al guardar la guía de envío.",
-    });
+    res.status(500).json({ success: false, message: error.message || "Error interno al guardar la guía." });
   }
 });
 
-// ENDPOINT ÚNICO Y UNIFICADO PARA ACTUALIZAR ESTADO (Incluye Devoluciones con Motivo)
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
   const { status, returnReason } = req.body;
 
   const validStatuses = ["PENDING", "PROCESSING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
   if (!validStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Estado inválido.",
-    });
+    return res.status(400).json({ success: false, message: "Estado inválido." });
   }
 
   try {
     const orderId = Number(id);
-
     const currentOrder = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { 
-        items: {
-          include: { product: true }
-        } 
-      },
+      include: { items: { include: { product: true } } },
     });
 
     if (!currentOrder) {
-      return res.status(404).json({
-        success: false,
-        message: "Pedido no encontrado.",
-      });
+      return res.status(404).json({ success: false, message: "Pedido no encontrado." });
     }
 
     const previousStatus = currentOrder.status;
@@ -511,11 +328,10 @@ router.patch("/:id/status", async (req, res) => {
     if (status === "CANCELLED" && (previousStatus === "SHIPPED" || previousStatus === "DELIVERED")) {
       return res.status(400).json({
         success: false,
-        message: "No se puede cancelar un pedido que ya ha sido enviado o entregado; usa la opción de devolución.",
+        message: "No se puede cancelar un pedido enviado o entregado; usa la opción de devolución.",
       });
     }
 
-    // Reponer stock si pasa a CANCELLED o RETURNED por primera vez
     const isRestockStatus = status === "CANCELLED" || status === "RETURNED";
     const wasAlreadyRestocked = previousStatus === "CANCELLED" || previousStatus === "RETURNED";
 
@@ -523,7 +339,6 @@ router.patch("/:id/status", async (req, res) => {
       await prisma.$transaction(async (tx) => {
         for (const item of currentOrder.items) {
           const prodId = item.productId || (item as any).product_id || item.product?.id;
-          
           if (prodId) {
             await tx.product.update({
               where: { id: Number(prodId) },
@@ -536,7 +351,7 @@ router.patch("/:id/status", async (req, res) => {
           where: { id: orderId },
           data: { 
             status: status as any,
-            returnReason: (status as any) === "RETURNED" ? (returnReason || null) : undefined
+            returnReason: status === "RETURNED" ? (returnReason || null) : undefined
           },
         });
       });
@@ -544,9 +359,7 @@ router.patch("/:id/status", async (req, res) => {
     else if (status === "PAID") {
       await prisma.order.update({
         where: { id: orderId },
-        data: { 
-          paymentStatus: "PAID" 
-        },
+        data: { paymentStatus: "PAID" },
       });
     } 
     else {
@@ -559,17 +372,11 @@ router.patch("/:id/status", async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: `Estado del pedido actualizado a ${status}`,
-    });
+    res.json({ success: true, message: `Estado del pedido actualizado a ${status}` });
 
   } catch (error: any) {
-    console.error("❌ Error detallado de Prisma al actualizar estado:", error);
-    res.status(500).json({
-      success: false,
-      message: error.meta?.cause || error.message || "Error interno al actualizar el estado.",
-    });
+    console.error("❌ Error al actualizar estado:", error);
+    res.status(500).json({ success: false, message: error.message || "Error interno." });
   }
 });
 
