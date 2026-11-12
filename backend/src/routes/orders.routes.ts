@@ -421,94 +421,6 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.patch("/:id/status", async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  const validStatuses = ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Estado inválido.",
-    });
-  }
-
-  try {
-    const orderId = Number(id);
-
-    const currentOrder = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { 
-        items: {
-          include: { product: true }
-        } 
-      },
-    });
-
-    if (!currentOrder) {
-      return res.status(404).json({
-        success: false,
-        message: "Pedido no encontrado.",
-      });
-    }
-
-    const previousStatus = currentOrder.status;
-
-    if (status === "CANCELLED" && (previousStatus === "SHIPPED" || previousStatus === "DELIVERED")) {
-      return res.status(400).json({
-        success: false,
-        message: "No se puede cancelar un pedido que ya ha sido enviado o entregado.",
-      });
-    }
-
-    if (status === "CANCELLED" && previousStatus !== "CANCELLED") {
-      await prisma.$transaction(async (tx) => {
-        for (const item of currentOrder.items) {
-          const prodId = item.productId || (item as any).product_id || item.product?.id;
-          
-          if (prodId) {
-            await tx.product.update({
-              where: { id: Number(prodId) },
-              data: { stock: { increment: item.quantity } },
-            });
-          }
-        }
-
-        await tx.order.update({
-          where: { id: orderId },
-          data: { status: "CANCELLED" },
-        });
-      });
-    } 
-    else if (status === "PAID") {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { 
-          paymentStatus: "PAID" 
-        },
-      });
-    } 
-    else {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: status },
-      });
-    }
-
-    res.json({
-      success: true,
-      message: `Estado del pedido actualizado exitosamente`,
-    });
-
-  } catch (error: any) {
-    console.error("❌ Error detallado de Prisma al actualizar estado:", error);
-    res.status(500).json({
-      success: false,
-      message: error.meta?.cause || error.message || "Error interno al actualizar el estado.",
-    });
-  }
-});
-
 // NUEVO ENDPOINT: Guardar número de guía y marcar como enviado
 router.patch("/:id/shipping", async (req, res) => {
   try {
@@ -544,7 +456,7 @@ router.patch("/:id/shipping", async (req, res) => {
       where: { id },
       data: {
         trackingNumber: trackingNumber.trim(),
-        status: status || "SHIPPED",
+        status: (status || "SHIPPED") as any,
       },
     });
 
@@ -562,35 +474,56 @@ router.patch("/:id/shipping", async (req, res) => {
   }
 });
 
+// ENDPOINT ÚNICO Y UNIFICADO PARA ACTUALIZAR ESTADO (Incluye Devoluciones con Motivo)
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
-  const { status, returnReason } = req.body; // 👈 Recibimos returnReason
+  const { status, returnReason } = req.body;
 
   const validStatuses = ["PENDING", "PROCESSING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
   if (!validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, message: "Estado inválido." });
+    return res.status(400).json({
+      success: false,
+      message: "Estado inválido.",
+    });
   }
 
   try {
     const orderId = Number(id);
+
     const currentOrder = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { items: { include: { product: true } } },
+      include: { 
+        items: {
+          include: { product: true }
+        } 
+      },
     });
 
     if (!currentOrder) {
-      return res.status(404).json({ success: false, message: "Pedido no encontrado." });
+      return res.status(404).json({
+        success: false,
+        message: "Pedido no encontrado.",
+      });
     }
 
     const previousStatus = currentOrder.status;
+
+    if (status === "CANCELLED" && (previousStatus === "SHIPPED" || previousStatus === "DELIVERED")) {
+      return res.status(400).json({
+        success: false,
+        message: "No se puede cancelar un pedido que ya ha sido enviado o entregado; usa la opción de devolución.",
+      });
+    }
+
+    // Reponer stock si pasa a CANCELLED o RETURNED por primera vez
     const isRestockStatus = status === "CANCELLED" || status === "RETURNED";
     const wasAlreadyRestocked = previousStatus === "CANCELLED" || previousStatus === "RETURNED";
 
-    // Si pasa a RETURNED o CANCELLED por primera vez, devolvemos el stock
     if (isRestockStatus && !wasAlreadyRestocked) {
       await prisma.$transaction(async (tx) => {
         for (const item of currentOrder.items) {
           const prodId = item.productId || (item as any).product_id || item.product?.id;
+          
           if (prodId) {
             await tx.product.update({
               where: { id: Number(prodId) },
@@ -602,25 +535,41 @@ router.patch("/:id/status", async (req, res) => {
         await tx.order.update({
           where: { id: orderId },
           data: { 
-            status: status,
+            status: status as any,
             returnReason: status === "RETURNED" ? (returnReason || null) : undefined
           },
         });
       });
-    } else {
+    } 
+    else if (status === "PAID") {
       await prisma.order.update({
         where: { id: orderId },
         data: { 
-          status: status,
+          paymentStatus: "PAID" 
+        },
+      });
+    } 
+    else {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { 
+          status: status as any,
           returnReason: status === "RETURNED" ? (returnReason || null) : undefined
         },
       });
     }
 
-    res.json({ success: true, message: `Estado actualizado a ${status}` });
+    res.json({
+      success: true,
+      message: `Estado del pedido actualizado a ${status}`,
+    });
+
   } catch (error: any) {
-    console.error("❌ Error al actualizar estado:", error);
-    res.status(500).json({ success: false, message: error.message || "Error interno." });
+    console.error("❌ Error detallado de Prisma al actualizar estado:", error);
+    res.status(500).json({
+      success: false,
+      message: error.meta?.cause || error.message || "Error interno al actualizar el estado.",
+    });
   }
 });
 
