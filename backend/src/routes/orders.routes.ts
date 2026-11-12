@@ -562,4 +562,66 @@ router.patch("/:id/shipping", async (req, res) => {
   }
 });
 
+router.patch("/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status, returnReason } = req.body; // 👈 Recibimos returnReason
+
+  const validStatuses = ["PENDING", "PROCESSING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: "Estado inválido." });
+  }
+
+  try {
+    const orderId = Number(id);
+    const currentOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { product: true } } },
+    });
+
+    if (!currentOrder) {
+      return res.status(404).json({ success: false, message: "Pedido no encontrado." });
+    }
+
+    const previousStatus = currentOrder.status;
+    const isRestockStatus = status === "CANCELLED" || status === "RETURNED";
+    const wasAlreadyRestocked = previousStatus === "CANCELLED" || previousStatus === "RETURNED";
+
+    // Si pasa a RETURNED o CANCELLED por primera vez, devolvemos el stock
+    if (isRestockStatus && !wasAlreadyRestocked) {
+      await prisma.$transaction(async (tx) => {
+        for (const item of currentOrder.items) {
+          const prodId = item.productId || (item as any).product_id || item.product?.id;
+          if (prodId) {
+            await tx.product.update({
+              where: { id: Number(prodId) },
+              data: { stock: { increment: item.quantity } },
+            });
+          }
+        }
+
+        await tx.order.update({
+          where: { id: orderId },
+          data: { 
+            status: status,
+            returnReason: status === "RETURNED" ? (returnReason || null) : undefined
+          },
+        });
+      });
+    } else {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { 
+          status: status,
+          returnReason: status === "RETURNED" ? (returnReason || null) : undefined
+        },
+      });
+    }
+
+    res.json({ success: true, message: `Estado actualizado a ${status}` });
+  } catch (error: any) {
+    console.error("❌ Error al actualizar estado:", error);
+    res.status(500).json({ success: false, message: error.message || "Error interno." });
+  }
+});
+
 export default router;

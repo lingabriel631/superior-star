@@ -136,6 +136,20 @@ const pageTitle = "Panel de Administración | TEKITI";
         </div>
       </div>
 
+      <div id="returns-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card" style="background: #fff; padding: 24px; border-radius: 12px; width: 100%; max-width: 650px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+          <h3 style="margin-top: 0; font-size: 1.15rem; color: #2d2824; margin-bottom: 16px;">↩️ Pedidos Enviados - Registro de Devoluciones</h3>
+          
+          <div id="returns-modal-body" style="max-height: 400px; overflow-y: auto; background: #faf8f3; padding: 12px; border-radius: 8px;">
+            Cargando pedidos enviados...
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button id="returns-modal-close" class="action-btn secondary" style="background: #f1ede4; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
     </main>
 
     <style>
@@ -744,6 +758,117 @@ const pageTitle = "Panel de Administración | TEKITI";
             tbody.innerHTML = `<tr><td colspan="5" class="loading-text" style="color:#c74747;">Error al conectar con el servidor.</td></tr>`;
           }
         }
+
+        // Elementos del Modal de Devoluciones
+      const returnsModal = document.getElementById("returns-modal");
+      const btnReturns = document.getElementById("btn-returns");
+      const returnsModalClose = document.getElementById("returns-modal-close");
+      const returnsModalBody = document.getElementById("returns-modal-body");
+
+      btnReturns?.addEventListener("click", async () => {
+        if (returnsModal) returnsModal.style.display = "flex";
+        loadShippedOrdersForReturn();
+      });
+
+      returnsModalClose?.addEventListener("click", () => {
+        if (returnsModal) returnsModal.style.display = "none";
+      });
+
+      async function loadShippedOrdersForReturn() {
+        if (!returnsModalBody) return;
+        returnsModalBody.innerHTML = "Cargando pedidos...";
+        
+        try {
+          const res = await fetch(`${API_URL}/orders`);
+          const data = await res.json();
+          if (data.success) {
+            // Filtrar únicamente los que estén en estado SHIPPED (Enviado)
+            const shippedOrders = data.data.filter((o: any) => o.status === 'SHIPPED');
+            
+            if (shippedOrders.length === 0) {
+              returnsModalBody.innerHTML = `<p style="color: #898177; text-align: center; padding: 20px;">No hay pedidos en estado "Enviado" actualmente.</p>`;
+              return;
+            }
+
+            returnsModalBody.innerHTML = shippedOrders.map((o: any) => `
+              <div style="border: 1px solid #e7e0d5; padding: 14px; border-radius: 8px; margin-bottom: 12px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong>Orden #${o.orderNumber}</strong>
+                  <span style="font-size: 0.8rem; color: #7c3aed; font-weight: bold;">Guía: ${o.trackingNumber || 'N/A'}</span>
+                </div>
+                <p style="margin: 2px 0; font-size: 0.85rem;"><strong>Cliente:</strong> ${o.customer?.name || 'N/A'} (${o.customer?.phone || 'Sin teléfono'})</p>
+                <p style="margin: 2px 0; font-size: 0.85rem;"><strong>Total:</strong> ${formatPrice(o.total)}</p>
+                
+                <div style="margin-top: 10px;">
+                  <button class="action-btn toggle-return-btn" data-order-id="${o.id}" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+                    🔄 Registrar Devolución
+                  </button>
+                  
+                  <div id="return-box-${o.id}" style="display: none; margin-top: 10px; background: #fdf2f2; padding: 10px; border-radius: 6px; border: 1px solid #fca5a5;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; color: #b91c1c;">Motivo de la devolución:</label>
+                    <textarea id="return-reason-${o.id}" placeholder="Ej: Cliente ausente, producto rechazado, dirección incorrecta..." style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.8rem; margin-bottom: 8px; resize: vertical; box-sizing: border-box;"></textarea>
+                    <button class="action-btn save-return-btn" data-order-id="${o.id}" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: bold;">
+                      ✅ Guardar Devolución y Reingresar Stock
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `).join("");
+
+            // Mostrar / Ocultar cuadro de motivo al hacer clic en Registrar Devolución
+            document.querySelectorAll(".toggle-return-btn").forEach(btn => {
+              btn.addEventListener("click", (e) => {
+                const id = (e.currentTarget as HTMLElement).getAttribute("data-order-id");
+                const box = document.getElementById(`return-box-${id}`);
+                if (box) {
+                  box.style.display = box.style.display === "none" ? "block" : "none";
+                }
+              });
+            });
+
+            // Enviar solicitud de devolución al servidor
+            document.querySelectorAll(".save-return-btn").forEach(btn => {
+              btn.addEventListener("click", async (e) => {
+                const id = (e.currentTarget as HTMLElement).getAttribute("data-order-id");
+                const textarea = document.getElementById(`return-reason-${id}`) as HTMLTextAreaElement;
+                const reason = textarea?.value.trim();
+
+                if (!reason) {
+                  alert("Por favor escribe el motivo de la devolución.");
+                  return;
+                }
+
+                try {
+                  const res = await fetch(`${API_URL}/orders/${id}/status`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                      status: "RETURNED",
+                      returnReason: reason 
+                    })
+                  });
+
+                  const result = await res.json();
+                  if (result.success) {
+                    alert("Devolución registrada con éxito. El stock ha sido reingresado al inventario.");
+                    loadShippedOrdersForReturn(); // Recargar la lista del modal
+                    loadOrders(); // Recargar la tabla principal
+                  } else {
+                    alert(result.message || "Error al registrar la devolución.");
+                  }
+                } catch (err) {
+                  console.error("Error al registrar devolución:", err);
+                  alert("Error de conexión con el servidor.");
+                }
+              });
+            });
+
+          }
+        } catch (err) {
+          console.error("Error al cargar pedidos enviados:", err);
+          returnsModalBody.innerHTML = `<p style="color: #c74747; text-align: center;">Error al cargar la lista.</p>`;
+        }
+      }
 
         // Cargar pedidos por defecto al abrir la página
         loadOrders();
