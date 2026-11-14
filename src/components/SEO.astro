@@ -42,3 +42,30 @@ const siteTitle = `${title} | Costa Azul - Artesanías y Estilo de la Costa Salv
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+<!-- Tipografía Costa Azul -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style is:global>
+  :root {
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --color-navy: #002B5C;
+    --color-navy-hover: #001d40;
+    --color-sand: #E7DCC8;
+    --color-sand-light: #FAF8F5;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-sand-light);
+    color: #1E293B;
+    margin: 0;
+  }
+
+  h1, h2, h3, .brand-title {
+    font-family: var(--font-heading);
+  }
+</style>

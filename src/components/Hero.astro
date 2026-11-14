@@ -1,21 +1,20 @@
 ---
-// src/components/Hero.astro
 const slides = [
   {
     number: "01",
-    category: "ESENCIA COSTERA",
-    title: "Lo nuevo de Costa Azul",
-    description: "Descubre piezas artesanales inspiradas en las olas y la arena de Los Cóbanos.",
-    button: "Explorar colección",
+    category: "LOS CÓBANOS • EL SALVADOR",
+    title: "Descubre Nuestra Colección",
+    description: "Artesanías, textiles tejidos a mano y piezas únicas inspiradas en las aguas y arenas de la costa salvadoreña.",
+    button: "Descubre Nuestra Colección",
     link: "#productos",
     image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85",
   },
   {
     number: "02",
-    category: "COLECCIONES",
-    title: "Historias del Pacífico",
-    description: "Creaciones elaboradas por manos salvadoreñas con texturas y tonos del mar.",
-    button: "Ver colección",
+    category: "HECHO A MANO",
+    title: "La Magia de Nuestra Costa",
+    description: "Cada pieza refleja la calidez del Pacífico y el talento de artesanos locales.",
+    button: "Explorar Piezas",
     link: "#productos",
     image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=2000&q=85",
   },
@@ -34,13 +33,7 @@ const slides = [
           <p>{slide.description}</p>
           <a href={slide.link} class="hero-button">
             {slide.button}
-            <span>→</span>
           </a>
-        </div>
-        <div class="slide-number">
-          <span>{slide.number}</span>
-          <span class="separator">/</span>
-          <span>02</span>
         </div>
       </article>
     ))}
@@ -51,7 +44,7 @@ const slides = [
 
   <div class="indicators">
     {slides.map((_, index) => (
-      <button class:list={["indicator", { active: index === 0 }]} data-indicator={index} aria-label={`Ir al slide ${index + 1}`}></button>
+      <button class:list={["indicator", { active: index === 0 }]} data-indicator={index} aria-label={`Slide ${index + 1}`}></button>
     ))}
   </div>
 </section>
@@ -61,10 +54,8 @@ const slides = [
   const indicators = document.querySelectorAll<HTMLButtonElement>(".indicator");
   const prevButton = document.querySelector<HTMLButtonElement>("#prevSlide");
   const nextButton = document.querySelector<HTMLButtonElement>("#nextSlide");
-  const hero = document.querySelector<HTMLElement>(".hero");
 
   let currentSlide = 0;
-  let autoplay: number;
 
   function showSlide(index: number) {
     slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
@@ -72,163 +63,142 @@ const slides = [
     currentSlide = index;
   }
 
-  function nextSlide() {
-    showSlide((currentSlide + 1) % slides.length);
-  }
-
-  function previousSlide() {
-    showSlide((currentSlide - 1 + slides.length) % slides.length);
-  }
-
-  function startAutoplay() {
-    autoplay = window.setInterval(nextSlide, 6000);
-  }
-
-  function stopAutoplay() {
-    window.clearInterval(autoplay);
-  }
-
-  nextButton?.addEventListener("click", () => { nextSlide(); stopAutoplay(); startAutoplay(); });
-  prevButton?.addEventListener("click", () => { previousSlide(); stopAutoplay(); startAutoplay(); });
-  hero?.addEventListener("mouseenter", stopAutoplay);
-  hero?.addEventListener("mouseleave", startAutoplay);
-  startAutoplay();
+  nextButton?.addEventListener("click", () => showSlide((currentSlide + 1) % slides.length));
+  prevButton?.addEventListener("click", () => showSlide((currentSlide - 1 + slides.length) % slides.length));
+  indicators.forEach((ind, i) => ind.addEventListener("click", () => showSlide(i)));
+  window.setInterval(() => showSlide((currentSlide + 1) % slides.length), 6000);
 </script>
 
 <style>
   .hero {
     position: relative;
     width: 100%;
-    height: min(720px, calc(100vh - 82px));
-    min-height: 580px;
+    height: min(600px, calc(100vh - 80px));
+    min-height: 480px;
     overflow: hidden;
     background: #002B5C;
   }
 
-  .slides { position: relative; width: 100%; height: 100%; }
-  .slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease; }
+  .slides, .slide { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .slide { opacity: 0; visibility: hidden; transition: opacity 0.7s ease; }
   .slide.active { opacity: 1; visibility: visible; }
-  .slide-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); transition: transform 6s ease; }
-  .slide.active .slide-image { transform: scale(1); }
+  .slide-image { width: 100%; height: 100%; object-fit: cover; }
 
   .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(0, 43, 92, 0.85) 0%, rgba(0, 43, 92, 0.5) 45%, rgba(0, 43, 92, 0.2) 100%);
+    background: linear-gradient(to bottom, rgba(0, 43, 92, 0.35), rgba(0, 43, 92, 0.65));
   }
 
   .hero-content {
     position: relative;
     z-index: 2;
-    width: min(1200px, 92%);
+    width: min(900px, 90%);
     height: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding-bottom: 40px;
-    padding-left: 50px;
+    text-align: center;
   }
 
   .category {
-    display: block;
-    margin-bottom: 22px;
-    color: #E7DCC8; /* Arena Los Cóbanos */
-    font-size: 0.75rem;
+    display: inline-block;
+    padding: 6px 16px;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: rgba(231, 220, 200, 0.92);
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
+    letter-spacing: 0.14em;
   }
 
   .hero h1 {
-    max-width: 720px;
     margin: 0;
-    color: #fff;
-    font-family: Georgia, serif;
-    font-size: clamp(3rem, 6vw, 5.8rem);
-    font-weight: 400;
-    line-height: 0.98;
+    color: #FFFFFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   }
 
   .hero p {
-    max-width: 500px;
-    margin: 28px 0 36px;
-    color: rgba(231, 220, 200, 0.9);
+    max-width: 580px;
+    margin: 18px 0 30px;
+    color: #FAF8F5;
     font-size: 1.05rem;
-    line-height: 1.7;
+    line-height: 1.6;
   }
 
+  /* BOTÓN ESTILO COSTA AZUL */
   .hero-button {
-    width: fit-content;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 20px;
-    padding: 15px 22px;
-    color: #002B5C;
-    background: #E7DCC8;
-    text-decoration: none;
-    font-size: 0.85rem;
+    justify-content: center;
+    padding: 15px 32px;
+    border-radius: 10px;
+    background: #002B5C;
+    border: 2px solid #E7DCC8;
+    color: #FFFFFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
     font-weight: 700;
-    transition: background 0.25s ease, transform 0.25s ease;
-    border-radius: 4px;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 43, 92, 0.3);
+    transition: all 0.25s ease;
   }
 
   .hero-button:hover {
-    background: #fff;
+    background: #E7DCC8;
+    color: #002B5C;
     transform: translateY(-2px);
-  }
-
-  .slide-number {
-    position: absolute;
-    z-index: 3;
-    right: 6%;
-    bottom: 55px;
-    display: flex;
-    gap: 8px;
-    color: #fff;
-    font-size: 0.8rem;
   }
 
   .arrow {
     position: absolute;
     z-index: 5;
     top: 50%;
-    width: 52px;
-    height: 52px;
-    border: 1px solid rgba(231, 220, 200, 0.45);
-    color: #fff;
-    background: rgba(0, 43, 92, 0.3);
-    font-size: 1.2rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #FFFFFF;
+    background: rgba(0, 43, 92, 0.45);
+    font-size: 1.1rem;
     cursor: pointer;
     transform: translateY(-50%);
-    transition: background 0.25s ease;
+    transition: background 0.2s ease;
   }
 
-  .arrow:hover { background: rgba(0, 43, 92, 0.7); }
-  .arrow-left { left: 30px; }
-  .arrow-right { right: 30px; }
+  .arrow:hover { background: #002B5C; }
+  .arrow-left { left: 24px; }
+  .arrow-right { right: 24px; }
 
   .indicators {
     position: absolute;
     z-index: 5;
     left: 50%;
-    bottom: 35px;
+    bottom: 24px;
     display: flex;
     gap: 8px;
     transform: translateX(-50%);
   }
 
   .indicator {
-    width: 32px;
-    height: 2px;
-    padding: 0;
+    width: 28px;
+    height: 4px;
+    border-radius: 999px;
     border: 0;
-    background: rgba(231, 220, 200, 0.4);
+    background: rgba(255, 255, 255, 0.45);
     cursor: pointer;
   }
 
   .indicator.active {
-    width: 55px;
+    width: 44px;
     background: #E7DCC8;
   }
 </style>

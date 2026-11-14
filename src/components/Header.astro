@@ -1,5 +1,4 @@
 ---
-// src/components/Header.astro
 let categories = [];
 
 try {
@@ -17,41 +16,44 @@ try {
 <header class="header">
   <div class="container">
 
-    <!-- LOGO -->
+    <!-- LOGO CON ISOTIPO -->
     <a href="/" class="logo">
-      <span class="logo-name">COSTA AZUL</span>
-      <span class="logo-tagline">
-        Artesanías y Estilo de la Costa Salvadoreña
-      </span>
+      <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="23" r="10" fill="#E7DCC8" />
+        <path d="M32 7V11M18 13L21 16M46 13L43 16M13 24H17M47 24H51" stroke="#E7DCC8" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 35C20 25 34 25 42 35C36 31 26 31 20 37C28 37 38 41 52 35C44 45 22 47 12 35Z" fill="#002B5C"/>
+        <path d="M32 37V53M23 47C23 52 41 52 41 47" stroke="#002B5C" stroke-width="3.2" stroke-linecap="round"/>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-name">COSTA AZUL</span>
+        <span class="logo-tagline">Artesanías y Estilo de la Costa Salvadoreña</span>
+      </div>
     </a>
 
     <!-- NAVEGACIÓN -->
     <nav class="navigation" aria-label="Navegación principal">
       <a href="/" class="nav-link active">Inicio</a>
 
-      <!-- CATEGORÍAS -->
       <div class="categories-menu">
         <button
           type="button"
-          class="categories-button"
+          class="nav-link categories-button"
           aria-expanded="false"
           aria-controls="categories-dropdown"
         >
-          <span>Categorías</span>
+          <span>Productos</span>
           <span class="arrow">⌄</span>
         </button>
 
         <div id="categories-dropdown" class="categories-dropdown">
-          {categories.length > 0 ? (
-            categories.map((cat: any) => (
-              <a href={`/categorias/${cat.slug}`} class="category-item">
-                <span class="category-icon">🌊</span>
-                <span>{cat.name}</span>
-              </a>
-            ))
-          ) : (
-            <span class="category-item" style="color: #5A6577;">No hay categorías</span>
-          )}
+          <a href="#productos" class="category-item">
+            <span>✨ Ver Todo</span>
+          </a>
+          {categories.map((cat: any) => (
+            <a href={`/categorias/${cat.slug}`} class="category-item">
+              <span>{cat.name}</span>
+            </a>
+          ))}
         </div>
       </div>
 
@@ -61,16 +63,13 @@ try {
     <!-- ACCIONES -->
     <div class="actions">
       <a href="#" class="cart-action" aria-label="Abrir Carrito">
-        <span class="cart-icon-wrapper">
-          <span class="icon">🛒</span>
-          <span id="cart-count" class="cart-count">0</span>
-        </span>
+        <span class="icon">🛒</span>
         <span class="action-text">Carrito</span>
+        <span id="cart-count" class="cart-count">0</span>
       </a>
 
-      <a href="/cuenta" class="action" aria-label="Cuenta">
-        <span class="icon">👤</span>
-        <span class="action-text">Cuenta</span>
+      <a href="/cuenta" class="btn-account" aria-label="Cuenta">
+        Cuenta
       </a>
 
       <button type="button" class="menu-button" aria-label="Abrir menú">☰</button>
@@ -82,9 +81,8 @@ try {
 <script>
   const categoriesButton = document.querySelector(".categories-button");
   const categoriesMenu = document.querySelector(".categories-menu");
-  const categoriesDropdown = document.querySelector(".categories-dropdown");
 
-  if (categoriesButton && categoriesMenu && categoriesDropdown) {
+  if (categoriesButton && categoriesMenu) {
     categoriesButton.addEventListener("click", (event) => {
       event.stopPropagation();
       const isOpen = categoriesMenu.classList.toggle("is-open");
@@ -92,19 +90,10 @@ try {
     });
 
     document.addEventListener("click", (event) => {
-      const target = event.target;
-      if (target instanceof Node && !categoriesMenu.contains(target)) {
+      if (event.target instanceof Node && !categoriesMenu.contains(event.target)) {
         categoriesMenu.classList.remove("is-open");
         categoriesButton.setAttribute("aria-expanded", "false");
       }
-    });
-
-    const categoryLinks = categoriesDropdown.querySelectorAll(".category-item");
-    categoryLinks.forEach((link) => {
-      link.addEventListener("click", () => {
-        categoriesMenu.classList.remove("is-open");
-        categoriesButton.setAttribute("aria-expanded", "false");
-      });
     });
   }
 </script>
@@ -114,99 +103,81 @@ try {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: #F7F3EB; /* Fondo arena suave */
-    border-bottom: 2px solid #E7DCC8; /* Arena Los Cóbanos */
+    background: #FFFFFF;
+    border-bottom: 1px solid #E7DCC8;
+    box-shadow: 0 2px 12px rgba(0, 43, 92, 0.04);
   }
 
   .container {
     width: min(1200px, 92%);
-    min-height: 82px;
+    min-height: 80px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 40px;
+    gap: 24px;
   }
 
   .logo {
     display: flex;
-    flex-direction: column;
-    min-width: 180px;
-    color: #002B5C; /* Azul Marino */
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
   }
 
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
   .logo-name {
-    font-family: Georgia, serif;
-    font-size: 1.8rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.45rem;
     font-weight: 800;
-    letter-spacing: 0.1em;
-    line-height: 1;
+    color: #002B5C;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
   }
 
   .logo-tagline {
-    margin-top: 6px;
-    color: #5A6577;
-    font-size: 0.62rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    margin-top: 3px;
+    color: #64748B;
+    font-size: 0.65rem;
+    font-weight: 500;
   }
 
   .navigation {
     display: flex;
     align-items: center;
-    gap: 34px;
+    gap: 10px;
   }
 
-  .nav-link,
-  .categories-button {
-    position: relative;
-    padding: 8px 0;
-    border: 0;
+  /* BOTONES DE NAVEGACIÓN ESTILO PÍLDORA */
+  .nav-link {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
     background: transparent;
     color: #002B5C;
-    font-family: inherit;
-    font-size: 0.95rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-  }
-
-  .nav-link::after,
-  .categories-button::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    background: #002B5C;
-    transition: width 0.25s ease;
-  }
-
-  .nav-link:hover::after,
-  .nav-link.active::after,
-  .categories-button:hover::after {
-    width: 100%;
-  }
-
-  .categories-menu {
-    position: static;
-  }
-
-  .categories-button {
-    display: flex;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
-  .arrow {
-    font-size: 1rem;
-    transition: transform 0.25s ease;
+  .nav-link:hover,
+  .nav-link.active {
+    background: #002B5C;
+    color: #FFFFFF;
   }
 
-  .categories-menu.is-open .arrow {
-    transform: rotate(180deg);
+  .categories-menu {
+    position: static;
   }
 
   .categories-dropdown {
@@ -214,21 +185,21 @@ try {
     top: 100%;
     left: 0;
     width: 100%;
-    min-height: 78px;
-    padding: 14px 30px;
+    padding: 16px 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    background: #F7F3EB;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: #FAF8F5;
     border-top: 2px solid #002B5C;
     border-bottom: 1px solid #E7DCC8;
-    box-shadow: 0 12px 25px rgba(0, 43, 92, 0.1);
+    box-shadow: 0 12px 24px rgba(0, 43, 92, 0.08);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transform: translateY(-8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    transition: all 0.2s ease;
     z-index: 999;
   }
 
@@ -241,86 +212,82 @@ try {
   }
 
   .category-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 110px;
-    padding: 11px 15px;
-    border-radius: 6px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: #FFFFFF;
+    border: 1px solid #E7DCC8;
     color: #002B5C;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .category-item:hover {
-    background: #E7DCC8;
-    color: #001f42;
-    transform: translateY(-2px);
-  }
-
-  .category-icon {
-    font-size: 1.15rem;
-    line-height: 1;
+    background: #002B5C;
+    color: #FFFFFF;
+    border-color: #002B5C;
   }
 
   .actions {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 12px;
   }
 
-  .action,
   .cart-action {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #002B5C;
-    font-size: 0.9rem;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .icon {
-    font-size: 1.15rem;
-  }
-
-  .action:hover, .cart-action:hover {
-    opacity: 0.75;
-  }
-
-  .cart-icon-wrapper {
-    position: relative;
     display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #E7DCC8;
+    color: #002B5C;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .cart-action:hover {
+    background: #dcd0b9;
   }
 
   .cart-count {
-    position: absolute;
-    top: -9px;
-    right: -11px;
-    min-width: 18px;
-    height: 18px;
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
-    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
     background: #002B5C;
-    color: white;
-    font-size: 0.62rem;
+    color: #FFFFFF;
+    font-size: 0.72rem;
     font-weight: 700;
-    line-height: 1;
   }
 
   .cart-count.visible {
-    display: flex;
+    display: inline-flex;
+  }
+
+  .btn-account {
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: #002B5C;
+    color: #FFFFFF;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .btn-account:hover {
+    background: #001d40;
   }
 
   .menu-button {
     display: none;
-    padding: 0;
     border: none;
     background: transparent;
     color: #002B5C;
@@ -328,17 +295,8 @@ try {
     cursor: pointer;
   }
 
-  @media (max-width: 1000px) {
-    .navigation { gap: 20px; }
-    .categories-dropdown { justify-content: flex-start; overflow-x: auto; padding: 12px 20px; }
-  }
-
   @media (max-width: 850px) {
-    .navigation { display: none; }
-    .action-text { display: none; }
+    .navigation, .action-text, .btn-account { display: none; }
     .menu-button { display: block; }
-    .container { min-height: 72px; }
-    .logo-name { font-size: 1.5rem; }
-    .logo-tagline { font-size: 0.5rem; }
   }
 </style>
