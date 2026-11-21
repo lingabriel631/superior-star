@@ -1,63 +1,50 @@
 ---
-let categories = [];
-
-try {
-  const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
-  const res = await fetch(`${API_URL}/api/categories`);
-  const result = await res.json();
-  if (result.success && Array.isArray(result.data)) {
-    categories = result.data;
-  }
-} catch (err) {
-  console.error("Error al cargar categorías en el menú:", err);
-}
+// src/components/Header.astro
 ---
 
 <header class="header">
   <div class="container">
 
-    <!-- LOGO CON ISOTIPO -->
-    <a href="/" class="logo">
-      <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="23" r="10" fill="#E7DCC8" />
-        <path d="M32 7V11M18 13L21 16M46 13L43 16M13 24H17M47 24H51" stroke="#E7DCC8" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M12 35C20 25 34 25 42 35C36 31 26 31 20 37C28 37 38 41 52 35C44 45 22 47 12 35Z" fill="#002B5C"/>
-        <path d="M32 37V53M23 47C23 52 41 52 41 47" stroke="#002B5C" stroke-width="3.2" stroke-linecap="round"/>
+    <!-- LOGO COSTA AZUL -->
+    <a href="#inicio" class="logo" aria-label="Costa Azul Inicio">
+      <!-- Si prefieres usar tu imagen guardada en public/images/, cambia el <svg> por:
+      <img src="/images/logo-costa-azul.png" alt="Costa Azul" class="logo-img" /> -->
+      <svg class="logo-svg" viewBox="0 0 120 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rayos del sol -->
+        <polygon points="56,4 52,18 60,18" fill="#D4B07A" />
+        <polygon points="38,9 40,23 47,20" fill="#D4B07A" />
+        <polygon points="23,21 31,32 36,27" fill="#D4B07A" />
+        <polygon points="14,38 27,44 29,37" fill="#D4B07A" />
+        <polygon points="13,57 27,57 26,50" fill="#D4B07A" />
+        <polygon points="74,9 65,20 72,23" fill="#D4B07A" />
+        <polygon points="88,21 76,27 81,32" fill="#D4B07A" />
+        <!-- Arco solar -->
+        <path d="M33 54C33 40.5 43.5 30 56.5 30C66 30 74.2 35.5 78 43.5" stroke="#D4B07A" stroke-width="5.5" stroke-linecap="round" />
+        <!-- Ola principal en Azul Marino -->
+        <path d="M14 68C32 54 54 64 72 68C86 71 98 65 104 58C97 73 82 78 65 74C46 69 30 61 14 68Z" fill="#002B5C" />
+        <path d="M58 48C64 36 82 34 90 46C96 55 93 66 84 69C88 61 86 52 79 49C73 46 67 50 66 56C63 52 60 50 58 48Z" fill="#002B5C" />
+        <!-- Ola arena inferior -->
+        <path d="M16 74C30 68 44 72 56 76C43 76 29 73 16 74Z" fill="#D4B07A" />
+        <!-- Ancla en Azul Marino -->
+        <path d="M60 73V98" stroke="#002B5C" stroke-width="6" stroke-linecap="round" />
+        <path d="M38 84C42 97 52 102 60 105C68 102 78 97 82 84" stroke="#002B5C" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+        <!-- Puntas del ancla -->
+        <polygon points="36,78 32,89 44,86" fill="#002B5C" />
+        <polygon points="84,78 76,86 88,89" fill="#002B5C" />
       </svg>
+
       <div class="logo-text">
         <span class="logo-name">COSTA AZUL</span>
-        <span class="logo-tagline">Artesanías y Estilo de la Costa Salvadoreña</span>
+        <span class="logo-tagline">Artesanías y Estilo de la Costa</span>
       </div>
     </a>
 
-    <!-- NAVEGACIÓN -->
-    <nav class="navigation" aria-label="Navegación principal">
-      <a href="/" class="nav-link active">Inicio</a>
-
-      <div class="categories-menu">
-        <button
-          type="button"
-          class="nav-link categories-button"
-          aria-expanded="false"
-          aria-controls="categories-dropdown"
-        >
-          <span>Productos</span>
-          <span class="arrow">⌄</span>
-        </button>
-
-        <div id="categories-dropdown" class="categories-dropdown">
-          <a href="#productos" class="category-item">
-            <span>✨ Ver Todo</span>
-          </a>
-          {categories.map((cat: any) => (
-            <a href={`/categorias/${cat.slug}`} class="category-item">
-              <span>{cat.name}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-
+    <!-- NAVEGACIÓN (SIN FLECHAS, APUNTANDO A SECCIONES DEL INDEX) -->
+    <nav class="navigation" id="main-nav" aria-label="Navegación principal">
+      <a href="#inicio" class="nav-link active">Inicio</a>
+      <a href="#novedades" class="nav-link">Novedades</a>
       <a href="#ofertas" class="nav-link">Ofertas</a>
+      <a href="#categorias" class="nav-link">Categorías</a>
     </nav>
 
     <!-- ACCIONES -->
@@ -72,33 +59,39 @@ try {
         Cuenta
       </a>
 
-      <button type="button" class="menu-button" aria-label="Abrir menú">☰</button>
+      <button type="button" class="menu-button" id="mobile-menu-btn" aria-label="Abrir menú">
+        ☰
+      </button>
     </div>
 
   </div>
 </header>
 
 <script>
-  const categoriesButton = document.querySelector(".categories-button");
-  const categoriesMenu = document.querySelector(".categories-menu");
+  // Resaltar enlace activo al hacer clic y cerrar menú móvil
+  const navLinks = document.querySelectorAll(".nav-link");
+  const navMenu = document.querySelector("#main-nav");
+  const mobileBtn = document.querySelector("#mobile-menu-btn");
 
-  if (categoriesButton && categoriesMenu) {
-    categoriesButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const isOpen = categoriesMenu.classList.toggle("is-open");
-      categoriesButton.setAttribute("aria-expanded", String(isOpen));
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.forEach((l) => l.classList.remove("active"));
+      link.classList.add("active");
+      navMenu?.classList.remove("is-open");
     });
+  });
 
-    document.addEventListener("click", (event) => {
-      if (event.target instanceof Node && !categoriesMenu.contains(event.target)) {
-        categoriesMenu.classList.remove("is-open");
-        categoriesButton.setAttribute("aria-expanded", "false");
-      }
-    });
-  }
+  mobileBtn?.addEventListener("click", () => {
+    navMenu?.classList.toggle("is-open");
+  });
 </script>
 
 <style>
+  :global(html) {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+  }
+
   .header {
     position: sticky;
     top: 0;
@@ -110,7 +103,7 @@ try {
 
   .container {
     width: min(1200px, 92%);
-    min-height: 80px;
+    min-height: 82px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -118,11 +111,20 @@ try {
     gap: 24px;
   }
 
+  /* LOGO */
   .logo {
     display: flex;
     align-items: center;
     gap: 12px;
     text-decoration: none;
+  }
+
+  .logo-svg,
+  .logo-img {
+    width: 48px;
+    height: 44px;
+    object-fit: contain;
+    flex-shrink: 0;
   }
 
   .logo-text {
@@ -132,7 +134,7 @@ try {
 
   .logo-name {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.45rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: #002B5C;
     letter-spacing: 0.06em;
@@ -146,28 +148,23 @@ try {
     font-weight: 500;
   }
 
+  /* NAVEGACIÓN */
   .navigation {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  /* BOTONES DE NAVEGACIÓN ESTILO PÍLDORA */
   .nav-link {
     padding: 8px 18px;
-    border: none;
-    border-radius: 8px;
+    border-radius: 999px;
     background: transparent;
     color: #002B5C;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
-    cursor: pointer;
     transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .nav-link:hover,
@@ -176,59 +173,7 @@ try {
     color: #FFFFFF;
   }
 
-  .categories-menu {
-    position: static;
-  }
-
-  .categories-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    padding: 16px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    background: #FAF8F5;
-    border-top: 2px solid #002B5C;
-    border-bottom: 1px solid #E7DCC8;
-    box-shadow: 0 12px 24px rgba(0, 43, 92, 0.08);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-8px);
-    transition: all 0.2s ease;
-    z-index: 999;
-  }
-
-  .categories-menu.is-open .categories-dropdown,
-  .categories-menu:hover .categories-dropdown {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
-  .category-item {
-    padding: 9px 18px;
-    border-radius: 999px;
-    background: #FFFFFF;
-    border: 1px solid #E7DCC8;
-    color: #002B5C;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-
-  .category-item:hover {
-    background: #002B5C;
-    color: #FFFFFF;
-    border-color: #002B5C;
-  }
-
+  /* ACCIONES */
   .actions {
     display: flex;
     align-items: center;
@@ -240,13 +185,13 @@ try {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 999px;
     background: #E7DCC8;
     color: #002B5C;
     font-size: 0.88rem;
     font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease;
   }
 
   .cart-action:hover {
@@ -272,8 +217,8 @@ try {
   }
 
   .btn-account {
-    padding: 8px 18px;
-    border-radius: 8px;
+    padding: 8px 20px;
+    border-radius: 999px;
     background: #002B5C;
     color: #FFFFFF;
     font-size: 0.88rem;
@@ -296,7 +241,35 @@ try {
   }
 
   @media (max-width: 850px) {
-    .navigation, .action-text, .btn-account { display: none; }
-    .menu-button { display: block; }
+    .navigation {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      flex-direction: column;
+      background: #FFFFFF;
+      padding: 16px;
+      border-bottom: 1px solid #E7DCC8;
+      box-shadow: 0 10px 20px rgba(0, 43, 92, 0.08);
+    }
+
+    .navigation.is-open {
+      display: flex;
+    }
+
+    .nav-link {
+      width: 100%;
+      text-align: center;
+    }
+
+    .action-text,
+    .btn-account {
+      display: none;
+    }
+
+    .menu-button {
+      display: block;
+    }
   }
 </style>
