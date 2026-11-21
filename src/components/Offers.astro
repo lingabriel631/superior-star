@@ -1,7 +1,8 @@
 ---
+// src/components/Offers.astro
 ---
 
-<section class="offers" id="ofertas">
+<section class="offers" id="ofertas" aria-label="Ofertas Costa Azul">
   <div class="offers-container">
 
     <div class="section-header">
@@ -22,7 +23,6 @@
       </p>
     </div>
 
-
     <div class="offers-wrapper">
 
       <button
@@ -34,17 +34,13 @@
         ←
       </button>
 
-
       <div class="offers-window">
-
         <div
           class="offers-track"
           id="offers-track"
         >
         </div>
-
       </div>
-
 
       <button
         class="carousel-button carousel-next"
@@ -56,7 +52,6 @@
       </button>
 
     </div>
-
 
     <div class="carousel-footer">
 
@@ -79,84 +74,78 @@
   </div>
 </section>
 
-
 <style is:global>
 
   /* ========================================
-     SECCIÓN
+     SECCIÓN (ARENA LOS CÓBANOS)
   ======================================== */
 
   .offers {
-    padding: 100px 0;
-    background: #f3ede2;
+    padding: 90px 0;
+    background: #E7DCC8;
   }
-
 
   .offers-container {
     width: min(1200px, 92%);
     margin: 0 auto;
   }
 
-
   /* ========================================
      ENCABEZADO
   ======================================== */
 
-  .section-header {
+  .offers .section-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 50px;
-    margin-bottom: 55px;
+    gap: 40px;
+    margin-bottom: 48px;
   }
 
-
-  .eyebrow {
+  .offers .eyebrow {
     display: block;
-    margin-bottom: 14px;
-    color: #b85c38;
-    font-size: 0.7rem;
+    margin-bottom: 10px;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
   }
 
-
-  .section-header h2 {
+  .offers .section-header h2 {
     margin: 0;
-    color: #252525;
-    font-family: Georgia, serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 400;
-    line-height: 0.95;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
   }
 
-
-  .section-header h2 em {
-    color: #b85c38;
+  .offers .section-header h2 em {
+    color: #002B5C;
     font-style: italic;
+    font-weight: 600;
   }
 
-
-  .section-description {
+  .offers .section-description {
     max-width: 380px;
     margin: 0;
-    color: #777168;
+    color: #334155;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.95rem;
-    line-height: 1.7;
+    line-height: 1.65;
   }
 
-
   /* ========================================
-     CARRUSEL
+     CARRUSEL Y TARJETAS
   ======================================== */
 
   .offers-wrapper {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
   }
-
 
   .offers-window {
     flex: 1 1 auto;
@@ -164,25 +153,31 @@
     overflow: hidden;
   }
 
-
   .offers-track {
     display: flex;
     gap: 22px;
     width: 100%;
-    transition: transform 0.45s
-      cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
 
-
   .offer-card {
-    flex: 0 0
-      calc((100% - 66px) / 4);
+    flex: 0 0 calc((100% - 66px) / 4);
     width: calc((100% - 66px) / 4);
     min-width: 0;
     max-width: calc((100% - 66px) / 4);
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 43, 92, 0.12);
+    border-radius: 16px;
+    padding: 14px;
+    box-sizing: border-box;
+    box-shadow: 0 6px 18px rgba(0, 43, 92, 0.06);
+    transition: transform 0.25s ease;
   }
 
+  .offer-card:hover {
+    transform: translateY(-4px);
+  }
 
   /* ========================================
      IMAGEN
@@ -191,9 +186,10 @@
   .offer-image {
     position: relative;
     width: 100%;
-    aspect-ratio: 0.82;
+    aspect-ratio: 0.85;
+    border-radius: 12px;
     overflow: hidden;
-    background: #e5ded2;
+    background: #FAF8F5;
   }
 
   .offer-image a {
@@ -201,7 +197,6 @@
     width: 100%;
     height: 100%;
   }
-
 
   .offer-image img {
     width: 100%;
@@ -211,11 +206,9 @@
     transition: transform 0.5s ease;
   }
 
-
   .offer-card:hover .offer-image img {
     transform: scale(1.04);
   }
-
 
   /* ========================================
      DESCUENTO
@@ -223,103 +216,85 @@
 
   .discount-badge {
     position: absolute;
-    top: 14px;
-    left: 14px;
+    top: 12px;
+    left: 12px;
     z-index: 2;
-
-    padding: 7px 10px;
-
-    background: #b85c38;
-    color: #fff;
-
-    font-size: 0.65rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #002B5C;
+    color: #E7DCC8;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.08em;
   }
-
 
   /* ========================================
      FAVORITOS
   ======================================== */
 
-  .favorite {
+  .offers .favorite {
     position: absolute;
     top: 12px;
     right: 12px;
     z-index: 2;
-
-    width: 38px;
-    height: 38px;
-
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-
     border: none;
     border-radius: 50%;
-
-    background: rgba(250, 248, 243, 0.92);
-    color: #252525;
-
-    font-size: 1.35rem;
-
+    background: rgba(255, 255, 255, 0.92);
+    color: #002B5C;
+    font-size: 1.25rem;
     cursor: pointer;
-
-    transition:
-      background 0.25s ease,
-      color 0.25s ease,
-      transform 0.25s ease;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
   }
 
-
-  .favorite:hover {
-    background: #b85c38;
-    color: #fff;
+  .offers .favorite:hover {
+    background: #002B5C;
+    color: #FFFFFF;
     transform: scale(1.05);
   }
-
 
   /* ========================================
      INFORMACIÓN
   ======================================== */
 
   .offer-info {
-    padding-top: 18px;
+    padding-top: 16px;
   }
-
 
   .offer-category {
     display: block;
-    margin-bottom: 7px;
-
-    color: #918a80;
-
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    color: #64748B;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-
   .offer-info h3 {
-    min-height: 44px;
+    min-height: 42px;
     margin: 0;
   }
 
-  .product-title-link {
-    color: #252525;
-    font-family: Georgia, serif;
-    font-size: 1.05rem;
-    font-weight: 400;
+  .offers .product-title-link {
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 700;
     line-height: 1.35;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
-  .product-title-link:hover {
-    color: #b85c38;
+  .offers .product-title-link:hover {
+    text-decoration: underline;
   }
-
 
   /* ========================================
      PRECIOS
@@ -329,331 +304,202 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-
     gap: 10px;
-
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
-
   .old-price {
-    color: #9b948b;
-
-    font-size: 0.82rem;
-
+    color: #94A3B8;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
     text-decoration: line-through;
   }
 
-
   .offer-price {
-    color: #b85c38;
-
-    font-size: 1.05rem;
-    font-weight: 700;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 800;
   }
 
-
   /* ========================================
-     CARRITO
+     CARRITO (BOTÓN REDONDEADO)
   ======================================== */
 
-  .cart-label {
-    margin-top: 18px;
-    margin-bottom: 9px;
-
-    color: #777168;
-
+  .offers .cart-label {
+    margin-top: 14px;
+    margin-bottom: 8px;
+    color: #64748B;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.08em;
-
     text-transform: uppercase;
   }
 
-
-  .quantity-control {
+  .offers .quantity-control {
     width: 100%;
-    min-height: 44px;
-
+    min-height: 42px;
     display: grid;
-
-    grid-template-columns:
-      44px
-      minmax(0, 1fr)
-      44px;
-
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
     align-items: center;
-
-    border: 1px solid #d8d0c4;
-
-    background: #fff;
-
+    border-radius: 999px;
+    border: 1.5px solid #002B5C;
+    background: #002B5C;
     overflow: hidden;
   }
 
-
-  .quantity-button {
-    width: 44px;
-    height: 44px;
-
+  .offers .quantity-button {
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-
     border: none;
-
     background: transparent;
-
-    color: #252525;
-
-    font-size: 1.25rem;
+    color: #FFFFFF;
+    font-size: 1.2rem;
+    font-weight: 700;
     line-height: 1;
-
     cursor: pointer;
-
-    transition:
-      background 0.2s ease,
-      color 0.2s ease;
+    transition: background 0.2s ease;
   }
 
-
-  .quantity-button:hover {
-    background: #252525;
-    color: #fff;
+  .offers .quantity-button:hover {
+    background: #001d40;
   }
 
-
-  .quantity {
-    height: 44px;
-
+  .offers .quantity {
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-left: 1px solid #e5ded2;
-    border-right: 1px solid #e5ded2;
-
-    color: #252525;
-
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    font-family: 'Montserrat', sans-serif;
     font-size: 0.9rem;
     font-weight: 700;
   }
-
 
   /* ========================================
      FLECHAS
   ======================================== */
 
-  .carousel-button {
-    flex: 0 0 42px;
-
-    width: 42px;
-    height: 42px;
-
+  .offers .carousel-button {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border: 1px solid #d8d0c4;
-
-    background: #f3ede2;
-
-    color: #252525;
-
-    font-size: 1.2rem;
-
+    border-radius: 50%;
+    border: 1.5px solid #002B5C;
+    background: #FFFFFF;
+    color: #002B5C;
+    font-size: 1.15rem;
     cursor: pointer;
-
-    transition:
-      background 0.25s ease,
-      color 0.25s ease,
-      border-color 0.25s ease;
+    transition: all 0.2s ease;
   }
 
-
-  .carousel-button:hover:not(:disabled) {
-    background: #252525;
-    border-color: #252525;
-    color: #fff;
+  .offers .carousel-button:hover:not(:disabled) {
+    background: #002B5C;
+    color: #FFFFFF;
   }
 
-
-  .carousel-button:disabled {
-    opacity: 0.3;
+  .offers .carousel-button:disabled {
+    opacity: 0.35;
     cursor: not-allowed;
   }
-
 
   /* ========================================
      PIE
   ======================================== */
 
-  .carousel-footer {
+  .offers .carousel-footer {
     display: flex;
     align-items: center;
-
-    gap: 25px;
-
+    gap: 24px;
     margin-top: 35px;
   }
 
-
-  .progress {
+  .offers .progress {
     flex: 1;
-
-    height: 1px;
-
-    background: #d8d0c4;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(0, 43, 92, 0.2);
+    overflow: hidden;
   }
 
-
-  .progress-bar {
+  .offers .progress-bar {
     width: 0%;
     height: 100%;
-
-    background: #b85c38;
-
-    transition:
-      width 0.35s ease;
+    background: #002B5C;
+    transition: width 0.35s ease;
   }
-
 
   .offer-counter {
     min-width: 70px;
-
-    color: #777168;
-
-    font-size: 0.7rem;
-    font-weight: 600;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
     letter-spacing: 0.08em;
-
     text-align: right;
   }
 
-
   /* ========================================
-     TABLET
+     RESPONSIVE
   ======================================== */
 
   @media (max-width: 1000px) {
-
     .offer-card {
-      flex-basis:
-        calc((100% - 44px) / 3);
+      flex: 0 0 calc((100% - 44px) / 3);
+      width: calc((100% - 44px) / 3);
+      max-width: calc((100% - 44px) / 3);
     }
-
   }
 
-
-  /* ========================================
-     MOBILE
-  ======================================== */
-
   @media (max-width: 600px) {
-
     .offers {
       padding: 70px 0;
     }
 
-
-    .offers-container {
-      width: min(92%, 520px);
-    }
-
-
-    .section-header {
+    .offers .section-header {
       display: block;
-      margin-bottom: 35px;
+      margin-bottom: 32px;
     }
 
-
-    .section-header h2 {
-      font-size: clamp(
-        2.3rem,
-        10vw,
-        3rem
-      );
+    .offers .section-description {
+      margin-top: 14px;
     }
-
-
-    .section-description {
-      margin-top: 22px;
-    }
-
 
     .offers-wrapper {
-      gap: 8px;
+      gap: 10px;
     }
-
 
     .offer-card {
-      flex-basis:
-        calc((100% - 22px) / 2);
+      flex: 0 0 calc((100% - 22px) / 2);
+      width: calc((100% - 22px) / 2);
+      max-width: calc((100% - 22px) / 2);
     }
 
-
-    .offers-track {
-      gap: 22px;
-    }
-
-
-    .carousel-button {
+    .offers .carousel-button {
       flex: 0 0 36px;
-
       width: 36px;
       height: 36px;
     }
-
-
-    .product-title-link {
-      font-size: 0.9rem;
-    }
-
-
-    .quantity-control {
-      grid-template-columns:
-        38px
-        minmax(0, 1fr)
-        38px;
-    }
-
-
-    .quantity-button {
-      width: 38px;
-    }
-
   }
 
-
-  /* ========================================
-     TELÉFONOS PEQUEÑOS
-  ======================================== */
-
   @media (max-width: 430px) {
-
     .offer-card {
-      flex-basis: 100%;
+      flex: 0 0 100%;
+      width: 100%;
+      max-width: 100%;
     }
-
-
-    .section-description {
-      font-size: 0.88rem;
-    }
-
-
-    .offers-wrapper {
-      gap: 6px;
-    }
-
-
-    .offers-track {
-      gap: 18px;
-    }
-
   }
 
 </style>
-
 
 <script>
 
@@ -677,11 +523,6 @@
   let cart = [];
   let currentPosition = 0;
 
-
-  /* ========================================
-     CARRITO
-  ======================================== */
-
   function loadCart() {
     try {
       const savedCart = localStorage.getItem(STORAGE_KEY);
@@ -692,11 +533,9 @@
     }
   }
 
-
   function saveCart() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
   }
-
 
   function getCartQuantity(productId) {
     const item = cart.find(
@@ -705,14 +544,12 @@
     return item ? item.quantity : 0;
   }
 
-
   function getTotalQuantity() {
     return cart.reduce(
       (total, item) => total + Number(item.quantity || 0),
       0
     );
   }
-
 
   function updateHeaderCounter() {
     const headerCounter = document.querySelector("#cart-count");
@@ -722,7 +559,6 @@
     headerCounter.textContent = String(total);
     headerCounter.classList.toggle("visible", total > 0);
   }
-
 
   function updateProductQuantity(
     productId,
@@ -763,18 +599,12 @@
     window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
   }
 
-
   function formatPrice(price) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(Number(price));
   }
-
-
-  /* ========================================
-     PRODUCTOS
-  ======================================== */
 
   function createOfferCard(product) {
     const originalPrice = Number(product.price);
@@ -857,7 +687,6 @@
     return article;
   }
 
-
   async function loadOffers() {
     if (!track) return;
 
@@ -880,15 +709,10 @@
       updateCarousel();
     } catch (error) {
       console.error("Error cargando ofertas:", error);
-      track.innerHTML = `<p style="width:100%;padding:40px 0;color:#777168;">No se pudieron cargar las ofertas.</p>`;
+      track.innerHTML = `<p style="width:100%;padding:40px 0;color:#334155;">No se pudieron cargar las ofertas.</p>`;
       updateCarousel();
     }
   }
-
-
-  /* ========================================
-     SINCRONIZACIÓN GLOBAL DEL CARRITO
-  ======================================== */
 
   window.addEventListener("tekiti-cart-updated", () => {
     loadCart();
@@ -906,16 +730,11 @@
     updateHeaderCounter();
   });
 
-  window.addEventListener("storage", (event) => {
+  window.addEventListener("storage", () => {
     if (STORAGE_KEY) {
       window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
     }
   });
-
-
-  /* ========================================
-     CARRUSEL
-  ======================================== */
 
   function getVisibleOffers() {
     if (window.innerWidth <= 430) return 1;
@@ -984,11 +803,6 @@
   }
 
   window.addEventListener("resize", updateCarousel);
-
-
-  /* ========================================
-     INICIALIZACIÓN
-  ======================================== */
 
   loadCart();
   updateHeaderCounter();
