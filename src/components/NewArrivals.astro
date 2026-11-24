@@ -1,35 +1,753 @@
 ---
-import Header from "../components/Header.astro";
-import Hero from "../components/Hero.astro";
-import NewArrivals from "../components/NewArrivals.astro";
-import Offers from "../components/Offers.astro";
-import Categories from "../components/Categories.astro";
-import Suppliers from "../components/Suppliers.astro";
-import Footer from "../components/Footer.astro";
-import CartDrawer from "../components/CartDrawer.astro";
-import SEO from "../components/SEO.astro";
+// src/components/NewArrivals.astro
 ---
 
-<html lang="es">
-  <head>
-    <SEO
-      title="Costa Azul | Artesanías y Estilo de la Costa Salvadoreña"
-      description="Descubre novedades, ofertas, categorías artesanales y creadores inspirados en Los Cóbanos y la costa salvadoreña en Costa Azul."
-    />
-  </head>
+<section class="new-arrivals" id="novedades" aria-label="Novedades Costa Azul">
+  <div class="new-arrivals-container">
 
-  <body>
-    <Header />
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">
+          RECIÉN LLEGADOS • COSTA AZUL
+        </span>
 
-    <main>
-      <Hero />
-      <NewArrivals />
-      <Offers />
-      <Categories />
-      <Suppliers />
-    </main>
+        <h2>
+          Nuevas
+          <em>piezas</em>
+        </h2>
+      </div>
 
-    <Footer />
-    <CartDrawer />
-  </body>
-</html>
+      <p class="section-description">
+        Creaciones recientes que se suman a la tienda, elaboradas con el detalle y la calidez de nuestra costa.
+      </p>
+    </div>
+
+    <div class="new-arrivals-wrapper">
+      <button
+        class="carousel-button carousel-prev"
+        id="prev-new-arrivals"
+        type="button"
+        aria-label="Novedades anteriores"
+      >
+        ←
+      </button>
+
+      <div class="new-arrivals-window">
+        <div
+          class="new-arrivals-track"
+          id="new-arrivals-track"
+        >
+        </div>
+      </div>
+
+      <button
+        class="carousel-button carousel-next"
+        id="next-new-arrivals"
+        type="button"
+        aria-label="Siguientes novedades"
+      >
+        →
+      </button>
+    </div>
+
+    <div class="carousel-footer">
+      <div class="progress">
+        <div
+          class="progress-bar"
+          id="new-arrivals-progress"
+        ></div>
+      </div>
+
+      <div
+        class="new-arrivals-counter"
+        id="new-arrivals-counter"
+      >
+        00 — 00
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+  /* ========================================
+     SECCIÓN (FONDO CLARO COSTA AZUL)
+  ======================================== */
+  .new-arrivals {
+    padding: 90px 0;
+    background: #FAF8F5;
+  }
+
+  .new-arrivals-container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+  }
+
+  /* ========================================
+     ENCABEZADO
+  ======================================== */
+  .new-arrivals .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .new-arrivals .eyebrow {
+    display: block;
+    margin-bottom: 10px;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  .new-arrivals .section-header h2 {
+    margin: 0;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+  }
+
+  .new-arrivals .section-header h2 em {
+    color: #002B5C;
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .new-arrivals .section-description {
+    max-width: 380px;
+    margin: 0;
+    color: #5A6577;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  /* ========================================
+     CARRUSEL Y TARJETAS
+  ======================================== */
+  .new-arrivals-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .new-arrivals-window {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .new-arrivals-track {
+    display: flex;
+    gap: 22px;
+    width: 100%;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .new-card {
+    flex: 0 0 calc((100% - 66px) / 4);
+    width: calc((100% - 66px) / 4);
+    min-width: 0;
+    max-width: calc((100% - 66px) / 4);
+    background: #FFFFFF;
+    border: 1px solid #E7DCC8;
+    border-radius: 16px;
+    padding: 14px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 14px rgba(0, 43, 92, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .new-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 43, 92, 0.09);
+  }
+
+  /* ========================================
+     IMAGEN Y ETIQUETAS
+  ======================================== */
+  .new-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 0.85;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #E7DCC8;
+  }
+
+  .new-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .new-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .new-card:hover .new-image img {
+    transform: scale(1.04);
+  }
+
+  .new-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #002B5C;
+    color: #E7DCC8;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .new-arrivals .favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #002B5C;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+
+  .new-arrivals .favorite:hover {
+    background: #002B5C;
+    color: #FFFFFF;
+    transform: scale(1.05);
+  }
+
+  /* ========================================
+     INFORMACIÓN Y PRECIO
+  ======================================== */
+  .new-info {
+    padding-top: 16px;
+  }
+
+  .new-category {
+    display: block;
+    margin-bottom: 6px;
+    color: #64748B;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .new-info h3 {
+    min-height: 42px;
+    margin: 0;
+  }
+
+  .new-arrivals .product-title-link {
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .new-arrivals .product-title-link:hover {
+    text-decoration: underline;
+  }
+
+  .new-price-row {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .new-price {
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 800;
+  }
+
+  /* ========================================
+     CONTROL DE CANTIDAD (ESTILO PÍLDORA)
+  ======================================== */
+  .new-arrivals .cart-label {
+    margin-top: 14px;
+    margin-bottom: 8px;
+    color: #64748B;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .new-arrivals .quantity-control {
+    width: 100%;
+    min-height: 42px;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    align-items: center;
+    border-radius: 999px;
+    border: 1.5px solid #002B5C;
+    background: #002B5C;
+    overflow: hidden;
+  }
+
+  .new-arrivals .quantity-button {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #FFFFFF;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .new-arrivals .quantity-button:hover {
+    background: #001d40;
+  }
+
+  .new-arrivals .quantity {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* ========================================
+     FLECHAS Y PROGRESO
+  ======================================== */
+  .new-arrivals .carousel-button {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1.5px solid #002B5C;
+    background: #FFFFFF;
+    color: #002B5C;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .new-arrivals .carousel-button:hover:not(:disabled) {
+    background: #002B5C;
+    color: #FFFFFF;
+  }
+
+  .new-arrivals .carousel-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .new-arrivals .carousel-footer {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 35px;
+  }
+
+  .new-arrivals .progress {
+    flex: 1;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(0, 43, 92, 0.15);
+    overflow: hidden;
+  }
+
+  .new-arrivals .progress-bar {
+    width: 0%;
+    height: 100%;
+    background: #002B5C;
+    transition: width 0.35s ease;
+  }
+
+  .new-arrivals-counter {
+    min-width: 70px;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  /* ========================================
+     RESPONSIVE
+  ======================================== */
+  @media (max-width: 1000px) {
+    .new-card {
+      flex: 0 0 calc((100% - 44px) / 3);
+      width: calc((100% - 44px) / 3);
+      max-width: calc((100% - 44px) / 3);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .new-arrivals {
+      padding: 70px 0;
+    }
+
+    .new-arrivals .section-header {
+      display: block;
+      margin-bottom: 32px;
+    }
+
+    .new-arrivals .section-description {
+      margin-top: 14px;
+    }
+
+    .new-arrivals-wrapper {
+      gap: 10px;
+    }
+
+    .new-card {
+      flex: 0 0 calc((100% - 22px) / 2);
+      width: calc((100% - 22px) / 2);
+      max-width: calc((100% - 22px) / 2);
+    }
+
+    .new-arrivals .carousel-button {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .new-card {
+      flex: 0 0 100%;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = "tekiti-cart";
+
+  const track = document.querySelector<HTMLElement>("#new-arrivals-track");
+  const prevButton = document.querySelector<HTMLButtonElement>("#prev-new-arrivals");
+  const nextButton = document.querySelector<HTMLButtonElement>("#next-new-arrivals");
+  const counter = document.querySelector<HTMLElement>("#new-arrivals-counter");
+  const progress = document.querySelector<HTMLElement>("#new-arrivals-progress");
+
+  let cart: any[] = [];
+  let currentPosition = 0;
+
+  function loadCart() {
+    try {
+      const savedCart = localStorage.getItem(STORAGE_KEY);
+      const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+      cart = Array.isArray(parsedCart) ? parsedCart : [];
+    } catch {
+      cart = [];
+    }
+  }
+
+  function saveCart() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+  }
+
+  function getCartQuantity(productId: number) {
+    const item = cart.find((product) => Number(product.id) === Number(productId));
+    return item ? item.quantity : 0;
+  }
+
+  function getTotalQuantity() {
+    return cart.reduce((total, item) => total + Number(item.quantity || 0), 0);
+  }
+
+  function updateHeaderCounter() {
+    const headerCounter = document.querySelector("#cart-count");
+    if (!headerCounter) return;
+
+    const total = getTotalQuantity();
+    headerCounter.textContent = String(total);
+    headerCounter.classList.toggle("visible", total > 0);
+  }
+
+  function updateProductQuantity(
+    productId: number,
+    productName: string,
+    price: number,
+    quantity: number
+  ) {
+    loadCart();
+
+    const existingItem = cart.find(
+      (product) => Number(product.id) === Number(productId)
+    );
+
+    if (quantity <= 0) {
+      cart = cart.filter(
+        (product) => Number(product.id) !== Number(productId)
+      );
+    } else if (existingItem) {
+      existingItem.quantity = quantity;
+    } else {
+      cart.push({
+        id: Number(productId),
+        name: productName,
+        price: Number(price),
+        quantity,
+      });
+    }
+
+    saveCart();
+    updateHeaderCounter();
+
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: STORAGE_KEY,
+        newValue: JSON.stringify(cart),
+      })
+    );
+    window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+  }
+
+  function formatPrice(price: number) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(Number(price));
+  }
+
+  function createNewProductCard(product: any) {
+    const effectivePrice =
+      product.isOffer && product.offerPrice != null
+        ? Number(product.offerPrice)
+        : Number(product.price);
+
+    const category = product.category?.name || "Artesanía";
+    const image =
+      product.image ||
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80";
+
+    const article = document.createElement("article");
+    article.className = "new-card";
+
+    article.innerHTML = `
+      <div class="new-image">
+        <a href="/products/${product.slug}">
+          <img src="${image}" alt="${product.name}" loading="lazy" />
+        </a>
+        <span class="new-badge">NOVEDAD</span>
+        <button class="favorite" type="button" aria-label="Agregar ${product.name} a favoritos">♡</button>
+      </div>
+      <div class="new-info">
+        <span class="new-category">${category}</span>
+        <h3>
+          <a href="/products/${product.slug}" class="product-title-link">${product.name}</a>
+        </h3>
+        <div class="new-price-row">
+          <span class="new-price">${formatPrice(effectivePrice)}</span>
+        </div>
+        <div class="cart-label">Agregar al carrito</div>
+        <div
+          class="quantity-control"
+          data-product-id="${product.id}"
+          data-product="${product.name}"
+          data-price="${effectivePrice}"
+        >
+          <button type="button" class="quantity-button decrease" aria-label="Quitar una unidad">−</button>
+          <span class="quantity" aria-live="polite">0</span>
+          <button type="button" class="quantity-button increase" aria-label="Agregar una unidad">+</button>
+        </div>
+      </div>
+    `;
+
+    const control = article.querySelector<HTMLElement>(".quantity-control");
+    const quantityElement = article.querySelector<HTMLElement>(".quantity");
+    const decreaseButton = article.querySelector<HTMLButtonElement>(".decrease");
+    const increaseButton = article.querySelector<HTMLButtonElement>(".increase");
+
+    if (!control || !quantityElement || !decreaseButton || !increaseButton) {
+      return article;
+    }
+
+    const productId = Number(control.dataset.productId);
+    const productName = control.dataset.product || "";
+    const price = Number(control.dataset.price || 0);
+
+    quantityElement.textContent = String(getCartQuantity(productId));
+
+    decreaseButton.addEventListener("click", () => {
+      const current = getCartQuantity(productId);
+      const newQty = Math.max(0, current - 1);
+      quantityElement.textContent = String(newQty);
+      updateProductQuantity(productId, productName, price, newQty);
+    });
+
+    increaseButton.addEventListener("click", () => {
+      const current = getCartQuantity(productId);
+      const newQty = current + 1;
+      quantityElement.textContent = String(newQty);
+      updateProductQuantity(productId, productName, price, newQty);
+    });
+
+    return article;
+  }
+
+  async function loadNewArrivals() {
+    if (!track) return;
+
+    try {
+      const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+      const response = await fetch(`${API_URL}/api/products`);
+      if (!response.ok) throw new Error("No se pudieron cargar las novedades");
+
+      const result = await response.json();
+      const activeProducts = result.success && Array.isArray(result.data)
+        ? result.data.filter((product: any) => product.isActive)
+        : [];
+
+      const flaggedNew = activeProducts.filter((product: any) => Boolean(product.isNew));
+      const newArrivals =
+        flaggedNew.length > 0 ? flaggedNew : activeProducts.slice(-8).reverse();
+
+      track.innerHTML = "";
+      if (newArrivals.length === 0) {
+        track.innerHTML = `<p style="width:100%;padding:24px 0;color:#5A6577;">Próximamente incorporaremos nuevas piezas.</p>`;
+      } else {
+        newArrivals.forEach((product: any) => {
+          track.appendChild(createNewProductCard(product));
+        });
+      }
+
+      currentPosition = 0;
+      updateCarousel();
+    } catch (error) {
+      console.error("Error cargando novedades:", error);
+      track.innerHTML = `<p style="width:100%;padding:24px 0;color:#5A6577;">No se pudieron cargar las novedades.</p>`;
+      updateCarousel();
+    }
+  }
+
+  window.addEventListener("tekiti-cart-updated", () => {
+    loadCart();
+    if (!track) return;
+
+    const controls = track.querySelectorAll<HTMLElement>(".quantity-control");
+    controls.forEach((control) => {
+      const productId = Number(control.dataset.productId || 0);
+      const quantityElement = control.querySelector<HTMLElement>(".quantity");
+      if (quantityElement) {
+        quantityElement.textContent = String(getCartQuantity(productId));
+      }
+    });
+
+    updateHeaderCounter();
+  });
+
+  window.addEventListener("storage", () => {
+    window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+  });
+
+  function getVisibleItems() {
+    if (window.innerWidth <= 430) return 1;
+    if (window.innerWidth <= 600) return 2;
+    if (window.innerWidth <= 1000) return 3;
+    return 4;
+  }
+
+  function getCardWidth() {
+    if (!track) return 0;
+    const firstCard = track.querySelector<HTMLElement>(".new-card");
+    if (!firstCard) return 0;
+
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap) || parseFloat(styles.gap) || 0;
+    return firstCard.offsetWidth + gap;
+  }
+
+  function updateCarousel() {
+    if (!track || !prevButton || !nextButton || !counter || !progress) return;
+
+    const visibleItems = getVisibleItems();
+    const totalItems = track.querySelectorAll(".new-card").length;
+    const maxPosition = Math.max(0, totalItems - visibleItems);
+
+    currentPosition = Math.min(currentPosition, maxPosition);
+    const offset = currentPosition * getCardWidth();
+
+    track.style.transform = `translateX(-${offset}px)`;
+    prevButton.disabled = currentPosition === 0;
+    nextButton.disabled = currentPosition >= maxPosition;
+
+    const first = totalItems === 0 ? 0 : currentPosition + 1;
+    const last = totalItems === 0 ? 0 : Math.min(currentPosition + visibleItems, totalItems);
+
+    counter.textContent = `${String(first).padStart(2, "0")} — ${String(last).padStart(2, "0")}`;
+
+    const percentage =
+      maxPosition === 0
+        ? totalItems > 0 ? 100 : 0
+        : ((currentPosition + 1) / (maxPosition + 1)) * 100;
+
+    progress.style.width = `${percentage}%`;
+  }
+
+  prevButton?.addEventListener("click", () => {
+    if (currentPosition > 0) {
+      currentPosition--;
+      updateCarousel();
+    }
+  });
+
+  nextButton?.addEventListener("click", () => {
+    const visibleItems = getVisibleItems();
+    const totalItems = track ? track.querySelectorAll(".new-card").length : 0;
+    const maxPosition = Math.max(0, totalItems - visibleItems);
+
+    if (currentPosition < maxPosition) {
+      currentPosition++;
+      updateCarousel();
+    }
+  });
+
+  window.addEventListener("resize", updateCarousel);
+
+  loadCart();
+  updateHeaderCounter();
+  loadNewArrivals();
+</script>
