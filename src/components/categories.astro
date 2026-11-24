@@ -1,0 +1,223 @@
+---
+// src/components/Categories.astro
+const API_URL = import.meta.env.PUBLIC_API_URL || "https://superior-star.onrender.com";
+
+let categories: any[] = [];
+
+try {
+  const res = await fetch(`${API_URL}/api/categories`);
+  if (res.ok) {
+    const result = await res.json();
+    if (result.success && Array.isArray(result.data)) {
+      categories = result.data;
+    }
+  }
+} catch (error) {
+  console.error("Error al cargar categorías:", error);
+}
+
+const fallbackImages = [
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=80",
+];
+---
+
+<section class="categories" id="categorias" aria-label="Categorías de Costa Azul">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">EXPLORA POR ESTILO • COSTA AZUL</span>
+        <h2>
+          Nuestras <em>categorías</em>
+        </h2>
+      </div>
+
+      <p class="section-description">
+        Recorre nuestras líneas de productos y encuentra la pieza ideal inspirada en nuestra costa.
+      </p>
+    </div>
+
+    {categories.length === 0 ? (
+      <p class="empty-state">No hay categorías disponibles por el momento.</p>
+    ) : (
+      <div class="categories-grid">
+        {categories.map((cat, index) => (
+          <a href={`/categorias/${cat.slug}`} class="category-card">
+            <div class="category-image">
+              <img
+                src={cat.image || fallbackImages[index % fallbackImages.length]}
+                alt={cat.name}
+                loading="lazy"
+              />
+            </div>
+
+            <div class="category-content">
+              <h3>{cat.name}</h3>
+              <span class="category-link">Explorar categoría</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .categories {
+    padding: 90px 0;
+    background: #FAF8F5;
+  }
+
+  .container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    display: block;
+    margin-bottom: 10px;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  .section-header h2 {
+    margin: 0;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+  }
+
+  .section-header h2 em {
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .section-description {
+    max-width: 380px;
+    margin: 0;
+    color: #5A6577;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+    border: 1px solid #E7DCC8;
+    border-radius: 16px;
+    padding: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0, 43, 92, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 43, 92, 0.1);
+  }
+
+  .category-image {
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #E7DCC8;
+  }
+
+  .category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+  }
+
+  .category-card:hover .category-image img {
+    transform: scale(1.05);
+  }
+
+  .category-content {
+    padding: 16px 6px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .category-content h3 {
+    margin: 0;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .category-link {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #E7DCC8;
+    color: #002B5C;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .category-card:hover .category-link {
+    background: #002B5C;
+    color: #FFFFFF;
+  }
+
+  .empty-state {
+    color: #5A6577;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 1000px) {
+    .categories-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .categories {
+      padding: 70px 0;
+    }
+
+    .section-header {
+      display: block;
+      margin-bottom: 32px;
+    }
+
+    .section-description {
+      margin-top: 14px;
+    }
+
+    .categories-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
