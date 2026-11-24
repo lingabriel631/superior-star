@@ -1,9 +1,11 @@
 ---
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
-import FeaturedProducts from "../components/FeaturedProducts.astro";
+import NewArrivals from "../components/NewArrivals.astro";
 import Offers from "../components/Offers.astro";
+import Categories from "../components/Categories.astro";
 import Suppliers from "../components/Suppliers.astro";
+import Footer from "../components/Footer.astro";
 import CartDrawer from "../components/CartDrawer.astro";
 import SEO from "../components/SEO.astro";
 ---
@@ -11,22 +13,23 @@ import SEO from "../components/SEO.astro";
 <html lang="es">
   <head>
     <SEO
-    title="El trabajo detras de cada pieza"
-    description="Descubre la historia, dedicacion y el valor arteanal detras de cada creacion en TEKITI" />
-   
+      title="Costa Azul | Artesanías y Estilo de la Costa Salvadoreña"
+      description="Descubre novedades, ofertas, categorías artesanales y creadores inspirados en Los Cóbanos y la costa salvadoreña en Costa Azul."
+    />
   </head>
 
   <body>
-
     <Header />
 
     <main>
       <Hero />
-      <FeaturedProducts />
+      <NewArrivals />
       <Offers />
+      <Categories />
       <Suppliers />
     </main>
 
+    <Footer />
     <CartDrawer />
   </body>
 </html>
