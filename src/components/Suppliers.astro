@@ -29,13 +29,13 @@ const suppliers = [
 ];
 ---
 
-<section class="suppliers" id="proveedores">
+<section class="suppliers" id="proveedores" aria-label="Proveedores de Costa Azul">
   <div class="container">
 
     <!-- ENCABEZADO -->
     <div class="section-header">
       <div>
-        <span class="eyebrow">MANOS ARTESANAS</span>
+        <span class="eyebrow">MANOS ARTESANAS • COSTA AZUL</span>
         <h2>
           Conoce a nuestros
           <em>proveedores</em>
@@ -47,7 +47,7 @@ const suppliers = [
       </p>
     </div>
 
-    <!-- CONTENEDOR DE PROVEEDORES (Restaurado el grid) -->
+    <!-- CONTENEDOR DE PROVEEDORES -->
     <div class="suppliers-grid">
       {suppliers.map((supplier) => (
         <a href={`/proveedores/${supplier.slug}`} class="supplier-card">
@@ -57,6 +57,7 @@ const suppliers = [
           <h3 class="supplier-name">{supplier.name}</h3>
           <span class="supplier-location">📍 {supplier.location}</span>
           <p class="supplier-bio">{supplier.bio}</p>
+          <span class="supplier-cta">Ver taller</span>
         </a>
       ))}
     </div>
@@ -66,9 +67,9 @@ const suppliers = [
 
 <style>
   .suppliers {
-    padding: 100px 0;
-    background: #f7f4ef;
-    border-top: 1px solid #e5ded2;
+    padding: 90px 0;
+    background: #E7DCC8;
+    border-top: 1px solid rgba(0, 43, 92, 0.1);
   }
 
   .container {
@@ -80,73 +81,78 @@ const suppliers = [
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    gap: 50px;
-    margin-bottom: 55px;
+    gap: 40px;
+    margin-bottom: 48px;
   }
 
   .eyebrow {
     display: block;
-    margin-bottom: 14px;
-    color: #b85c38;
-    font-size: 0.7rem;
+    margin-bottom: 10px;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
   }
 
-  h2 {
+  .section-header h2 {
     margin: 0;
-    color: #252525;
-    font-family: Georgia, serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 400;
-    line-height: 0.95;
+    color: #002B5C;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
   }
 
-  h2 em {
-    color: #b85c38;
+  .section-header h2 em {
+    color: #002B5C;
     font-style: italic;
+    font-weight: 600;
   }
 
   .section-description {
     max-width: 380px;
     margin: 0;
-    color: #777168;
-    font-size: 1.1rem;
-    line-height: 1.7;
+    color: #334155;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.65;
   }
 
   .suppliers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    gap: 24px;
   }
 
   .supplier-card {
-    background: #fff;
-    border: 1px solid #d8d0c4;
-    border-radius: 8px;
-    padding: 30px 25px;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 43, 92, 0.12);
+    border-radius: 16px;
+    padding: 30px 24px;
     text-align: center;
-    text-decoration: none; /* Asegura que no se subraye el texto del enlace */
+    text-decoration: none;
     color: inherit;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0, 43, 92, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     display: flex;
     flex-direction: column;
+    align-items: center;
   }
 
   .supplier-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(37, 37, 37, 0.06);
+    box-shadow: 0 12px 24px rgba(0, 43, 92, 0.11);
   }
 
   .supplier-avatar {
-    width: 90px;
-    height: 90px;
+    width: 92px;
+    height: 92px;
     margin: 0 auto 18px auto;
     border-radius: 50%;
     overflow: hidden;
-    background: #e5ded2;
-    border: 2px solid #b85c38;
+    background: #FAF8F5;
+    border: 3px solid #002B5C;
   }
 
   .supplier-avatar img {
@@ -156,35 +162,60 @@ const suppliers = [
   }
 
   .supplier-name {
-    font-family: Georgia, serif;
-    font-size: 1.25rem;
-    color: #252525;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #002B5C;
     margin: 0 0 6px 0;
   }
 
   .supplier-location {
     display: block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: #b85c38;
+    font-weight: 700;
+    color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 12px;
   }
 
   .supplier-bio {
-    font-size: 0.9rem;
-    color: #666;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.92rem;
+    color: #475569;
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 20px 0;
+  }
+
+  .supplier-cta {
+    margin-top: auto;
+    padding: 8px 20px;
+    border-radius: 999px;
+    background: #002B5C;
+    color: #FFFFFF;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .supplier-card:hover .supplier-cta {
+    background: #001d40;
   }
 
   @media (max-width: 768px) {
+    .suppliers {
+      padding: 70px 0;
+    }
+
     .section-header {
       display: block;
+      margin-bottom: 32px;
     }
+
     .section-description {
-      margin-top: 20px;
+      margin-top: 16px;
     }
   }
 </style>
