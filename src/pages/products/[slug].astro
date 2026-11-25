@@ -35,7 +35,6 @@ const mainImage =
 const hasOffer = Boolean(product && ((product.isOffer && product.offerPrice) || product.offerPrice));
 const activePrice = product ? (hasOffer ? Number(product.offerPrice) : Number(product.price)) : 0;
 
-// Datos estructurados para Google (Schema.org / Product)
 const productSchema = product ? {
   "@context": "https://schema.org/",
   "@type": "Product",
@@ -88,7 +87,6 @@ const productSchema = product ? {
         </div>
       ) : (
         <div class="product-detail-grid">
-          <!-- GALERÍA DE IMÁGENES -->
           <div class="product-gallery">
             <div class="main-image-container">
               <img
@@ -116,7 +114,6 @@ const productSchema = product ? {
             )}
           </div>
 
-          <!-- INFORMACIÓN DEL PRODUCTO -->
           <div class="product-details-info">
             {product.category?.name && (
               <span class="product-category">{product.category.name}</span>
@@ -138,12 +135,10 @@ const productSchema = product ? {
               <p class="product-description">{product.description}</p>
             )}
 
-            <!-- STOCK -->
             <div class="product-meta">
               <p><strong>Stock disponible:</strong> {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}</p>
             </div>
 
-            <!-- BOTÓN PRINCIPAL DE AGREGAR AL CARRITO -->
             <button
               type="button"
               class="btn-add-cart"
@@ -172,9 +167,6 @@ const productSchema = product ? {
         font-family: 'Plus Jakarta Sans', sans-serif;
       }
 
-      /* ========================================
-         DETALLE DEL PRODUCTO
-      ======================================== */
       .main-container {
         width: min(1140px, 92%);
         margin: 48px auto 80px;
