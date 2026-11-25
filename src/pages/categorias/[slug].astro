@@ -1,6 +1,7 @@
 ---
 // src/pages/categorias/[slug].astro
-import Footer from "../../components/Footer.astro";
+import CartDrawer from '../../components/CartDrawer.astro';
+import Footer from '../../components/Footer.astro';
 
 export const prerender = false;
 
@@ -64,7 +65,24 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         <a href="/#categorias" class="active">Categorías</a>
       </nav>
 
-      <a href="/#categorias" class="back-link">← Todas las categorías</a>
+      <div class="header-actions">
+        <a href="/cuenta" class="account-btn" aria-label="Mi cuenta">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21a8 8 0 0 0-16 0" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>Cuenta</span>
+        </a>
+
+        <button type="button" class="cart-action cart-btn" aria-label="Abrir carrito de compras">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
     </header>
 
     <main class="main-container">
@@ -99,19 +117,21 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
                   product.image ||
                   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80";
 
-                const hasOffer = Boolean(product.isOffer && product.offerPrice) || Boolean(product.offerPrice);
+                const hasOffer = Boolean((product.isOffer && product.offerPrice) || product.offerPrice);
+                const effectivePrice = hasOffer ? Number(product.offerPrice) : Number(product.price);
 
                 return (
-                  <a href={`/products/${product.slug}`} class="product-card">
-                    <div class="product-img-container">
+                  <article class="product-card">
+                    <a href={`/products/${product.slug}`} class="product-img-container">
                       <img src={mainImg} alt={product.name} class="product-img" loading="lazy" />
                       {hasOffer && <span class="badge-offer">Oferta</span>}
-                    </div>
+                    </a>
+
                     <div class="product-info">
-                      <span class="product-origin">
-                        {product.origin ? `📍 ${product.origin}` : "📍 El Salvador"}
-                      </span>
-                      <h3 class="product-name">{product.name}</h3>
+                      <h3 class="product-name">
+                        <a href={`/products/${product.slug}`} class="product-title-link">{product.name}</a>
+                      </h3>
+
                       <div class="product-pricing">
                         {hasOffer ? (
                           <>
@@ -122,9 +142,21 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
                           <span class="price-normal">${Number(product.price).toFixed(2)}</span>
                         )}
                       </div>
-                      <span class="card-cta">Ver pieza</span>
+
+                      <div class="cart-label">Agregar al carrito</div>
+                      <div
+                        class="quantity-control"
+                        data-product-id={product.id}
+                        data-product-name={product.name}
+                        data-product-price={effectivePrice}
+                        data-product-image={mainImg}
+                      >
+                        <button type="button" class="quantity-button decrease" aria-label="Quitar una unidad">−</button>
+                        <span class="quantity" aria-live="polite">0</span>
+                        <button type="button" class="quantity-button increase" aria-label="Agregar una unidad">+</button>
+                      </div>
                     </div>
-                  </a>
+                  </article>
                 );
               })}
             </div>
@@ -134,6 +166,7 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
     </main>
 
     <Footer />
+    <CartDrawer />
 
     <style>
       :global(body) {
@@ -204,7 +237,7 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         text-decoration: none;
         padding: 6px 0;
         border-bottom: 2px solid transparent;
-        transition: border-color 0.2s ease, opacity 0.2s ease;
+        transition: border-color 0.2s ease;
       }
 
       .nav-links a:hover,
@@ -212,21 +245,75 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         border-bottom-color: #002B5C;
       }
 
-      .back-link {
-        padding: 9px 18px;
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .account-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
         border-radius: 999px;
         background: #E7DCC8;
         color: #002B5C;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.84rem;
+        font-size: 0.85rem;
         font-weight: 700;
         text-decoration: none;
         transition: background 0.2s ease, color 0.2s ease;
       }
 
-      .back-link:hover {
+      .account-btn:hover {
         background: #002B5C;
         color: #FFFFFF;
+      }
+
+      .cart-btn {
+        position: relative;
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 1.5px solid #002B5C;
+        background: #FFFFFF;
+        color: #002B5C;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      }
+
+      .cart-btn:hover {
+        background: #002B5C;
+        color: #FFFFFF;
+        transform: translateY(-1px);
+      }
+
+      .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        background: #002B5C;
+        color: #E7DCC8;
+        border: 1.5px solid #FFFFFF;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 800;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .cart-count.visible {
+        display: inline-flex;
       }
 
       /* ========================================
@@ -284,7 +371,6 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         border: 1px solid #E7DCC8;
         border-radius: 16px;
         padding: 14px;
-        text-decoration: none;
         color: inherit;
         box-shadow: 0 4px 14px rgba(0, 43, 92, 0.04);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -298,6 +384,7 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
       }
 
       .product-img-container {
+        display: block;
         position: relative;
         width: 100%;
         aspect-ratio: 0.9;
@@ -340,29 +427,29 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         flex-grow: 1;
       }
 
-      .product-origin {
-        font-size: 0.72rem;
-        color: #64748B;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-      }
-
       .product-name {
         font-family: 'Montserrat', sans-serif;
         font-size: 1rem;
         font-weight: 700;
         line-height: 1.35;
-        margin: 0 0 12px 0;
+        margin: 0 0 10px 0;
+        min-height: 42px;
+      }
+
+      .product-title-link {
         color: #002B5C;
+        text-decoration: none;
+      }
+
+      .product-title-link:hover {
+        text-decoration: underline;
       }
 
       .product-pricing {
-        margin-top: auto;
         display: flex;
         align-items: center;
         gap: 10px;
+        margin-bottom: 14px;
       }
 
       .price-normal,
@@ -379,21 +466,60 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
         color: #94A3B8;
       }
 
-      .card-cta {
-        margin-top: 14px;
-        padding: 9px 16px;
-        border-radius: 999px;
-        background: #002B5C;
-        color: #FFFFFF;
+      .cart-label {
+        margin-top: auto;
+        margin-bottom: 8px;
+        color: #64748B;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.84rem;
+        font-size: 0.68rem;
         font-weight: 700;
-        text-align: center;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .quantity-control {
+        width: 100%;
+        min-height: 42px;
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) 42px;
+        align-items: center;
+        border-radius: 999px;
+        border: 1.5px solid #002B5C;
+        background: #002B5C;
+        overflow: hidden;
+      }
+
+      .quantity-button {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: #FFFFFF;
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
         transition: background 0.2s ease;
       }
 
-      .product-card:hover .card-cta {
+      .quantity-button:hover {
         background: #001d40;
+      }
+
+      .quantity {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
+        border-right: 1px solid rgba(255, 255, 255, 0.25);
+        color: #FFFFFF;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
       }
 
       /* ========================================
@@ -448,10 +574,122 @@ const pageTitle = category ? `${category.name} | Costa Azul` : "Categoría | Cos
           display: none;
         }
 
+        .account-btn span {
+          display: none;
+        }
+
+        .account-btn {
+          width: 42px;
+          height: 42px;
+          padding: 0;
+          justify-content: center;
+        }
+
         .category-header {
           padding: 28px 24px;
         }
       }
     </style>
+
+    <script>
+      const CART_KEY = "tekiti-cart";
+      const cartCountEl = document.querySelector<HTMLElement>("#cart-count");
+      const controls = document.querySelectorAll<HTMLElement>(".quantity-control");
+
+      function readCart(): any[] {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function writeCart(cart: any[]) {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      }
+
+      function getItemQuantity(productId: string): number {
+        const cart = readCart();
+        const found = cart.find((item) => String(item.id) === String(productId));
+        return found ? Number(found.quantity || 0) : 0;
+      }
+
+      function syncCategoryUI() {
+        const cart = readCart();
+        const total = cart.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
+
+        if (cartCountEl) {
+          cartCountEl.textContent = String(total);
+          cartCountEl.classList.toggle("visible", total > 0);
+        }
+
+        controls.forEach((control) => {
+          const productId = control.dataset.productId || "";
+          const qtyEl = control.querySelector<HTMLElement>(".quantity");
+          if (qtyEl) {
+            qtyEl.textContent = String(getItemQuantity(productId));
+          }
+        });
+      }
+
+      function setItemQuantity(
+        productId: string,
+        productName: string,
+        price: number,
+        image: string,
+        newQty: number
+      ) {
+        let cart = readCart();
+        const idx = cart.findIndex((item) => String(item.id) === String(productId));
+
+        if (newQty <= 0) {
+          cart = cart.filter((item) => String(item.id) !== String(productId));
+        } else if (idx > -1) {
+          cart[idx].quantity = newQty;
+        } else {
+          cart.push({
+            id: Number(productId) || productId,
+            name: productName,
+            price: Number(price),
+            image,
+            quantity: newQty,
+          });
+        }
+
+        writeCart(cart);
+        syncCategoryUI();
+        window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+      }
+
+      controls.forEach((control) => {
+        const productId = control.dataset.productId || "";
+        const productName = control.dataset.productName || "";
+        const price = Number(control.dataset.productPrice || 0);
+        const image = control.dataset.productImage || "";
+
+        const decreaseBtn = control.querySelector<HTMLButtonElement>(".decrease");
+        const increaseBtn = control.querySelector<HTMLButtonElement>(".increase");
+
+        decreaseBtn?.addEventListener("click", () => {
+          const current = getItemQuantity(productId);
+          setItemQuantity(productId, productName, price, image, Math.max(0, current - 1));
+        });
+
+        increaseBtn?.addEventListener("click", () => {
+          const current = getItemQuantity(productId);
+          setItemQuantity(productId, productName, price, image, current + 1);
+        });
+      });
+
+      window.addEventListener("tekiti-cart-updated", syncCategoryUI);
+      window.addEventListener("storage", (event) => {
+        if (event.key === CART_KEY) {
+          syncCategoryUI();
+        }
+      });
+
+      syncCategoryUI();
+    </script>
   </body>
 </html>

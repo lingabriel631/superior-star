@@ -181,19 +181,29 @@ const productSchema = product ? {
               <p><strong>Stock disponible:</strong> {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}</p>
             </div>
 
-            <!-- BOTÓN PRINCIPAL DE AGREGAR AL CARRITO -->
-            <button
-              type="button"
-              class="btn-add-cart"
-              disabled={product.stock <= 0}
-              data-id={product.id}
-              data-name={product.name}
-              data-price={activePrice}
-              data-image={mainImage}
-            >
-              {product.stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
-            </button>
-            <p class="cart-feedback" id="cart-feedback" aria-live="polite"></p>
+            <!-- CONTROL DE CANTIDAD PARA CARRITO -->
+            {product.stock > 0 ? (
+              <div class="detail-cart-box">
+                <div class="cart-label">Cantidad en el carrito</div>
+                <div
+                  class="quantity-control"
+                  data-product-id={product.id}
+                  data-product-name={product.name}
+                  data-product-price={activePrice}
+                  data-product-image={mainImage}
+                  data-max-stock={product.stock}
+                >
+                  <button type="button" class="quantity-button decrease" aria-label="Quitar una unidad">−</button>
+                  <span class="quantity" aria-live="polite">0</span>
+                  <button type="button" class="quantity-button increase" aria-label="Agregar una unidad">+</button>
+                </div>
+                <p class="cart-feedback" id="cart-feedback" aria-live="polite"></p>
+              </div>
+            ) : (
+              <button type="button" class="btn-out-of-stock" disabled>
+                Sin stock
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -537,30 +547,71 @@ const productSchema = product ? {
         margin: 0;
       }
 
-      .btn-add-cart {
+      .cart-label {
+        margin-bottom: 10px;
+        color: #64748B;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .quantity-control {
         width: 100%;
+        min-height: 48px;
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr) 52px;
+        align-items: center;
+        border-radius: 999px;
+        border: 1.5px solid #002B5C;
         background: #002B5C;
+        overflow: hidden;
+      }
+
+      .quantity-button {
+        width: 52px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
         color: #FFFFFF;
-        border: 2px solid #002B5C;
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .quantity-button:hover {
+        background: #001d40;
+      }
+
+      .quantity {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
+        border-right: 1px solid rgba(255, 255, 255, 0.25);
+        color: #FFFFFF;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .btn-out-of-stock {
+        width: 100%;
+        background: #CBD5E1;
+        color: #64748B;
+        border: none;
         padding: 15px 24px;
         font-family: 'Montserrat', sans-serif;
         font-size: 0.95rem;
         font-weight: 700;
         border-radius: 999px;
-        cursor: pointer;
-        transition: background 0.2s ease, transform 0.2s ease;
-      }
-
-      .btn-add-cart:hover:not(:disabled) {
-        background: #001d40;
-        border-color: #001d40;
-        transform: translateY(-1px);
-      }
-
-      .btn-add-cart:disabled {
-        background: #CBD5E1;
-        border-color: #CBD5E1;
-        color: #64748B;
         cursor: not-allowed;
       }
 
@@ -620,7 +671,10 @@ const productSchema = product ? {
       const CART_KEY = "tekiti-cart";
       const mainImgEl = document.querySelector<HTMLImageElement>("#active-product-img");
       const thumbButtons = document.querySelectorAll<HTMLButtonElement>(".thumb-btn");
-      const addToCartBtn = document.querySelector<HTMLButtonElement>(".btn-add-cart");
+      const control = document.querySelector<HTMLElement>(".quantity-control");
+      const qtyEl = control?.querySelector<HTMLElement>(".quantity");
+      const decreaseBtn = control?.querySelector<HTMLButtonElement>(".decrease");
+      const increaseBtn = control?.querySelector<HTMLButtonElement>(".increase");
       const feedbackEl = document.querySelector<HTMLElement>("#cart-feedback");
       const cartCountEl = document.querySelector<HTMLElement>("#cart-count");
 
@@ -633,12 +687,67 @@ const productSchema = product ? {
         }
       }
 
-      function refreshHeaderCartCount() {
-        if (!cartCountEl) return;
+      function writeCart(cart: any[]) {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      }
+
+      function getItemQuantity(productId: string): number {
+        const cart = readCart();
+        const found = cart.find((item) => String(item.id) === String(productId));
+        return found ? Number(found.quantity || 0) : 0;
+      }
+
+      function syncDetailUI() {
         const cart = readCart();
         const total = cart.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
-        cartCountEl.textContent = String(total);
-        cartCountEl.classList.toggle("visible", total > 0);
+
+        if (cartCountEl) {
+          cartCountEl.textContent = String(total);
+          cartCountEl.classList.toggle("visible", total > 0);
+        }
+
+        if (control && qtyEl) {
+          const productId = control.dataset.productId || "";
+          qtyEl.textContent = String(getItemQuantity(productId));
+        }
+      }
+
+      function setItemQuantity(newQty: number) {
+        if (!control) return;
+        const productId = control.dataset.productId || "";
+        const productName = control.dataset.productName || "";
+        const price = Number(control.dataset.productPrice || 0);
+        const image = control.dataset.productImage || "";
+        const maxStock = Number(control.dataset.maxStock || Infinity);
+
+        const clampedQty = Math.min(Math.max(0, newQty), maxStock);
+        let cart = readCart();
+        const idx = cart.findIndex((item) => String(item.id) === String(productId));
+
+        if (clampedQty <= 0) {
+          cart = cart.filter((item) => String(item.id) !== String(productId));
+        } else if (idx > -1) {
+          cart[idx].quantity = clampedQty;
+        } else {
+          cart.push({
+            id: Number(productId) || productId,
+            name: productName,
+            price,
+            image,
+            quantity: clampedQty,
+          });
+        }
+
+        writeCart(cart);
+        syncDetailUI();
+        window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
+
+        if (feedbackEl) {
+          feedbackEl.textContent =
+            clampedQty > 0
+              ? `"${productName}" en el carrito: ${clampedQty} ${clampedQty === 1 ? "unidad" : "unidades"}.`
+              : `"${productName}" eliminado del carrito.`;
+        }
       }
 
       thumbButtons.forEach((btn) => {
@@ -652,52 +761,28 @@ const productSchema = product ? {
         });
       });
 
-      if (addToCartBtn) {
-        addToCartBtn.addEventListener("click", () => {
-          const id = addToCartBtn.getAttribute("data-id");
-          const name = addToCartBtn.getAttribute("data-name");
-          const price = parseFloat(addToCartBtn.getAttribute("data-price") || "0");
-          const image = addToCartBtn.getAttribute("data-image");
+      if (control) {
+        const productId = control.dataset.productId || "";
 
-          if (!id || !name) {
-            if (feedbackEl) {
-              feedbackEl.textContent = "No se pudo obtener la información del producto.";
-            }
-            return;
-          }
+        decreaseBtn?.addEventListener("click", () => {
+          const current = getItemQuantity(productId);
+          setItemQuantity(current - 1);
+        });
 
-          const cart = readCart();
-          const existingIndex = cart.findIndex((item) => String(item.id) === String(id));
-          if (existingIndex > -1) {
-            cart[existingIndex].quantity += 1;
-          } else {
-            cart.push({
-              id: Number(id) || id,
-              name,
-              price,
-              image,
-              quantity: 1,
-            });
-          }
-
-          localStorage.setItem(CART_KEY, JSON.stringify(cart));
-          refreshHeaderCartCount();
-          window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
-
-          if (feedbackEl) {
-            feedbackEl.textContent = `"${name}" se agregó al carrito.`;
-          }
+        increaseBtn?.addEventListener("click", () => {
+          const current = getItemQuantity(productId);
+          setItemQuantity(current + 1);
         });
       }
 
-      window.addEventListener("tekiti-cart-updated", refreshHeaderCartCount);
+      window.addEventListener("tekiti-cart-updated", syncDetailUI);
       window.addEventListener("storage", (event) => {
         if (event.key === CART_KEY) {
-          refreshHeaderCartCount();
+          syncDetailUI();
         }
       });
 
-      refreshHeaderCartCount();
+      syncDetailUI();
     </script>
   </body>
 </html>
