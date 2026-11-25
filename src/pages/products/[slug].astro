@@ -617,16 +617,16 @@ const productSchema = product ? {
     </style>
 
     <script>
-      const CART_KEY = "tekiti-cart";[cite: 3]
+      const CART_KEY = "tekiti-cart";
       const mainImgEl = document.querySelector<HTMLImageElement>("#active-product-img");
       const thumbButtons = document.querySelectorAll<HTMLButtonElement>(".thumb-btn");
       const addToCartBtn = document.querySelector<HTMLButtonElement>(".btn-add-cart");
       const feedbackEl = document.querySelector<HTMLElement>("#cart-feedback");
-      const cartCountEl = document.querySelector<HTMLElement>("#cart-count");[cite: 3]
+      const cartCountEl = document.querySelector<HTMLElement>("#cart-count");
 
       function readCart(): any[] {
         try {
-          const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");[cite: 3]
+          const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
           return Array.isArray(parsed) ? parsed : [];
         } catch {
           return [];
@@ -637,8 +637,8 @@ const productSchema = product ? {
         if (!cartCountEl) return;
         const cart = readCart();
         const total = cart.reduce((acc, item) => acc + Number(item.quantity || 0), 0);
-        cartCountEl.textContent = String(total);[cite: 3]
-        cartCountEl.classList.toggle("visible", total > 0);[cite: 3]
+        cartCountEl.textContent = String(total);
+        cartCountEl.classList.toggle("visible", total > 0);
       }
 
       thumbButtons.forEach((btn) => {
@@ -680,7 +680,7 @@ const productSchema = product ? {
             });
           }
 
-          localStorage.setItem(CART_KEY, JSON.stringify(cart));[cite: 3]
+          localStorage.setItem(CART_KEY, JSON.stringify(cart));
           refreshHeaderCartCount();
           window.dispatchEvent(new CustomEvent("tekiti-cart-updated"));
 
