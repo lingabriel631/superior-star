@@ -237,7 +237,7 @@ const pageTitle = "Checkout | Costa Azul";
 
                 <div class="payment-info">
                   <strong>Transferencia bancaria</strong>
-                  <span>Depósito o transferencia a cuenta bancaria</span>
+                  <span>Abriremos WhatsApp con los datos bancarios al confirmar</span>
                 </div>
 
                 <span class="payment-check">✓</span>
@@ -281,7 +281,7 @@ const pageTitle = "Checkout | Costa Azul";
 
             <div id="payment-details" class="payment-details">
               <p id="payment-helper-text">
-                Al confirmar tu pedido recibirás el número de orden y te compartiremos los datos bancarios para realizar tu transferencia y enviar el comprobante.
+                Al confirmar tu pedido se preparará un mensaje con los datos bancarios y el detalle de tu compra para enviarlo por WhatsApp al teléfono ingresado.
               </p>
             </div>
           </section>
@@ -385,9 +385,22 @@ const pageTitle = "Checkout | Costa Azul";
           Pedido <strong id="order-number">CA-000000</strong>
         </div>
 
-        <a href="/" class="success-button">
-          Volver a Costa Azul
-        </a>
+        <div class="success-actions">
+          <a
+            id="whatsapp-bank-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="whatsapp-button"
+            style="display: none;"
+          >
+            Abrir WhatsApp con datos bancarios
+          </a>
+
+          <a href="/" class="success-button">
+            Volver a Costa Azul
+          </a>
+        </div>
 
       </div>
     </div>
@@ -396,6 +409,14 @@ const pageTitle = "Checkout | Costa Azul";
 
     <script is:inline define:vars={{ BACKEND_URL: import.meta.env.PUBLIC_API_URL || 'https://superior-star.onrender.com' }}>
       const CART_KEY = "tekiti-cart";
+
+      // Reemplaza estos valores por los datos bancarios reales de Costa Azul
+      const BANK_INFO = {
+        bankName: "Banco Agrícola",
+        accountType: "Cuenta de Ahorro",
+        accountNumber: "0000-0000-0000-0",
+        accountHolder: "Costa Azul El Salvador",
+      };
 
       const summaryItems = document.querySelector("#summary-items");
       const emptyCheckout = document.querySelector("#empty-checkout");
@@ -407,13 +428,14 @@ const pageTitle = "Checkout | Costa Azul";
       const successModal = document.querySelector("#success-modal");
       const successDescription = document.querySelector("#success-description");
       const orderNumber = document.querySelector("#order-number");
+      const whatsappBankLink = document.querySelector("#whatsapp-bank-link");
 
       const paymentOptionLabels = document.querySelectorAll(".payment-option");
       const paymentHelperText = document.querySelector("#payment-helper-text");
 
       const PAYMENT_MESSAGES = {
         transfer:
-          "Al confirmar tu pedido recibirás el número de orden y te compartiremos los datos bancarios para realizar tu transferencia y enviar el comprobante.",
+          "Al confirmar tu pedido se abrirá WhatsApp con los datos bancarios y el detalle de tu orden para el número de teléfono que ingresaste.",
         cod:
           "Al confirmar tu pedido coordinaremos la entrega a tu dirección y realizarás el pago al momento de recibirlo.",
         payment_link:
@@ -422,7 +444,7 @@ const pageTitle = "Checkout | Costa Azul";
 
       const SUCCESS_MESSAGES = {
         transfer:
-          "Gracias por comprar en Costa Azul. Te contactaremos con los datos de transferencia para completar tu pago.",
+          "Gracias por comprar en Costa Azul. Preparamos un mensaje en WhatsApp con los datos bancarios para el teléfono ingresado.",
         cod:
           "Gracias por comprar en Costa Azul. Coordinaremos tu envío y el pago contra entrega.",
         payment_link:
@@ -434,6 +456,42 @@ const pageTitle = "Checkout | Costa Azul";
         cod: "CASH_ON_DELIVERY",
         payment_link: "PAYMENT_LINK",
       };
+
+      function normalizePhoneForWhatsApp(rawPhone) {
+        const digitsOnly = (rawPhone || "").replace(/\D+/g, "");
+        if (!digitsOnly) return "";
+        if (digitsOnly.length === 8) {
+          return `503${digitsOnly}`;
+        }
+        return digitsOnly;
+      }
+
+      function buildBankTransferWhatsAppUrl({ phone, customerName, orderCode, items, totalText }) {
+        const cleanPhone = normalizePhoneForWhatsApp(phone);
+        if (!cleanPhone) return "";
+
+        const itemsLines = items
+          .map((item) => `• ${item.quantity}x ${item.name} (${formatPrice(item.price * item.quantity)})`)
+          .join("\n");
+
+        const message = [
+          `¡Hola ${customerName || ""}! Gracias por tu pedido *${orderCode}* en *Costa Azul*.`,
+          "",
+          "*Resumen de tu pedido:*",
+          itemsLines,
+          `*Total a pagar:* ${totalText}`,
+          "",
+          "*Datos para transferencia bancaria:*",
+          `• Banco: ${BANK_INFO.bankName}`,
+          `• Tipo de cuenta: ${BANK_INFO.accountType}`,
+          `• Número de cuenta: ${BANK_INFO.accountNumber}`,
+          `• Titular: ${BANK_INFO.accountHolder}`,
+          "",
+          "Por favor compártenos tu comprobante de transferencia indicando tu número de pedido.",
+        ].join("\n");
+
+        return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      }
 
       function updatePaymentUI(value) {
         paymentOptionLabels.forEach((label) => {
@@ -554,6 +612,7 @@ const pageTitle = "Checkout | Costa Azul";
         const firstName = document.querySelector("#firstName").value.trim();
         const lastName = document.querySelector("#lastName").value.trim();
         const phone = document.querySelector("#phone").value.trim();
+        const fullName = `${firstName} ${lastName}`.trim();
 
         const countrySelect = document.querySelector("#country");
         const country = countrySelect.options[countrySelect.selectedIndex]?.text || "";
@@ -567,6 +626,10 @@ const pageTitle = "Checkout | Costa Azul";
         const paymentMethod = PAYMENT_API_VALUES[paymentKey] || "BANK_TRANSFER";
         const orderNotes = document.querySelector("#orderNotes").value.trim();
 
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const shipping = subtotal >= 100 ? 0 : 7.5;
+        const totalText = formatPrice(subtotal + shipping);
+
         placeOrderButton.disabled = true;
         placeOrderButton.textContent = "Procesando pedido...";
 
@@ -578,12 +641,12 @@ const pageTitle = "Checkout | Costa Azul";
             },
             body: JSON.stringify({
               customer: {
-                name: `${firstName} ${lastName}`.trim(),
+                name: fullName,
                 email,
                 phone,
               },
               shipping: {
-                name: `${firstName} ${lastName}`.trim(),
+                name: fullName,
                 address: reference ? `${address}. Referencia: ${reference}` : address,
                 city,
                 country,
@@ -604,10 +667,33 @@ const pageTitle = "Checkout | Costa Azul";
             throw new Error(result.message || "No se pudo crear el pedido");
           }
 
-          orderNumber.textContent = result.data.orderNumber;
+          const createdOrderNumber = result.data?.orderNumber || "CA-000000";
+          orderNumber.textContent = createdOrderNumber;
+
           if (successDescription && SUCCESS_MESSAGES[paymentKey]) {
             successDescription.textContent = SUCCESS_MESSAGES[paymentKey];
           }
+
+          if (paymentKey === "transfer" && whatsappBankLink) {
+            const waUrl = buildBankTransferWhatsAppUrl({
+              phone,
+              customerName: firstName || fullName,
+              orderCode: createdOrderNumber,
+              items: cart,
+              totalText,
+            });
+
+            if (waUrl) {
+              whatsappBankLink.href = waUrl;
+              whatsappBankLink.style.display = "inline-flex";
+              window.open(waUrl, "_blank", "noopener,noreferrer");
+            } else {
+              whatsappBankLink.style.display = "none";
+            }
+          } else if (whatsappBankLink) {
+            whatsappBankLink.style.display = "none";
+          }
+
           successModal.classList.add("visible");
 
           localStorage.removeItem(CART_KEY);
@@ -1205,14 +1291,38 @@ const pageTitle = "Checkout | Costa Azul";
         font-family: 'Montserrat', sans-serif;
       }
 
+      .success-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .whatsapp-button {
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        padding: 13px 22px;
+        border-radius: 999px;
+        background: #15803D;
+        color: #FFFFFF;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .whatsapp-button:hover {
+        background: #166534;
+      }
+
       .success-button {
         display: inline-block;
-        padding: 13px 26px;
+        padding: 12px 24px;
         border-radius: 999px;
         background: #002B5C;
         color: #FFFFFF;
         font-family: 'Montserrat', sans-serif;
-        font-size: 0.86rem;
+        font-size: 0.84rem;
         font-weight: 700;
       }
 
